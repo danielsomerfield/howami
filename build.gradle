@@ -1,0 +1,67 @@
+buildscript {
+    ext.kotlin_version = '1.1.+'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects() {
+    group 'somerfield'
+    version = System.getenv("VERSION") ?: "1.0-SNAPSHOT"
+    apply plugin: 'kotlin'
+
+    repositories {
+        mavenCentral()
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+        compile ("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.0")
+
+        testCompile "org.skyscreamer:jsonassert:1.5.0"
+        testCompile "org.json:json:20170516"
+        testCompile "junit:junit:4.12"
+        testCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+
+    }
+
+    sourceSets {
+        integration {
+            kotlin.srcDir 'src/integration/kotlin'
+            resources.srcDir 'src/integration/resource'
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+        }
+    }
+
+    configurations {
+        integrationCompile.extendsFrom testCompile
+        integrationRuntime.extendsFrom testRuntime
+    }
+
+    task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+        testClassesDir = sourceSets.integration.output.classesDir
+        classpath = sourceSets.integration.runtimeClasspath
+        dependsOn cleanTest
+        testLogging.showStandardStreams = true
+    }
+
+    task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+        testClassesDir = sourceSets.integration.output.classesDir
+        classpath = sourceSets.integration.runtimeClasspath
+        dependsOn cleanTest
+        testLogging.showStandardStreams = true
+        include "**/*SmokeTest*"
+    }
+}

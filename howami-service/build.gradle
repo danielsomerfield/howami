@@ -1,0 +1,21 @@
+group 'somerfield'
+
+apply plugin: 'application'
+
+//mainClassName = "somerfield.howamiservice.OrderServiceApplicationKt"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "io.dropwizard:dropwizard-core:1.1.4"
+}
+
+task dockerBuild(type: Exec) {
+    commandLine('docker', 'build',
+            '--tag', "danielsomerfield/howami:${project.version}",
+            "--tag", "danielsomerfield/howami:latest",
+	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
+}

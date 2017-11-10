@@ -1,0 +1,3 @@
+rootProject.name = 'howami'
+include 'howami-service'
+
