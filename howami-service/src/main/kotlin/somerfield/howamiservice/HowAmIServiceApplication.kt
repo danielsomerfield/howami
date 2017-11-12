@@ -12,15 +12,13 @@ import somerfield.howamiservice.resources.UserRegistrationResource
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
 
     override fun run(configuration: OrderServiceConfiguration, environment: Environment) {
-        environment.healthChecks().register("basic", object: HealthCheck(){
+        environment.healthChecks().register("basic", object : HealthCheck() {
             override fun check(): Result {
                 return Result.healthy()
             }
         })
 
-//        val service = HowAmIService()
-//        environment.jersey().register(OrderResource(service))
-        environment.jersey().register(UserRegistrationResource(UserRegistrationService(UserAccountRepository())))
+        environment.jersey().register(OrderServiceBinding.userRegistrationResource)
         JSON.configureObjectMapper(environment.objectMapper)
     }
 }
@@ -31,3 +29,21 @@ fun main(args: Array<String>) {
 }
 
 class OrderServiceConfiguration : Configuration()
+
+object OrderServiceBinding {
+
+    val userRegistrationResource: UserRegistrationResource = userRegistrationResource()
+
+    private fun userRegistrationResource() = UserRegistrationResource(
+            userRegistrationService = OrderServiceBinding.userRegistrationService()
+    )
+
+    private fun userRegistrationService() = UserRegistrationService(
+            userAccountRepository = userAccountRepository(),
+            hashPassword = hashPasswordFn()
+    )
+
+    private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
+
+    private fun userAccountRepository() = UserAccountRepository()
+}
