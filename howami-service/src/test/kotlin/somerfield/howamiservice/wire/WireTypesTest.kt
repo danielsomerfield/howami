@@ -21,6 +21,6 @@ class WireTypesTest {
                         .put("password", "pwd")
                         .put("phone-number", "1-555-1212")
                 ).toString()
-        val userRegistration: CommandWireType<UserRegistrationWireType> = objectMapper.readValue(message, object : TypeReference<CommandWireType<UserRegistrationWireType>>() {})
+        val userRegistrationCommand: CommandWireType<UserRegistrationCommandWireType> = objectMapper.readValue(message, object : TypeReference<CommandWireType<UserRegistrationCommandWireType>>() {})
     }
 }

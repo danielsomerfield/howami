@@ -1,6 +1,5 @@
 package somerfield.howamiservice
 
-import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.RandomStringUtils.randomNumeric
 import org.hamcrest.CoreMatchers.`is`
 import org.json.JSONObject

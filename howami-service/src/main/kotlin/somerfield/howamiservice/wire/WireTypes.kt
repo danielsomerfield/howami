@@ -13,16 +13,26 @@ constructor(
 data class CommandWireType<out T> constructor(
         val header: CommandHeaderWireType, @JsonProperty("body") val body: T)
 
+sealed class ResponseWireType<T> {
+    abstract val header: CommandResponseHeaderWireType
+}
+
 data class CommandResponseWireType<T>(
-        val header: CommandResponseHeaderWireType,
+        override val header: CommandResponseHeaderWireType,
         val body: T
-)
+) : ResponseWireType<T>()
+
+data class ErrorResponseWireType (
+        override val header: CommandResponseHeaderWireType,
+        val errorCode: String,
+        val errorMessage: String
+) : ResponseWireType<Nothing>()
 
 data class CommandResponseHeaderWireType
     constructor(
             @JsonProperty("request-id") val requestId: String)
 
-data class UserRegistrationWireType
+data class UserRegistrationCommandWireType
 constructor(
         @JsonProperty("username") val username: String,
         @JsonProperty("password") val password: String,

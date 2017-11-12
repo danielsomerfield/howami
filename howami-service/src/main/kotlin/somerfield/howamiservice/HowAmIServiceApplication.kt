@@ -5,6 +5,7 @@ import somerfield.howamiservice.wire.JSON
 import io.dropwizard.Application
 import io.dropwizard.Configuration
 import io.dropwizard.setup.Environment
+import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.resources.UserRegistrationResource
 
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
@@ -18,7 +19,7 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
 
 //        val service = HowAmIService()
 //        environment.jersey().register(OrderResource(service))
-        environment.jersey().register(UserRegistrationResource())
+        environment.jersey().register(UserRegistrationResource(UserRegistrationService()))
         JSON.configureObjectMapper(environment.objectMapper)
     }
 }
