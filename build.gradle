@@ -51,18 +51,4 @@ allprojects() {
         integrationRuntime.extendsFrom testRuntime
     }
 
-    task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
-        testClassesDir = sourceSets.integration.output.classesDir
-        classpath = sourceSets.integration.runtimeClasspath
-        dependsOn cleanTest
-        testLogging.showStandardStreams = true
-    }
-
-    task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
-        testClassesDir = sourceSets.integration.output.classesDir
-        classpath = sourceSets.integration.runtimeClasspath
-        dependsOn cleanTest
-        testLogging.showStandardStreams = true
-        include "**/*SmokeTest*"
-    }
 }

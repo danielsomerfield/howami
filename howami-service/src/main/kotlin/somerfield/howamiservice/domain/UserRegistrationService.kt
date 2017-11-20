@@ -1,11 +1,9 @@
 package somerfield.howamiservice.domain
 
-import java.util.*
 import somerfield.howamiservice.repositories.UserAccountRepository
 
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
-        private val idGenerator: () -> String = { UUID.randomUUID().toString() },
         private val hashPassword: (String) -> String = { it }
 ) {
 
@@ -13,7 +11,7 @@ class UserRegistrationService(
 
         //TODO: validation
 
-        userAccountRepository.create(UserAccount(
+        val id = userAccountRepository.create(UserAccount(
                 userRegistrationCommand.username,
                 hashPassword(userRegistrationCommand.password),
                 userRegistrationCommand.phoneNumber,
@@ -21,7 +19,7 @@ class UserRegistrationService(
         ))
 
         return Result.Success(UserRegistration(
-                userId = idGenerator()
+                userId = id
         ))
     }
 }

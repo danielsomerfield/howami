@@ -2,7 +2,7 @@ group 'somerfield'
 
 apply plugin: 'application'
 
-//mainClassName = "somerfield.howamiservice.OrderServiceApplicationKt"
+mainClassName = "somerfield.howamiservice.HowAmIServiceApplicationKt"
 
 repositories {
     mavenCentral()
@@ -11,6 +11,9 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "io.dropwizard:dropwizard-core:1.1.4"
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.5.+'
+    compile group: 'com.github.fakemongo', name: 'fongo', version: '2.1.+'
+
 }
 
 task dockerBuild(type: Exec) {
@@ -18,4 +21,29 @@ task dockerBuild(type: Exec) {
             '--tag', "danielsomerfield/howami:${project.version}",
             "--tag", "danielsomerfield/howami:latest",
 	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
+}
+
+task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+    testClassesDir = sourceSets.integration.output.classesDir
+    classpath = sourceSets.integration.runtimeClasspath
+    dependsOn cleanTest
+    testLogging.showStandardStreams = true
+}
+
+task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+    testClassesDir = sourceSets.integration.output.classesDir
+    classpath = sourceSets.integration.runtimeClasspath
+    dependsOn cleanTest
+    testLogging.showStandardStreams = true
+    include "**/*SmokeTest*"
+}
+
+task dockerStop(type: Exec) {
+    commandLine "docker-compose", "down"
+    environment VERSION: "$version"
+}
+
+task dockerRun(type: Exec, dependsOn: ['assemble','dockerStop']) {
+    commandLine "docker-compose", "up", "--force-recreate"
+    environment VERSION: "$version"
 }

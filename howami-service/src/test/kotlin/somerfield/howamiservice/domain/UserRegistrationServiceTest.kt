@@ -1,5 +1,7 @@
 package somerfield.howamiservice.domain
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import org.hamcrest.CoreMatchers.`is`
@@ -12,13 +14,15 @@ class UserRegistrationServiceTest {
     @Test
     fun userRegistrationCreatesRecord() {
 
+        val expectedId = "expected-id"
         val userRegistrationRepository = mock<UserAccountRepository> {
+            on {
+                create(any())
+            } doReturn (expectedId)
         }
 
-        val expectedId = "expected-id"
         val service = UserRegistrationService(
                 userRegistrationRepository,
-                idGenerator = { expectedId },
                 hashPassword = { pwd -> pwd.toUpperCase() }
         )
         val cmd = UserRegistrationCommand("uname", "pwd", "1-555-1212")

@@ -1,10 +1,14 @@
 package somerfield.howamiservice
 
 import com.codahale.metrics.health.HealthCheck
+import com.mongodb.MongoClient
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.MongoDatabase
 import somerfield.howamiservice.wire.JSON
 import io.dropwizard.Application
 import io.dropwizard.Configuration
 import io.dropwizard.setup.Environment
+import org.bson.Document
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.UserRegistrationResource
@@ -18,7 +22,8 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
             }
         })
 
-        environment.jersey().register(OrderServiceBinding.userRegistrationResource)
+        val configuration = OrderServiceBinding.new(configuration)
+        environment.jersey().register(configuration.userRegistrationResource())
         JSON.configureObjectMapper(environment.objectMapper)
     }
 }
@@ -28,14 +33,15 @@ fun main(args: Array<String>) {
     HowAmIServiceApplication().run(*arguments)
 }
 
-class OrderServiceConfiguration : Configuration()
+data class OrderServiceConfiguration(
+        val mongoHost: String = "mongo",
+        val mongoDatabase: String = "howami"
+) : Configuration()
 
-object OrderServiceBinding {
+class OrderServiceBinding(private val configuration: OrderServiceConfiguration) {
 
-    val userRegistrationResource: UserRegistrationResource = userRegistrationResource()
-
-    private fun userRegistrationResource() = UserRegistrationResource(
-            userRegistrationService = OrderServiceBinding.userRegistrationService()
+    fun userRegistrationResource() = UserRegistrationResource(
+            userRegistrationService = userRegistrationService()
     )
 
     private fun userRegistrationService() = UserRegistrationService(
@@ -45,5 +51,11 @@ object OrderServiceBinding {
 
     private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
 
-    private fun userAccountRepository() = UserAccountRepository()
+    private fun mongoDatabase(): MongoDatabase = MongoClient(configuration.mongoHost).getDatabase(configuration.mongoDatabase)
+    private fun userAccountCollection(): MongoCollection<Document> = mongoDatabase().getCollection("user_account")
+    private fun userAccountRepository() = UserAccountRepository(userAccountCollection())
+
+    companion object {
+        fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
+    }
 }

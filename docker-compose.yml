@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  mongo:
+    image: mongo:3.4
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+  howami-service:
+    build:
+      context: ./howami-service
+      args:
+        version: ${VERSION}
+    ports:
+      - 8080:8080
+      - 8081:8081
+    links:
+      - mongo
+
+
+
