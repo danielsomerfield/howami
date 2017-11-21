@@ -44,6 +44,6 @@ task dockerStop(type: Exec) {
 }
 
 task dockerRun(type: Exec, dependsOn: ['assemble','dockerStop']) {
-    commandLine "docker-compose", "up", "--force-recreate"
+    commandLine "docker-compose", "up", "--force-recreate", "--build", "howami-service"
     environment VERSION: "$version"
 }
