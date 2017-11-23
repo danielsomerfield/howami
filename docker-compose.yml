@@ -1,4 +1,4 @@
-version: '3.3'
+version: '2'
 services:
   mongo:
     image: mongo:3.4
@@ -16,6 +16,17 @@ services:
       - 8081:8081
     links:
       - mongo
+    depends_on:
+      - mongo
 
-
+  integration-tests:
+    build:
+      context: ./howami-e2e
+      args:
+        version: ${VERSION}
+    depends_on:
+      - howami-service
+    links:
+      - mongo
+      - howami-service
 

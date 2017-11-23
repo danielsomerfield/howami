@@ -1,8 +1,11 @@
 package somerfield.testing
 
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.config.ConnectionConfig
+import org.apache.http.config.SocketConfig
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.json.JSONObject
@@ -10,7 +13,13 @@ import java.net.URI
 
 object HTTP {
     fun get(to: URI): HttpResponse {
-        return HttpResponse(HttpClientBuilder.create().build().execute(HttpGet(to)))
+        val requestConfig = RequestConfig.custom()
+                .setConnectTimeout(1000)
+                .setSocketTimeout(1000)
+                .setConnectionRequestTimeout(5000).build()
+        return HttpResponse(HttpClientBuilder.create()
+                .setDefaultRequestConfig(requestConfig)
+                .build().execute(HttpGet(to)))
     }
 
     fun post(to: URI, content: String, contentType: String): HttpResponse {

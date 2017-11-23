@@ -25,12 +25,12 @@ class HowAmISmokeTest {
         waitFor({ responseOf { Health.check(UserRegistrationService) } }).toBe(Healthy)
     }
 
-    @Test
+    @Test(timeout = 5000)
     fun testServiceHealth() {
         assertThat(Health.check(UserRegistrationService), `is`(healthy()))
     }
 
-    @Test
+    @Test(timeout = 5000)
     fun testUserRegistration() {
         val phoneNumber = user.phoneNumber
 
@@ -88,7 +88,7 @@ object UserAccount {
 
 object UserRegistrationService : HealthCheckService {
 
-    private fun getServiceHost() = "http://localhost"
+    private fun getServiceHost() = System.getProperty("HOWAMI_SERVICE_BASE_URL", "http://howami-service")
 
     override fun healthEndpoint(): URI {
         return URI.create("${getServiceHost()}:${getHealthPort()}/healthcheck")

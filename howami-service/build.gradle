@@ -13,7 +13,12 @@ dependencies {
     compile "io.dropwizard:dropwizard-core:1.1.4"
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.5.+'
     compile group: 'com.github.fakemongo', name: 'fongo', version: '2.1.+'
+    compile ("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.0")
 
+    testCompile "org.skyscreamer:jsonassert:1.5.0"
+    testCompile "org.json:json:20170516"
+    testCompile "junit:junit:4.12"
+    testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }
 
 task dockerBuild(type: Exec) {
@@ -23,27 +28,12 @@ task dockerBuild(type: Exec) {
 	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
 }
 
-task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
-    testClassesDir = sourceSets.integration.output.classesDir
-    classpath = sourceSets.integration.runtimeClasspath
-    dependsOn cleanTest
-    testLogging.showStandardStreams = true
-}
-
-task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
-    testClassesDir = sourceSets.integration.output.classesDir
-    classpath = sourceSets.integration.runtimeClasspath
-    dependsOn cleanTest
-    testLogging.showStandardStreams = true
-    include "**/*SmokeTest*"
-}
-
-task dockerStop(type: Exec) {
-    commandLine "docker-compose", "down"
-    environment VERSION: "$version"
-}
-
-task dockerRun(type: Exec, dependsOn: ['assemble','dockerStop']) {
-    commandLine "docker-compose", "up", "--force-recreate", "--build", "howami-service"
-    environment VERSION: "$version"
-}
+//task dockerStop(type: Exec) {
+//    commandLine "docker-compose", "down"
+//    environment VERSION: "$version"
+//}
+//
+//task dockerRun(type: Exec, dependsOn: ['assemble','dockerStop']) {
+//    commandLine "docker-compose", "up", "--force-recreate", "--build", "howami-service"
+//    environment VERSION: "$version"
+//}

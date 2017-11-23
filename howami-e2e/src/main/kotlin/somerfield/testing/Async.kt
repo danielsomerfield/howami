@@ -42,6 +42,7 @@ object Async {
             var response: CommandResponse<T>? = null
             while (System.currentTimeMillis() - startTime < timeoutInMillis) {
                 try {
+                    //TODO: make this call on a cancelable executor so it can't hang
                     response = fn()
                     if (checkFn(response)) {
                         return WaitResponse(response)

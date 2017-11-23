@@ -27,28 +27,19 @@ allprojects() {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-        compile ("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.0")
-
-        testCompile "org.skyscreamer:jsonassert:1.5.0"
-        testCompile "org.json:json:20170516"
-        testCompile "junit:junit:4.12"
-        testCompile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
-        testCompile "org.mockito:mockito-core:2.8.9"
-        testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
     }
 
-    sourceSets {
-        integration {
-            kotlin.srcDir 'src/integration/kotlin'
-            resources.srcDir 'src/integration/resource'
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-        }
+    task dockerStop(type: Exec) {
+        commandLine "docker-compose", "down"
+        environment VERSION: "$version"
     }
 
-    configurations {
-        integrationCompile.extendsFrom testCompile
-        integrationRuntime.extendsFrom testRuntime
+    task buildAll {
+        subprojects.each { dependsOn("${it.name}:build") }
     }
 
+    task dockerRun(type: Exec, dependsOn: ['buildAll','dockerStop']) {
+        commandLine "docker-compose", "up", "--force-recreate", "--build"
+        environment VERSION: "$version"
+    }
 }

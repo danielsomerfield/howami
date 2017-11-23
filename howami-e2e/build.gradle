@@ -1,0 +1,31 @@
+group 'somerfield'
+
+apply plugin: 'application'
+
+mainClassName = "somerfield.howamiservice.HowAmITestSuiteKt"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.5.+'
+    compile group: 'com.github.fakemongo', name: 'fongo', version: '2.1.+'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+    compile "junit:junit:4.12"
+    compile "org.json:json:20170516"
+}
+
+task dockerBuild(type: Exec) {
+    commandLine('docker', 'build',
+            '--tag', "danielsomerfield/howami-e2e:${project.version}",
+            "--tag", "danielsomerfield/howami-e2e:latest",
+	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
+}
+
+task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+    dependsOn cleanTest
+    testLogging.showStandardStreams = true
+    include "**/*SmokeTest*"
+}

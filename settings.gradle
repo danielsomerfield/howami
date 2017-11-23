@@ -1,3 +1,4 @@
 rootProject.name = 'howami'
 include 'howami-service'
+include 'howami-e2e'
 
