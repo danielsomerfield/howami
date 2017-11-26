@@ -11,7 +11,7 @@ buildscript {
 
 allprojects() {
     group 'somerfield'
-    version = System.getenv("VERSION") ?: "1.0-SNAPSHOT"
+        version = System.getenv("VERSION") ?: "1.0-SNAPSHOT"
     apply plugin: 'kotlin'
 
     repositories {
@@ -29,17 +29,8 @@ allprojects() {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     }
 
-    task dockerStop(type: Exec) {
-        commandLine "docker-compose", "down"
-        environment VERSION: "$version"
-    }
-
     task buildAll {
         subprojects.each { dependsOn("${it.name}:build") }
     }
 
-    task dockerRun(type: Exec, dependsOn: ['buildAll','dockerStop']) {
-        commandLine "docker-compose", "up", "--force-recreate", "--build"
-        environment VERSION: "$version"
-    }
 }

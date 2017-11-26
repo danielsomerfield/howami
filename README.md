@@ -18,7 +18,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 5. User can pull up the results page that shows all entries
 
 
-## Feature features
+## Features
 
 * Event annotation to allow user to put in notes about relevant things that have happened
 * Graphs of results
@@ -30,3 +30,6 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Settings
     * Change cadance
 * Offline sync
+
+# TODO
+* Get the integration test instance to issue docker commands to kill all containers

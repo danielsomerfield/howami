@@ -1,13 +1,17 @@
 FROM alpine:3.5
 
+ARG version
+ARG APP_NAME="howami-e2e-${version}"
+
 RUN apk update
 RUN apk add openjdk8
+RUN apk add docker
 
-ARG version
-
-ARG APP_NAME="howami-e2e-${version}"
+ADD docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
 ADD build/distributions/${APP_NAME}.tar /
 RUN ln -s $APP_NAME /howami-e2e
+VOLUME ["/var/run/docker.sock"]
 
-ENTRYPOINT ["/howami-e2e/bin/howami-e2e"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
