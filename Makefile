@@ -1,4 +1,4 @@
-.PHONY: run build stoip
+.PHONY: run build stop
 
 STAMP=`date +'%Y-%m-%d_%H%M%S'`
 VERSION := 1.0-SNAPSHOT
