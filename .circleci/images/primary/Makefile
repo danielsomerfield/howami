@@ -7,7 +7,7 @@ IMAGE=${REGISTRY_USERNAME}/howami-docker-primary
 all: build push
 
 build:
-	docker build --tag "${IMAGE}:latest" --tag "${IMAGE}:$STAMP" .
+	docker build --tag "${IMAGE}:latest" --tag "${IMAGE}:${STAMP}" .
 
 push:
 	docker push ${IMAGE}
