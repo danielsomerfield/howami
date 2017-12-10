@@ -51,7 +51,7 @@ public class UserRegistrationResource(private val userRegistrationService: UserR
         return UserRegistrationCommand(
                 orderCommandWireType.username,
                 orderCommandWireType.password,
-                orderCommandWireType.phoneNumber
+                orderCommandWireType.email
         )
     }
 

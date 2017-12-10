@@ -15,6 +15,7 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
     compile "junit:junit:4.12"
     compile "org.json:json:20170516"
+    compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.235'
 }
 
 task dockerBuild(type: Exec) {

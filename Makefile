@@ -12,8 +12,6 @@ run: stop
 	docker-compose up --force-recreate --build -d
 	docker-compose logs -f integration-tests > integration-test.log
 	bin/wait_for_tests.py
-	cat integration-test.log
-	docker-compose down
 
 stop:
 	docker-compose down

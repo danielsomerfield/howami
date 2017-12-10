@@ -4,22 +4,23 @@ import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.config.ConnectionConfig
-import org.apache.http.config.SocketConfig
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.message.BasicHeader
 import org.json.JSONObject
 import java.net.URI
 
 object HTTP {
-    fun get(to: URI): HttpResponse {
+    fun get(to: URI, headers: Map<String, String> = emptyMap()): HttpResponse {
         val requestConfig = RequestConfig.custom()
                 .setConnectTimeout(1000)
                 .setSocketTimeout(1000)
                 .setConnectionRequestTimeout(5000).build()
+        val get = HttpGet(to)
+        get.setHeaders(headers.toList().map { BasicHeader(it.first, it.second) }.toTypedArray())
         return HttpResponse(HttpClientBuilder.create()
                 .setDefaultRequestConfig(requestConfig)
-                .build().execute(HttpGet(to)))
+                .build().execute(get))
     }
 
     fun post(to: URI, content: String, contentType: String): HttpResponse {

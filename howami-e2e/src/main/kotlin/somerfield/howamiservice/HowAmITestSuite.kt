@@ -17,5 +17,7 @@ fun main(args: Array<String>) {
             println("Failed test $failure")
         }
     })
-    core.run(HowAmISmokeTest::class.java)
+    val result = core.run(HowAmISmokeTest::class.java)
+
+    System.exit(if (result.failureCount == 0) 0 else 1)
 }

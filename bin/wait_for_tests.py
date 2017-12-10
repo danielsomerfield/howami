@@ -26,6 +26,7 @@ def run():
             time.sleep(1)
             log_file.seek(file_location)
         else:
+            print(line)
             test_results = get_test_results(line)
             if test_results is not None:
                 print("Test results: " + str(test_results))

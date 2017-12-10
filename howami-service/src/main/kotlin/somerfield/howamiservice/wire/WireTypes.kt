@@ -36,7 +36,7 @@ data class UserRegistrationCommandWireType
 constructor(
         @JsonProperty("username") val username: String,
         @JsonProperty("password") val password: String,
-        @JsonProperty("phone-number") val phoneNumber: String
+        @JsonProperty("email") val email: String
 )
 
 data class UserRegistrationResponseWireType

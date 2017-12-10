@@ -1,6 +1,7 @@
 package somerfield.testing
 
 import junit.framework.AssertionFailedError
+import java.util.*
 
 object Async {
     fun <T> responseOf(fn: () -> T): CommandResponse<T> {
@@ -11,17 +12,28 @@ object Async {
         }
     }
 
+    fun <T> optionalOfResponse(fn: () -> Optional<T>): CommandResponse<T> {
+        return try {
+            val result = fn()
+            return if (result.isPresent) {
+                CommandResponse.DataResponse(result.get())
+            } else {
+                CommandResponse.EmptyResponse
+            }
+        } catch (e: Exception) {
+            CommandResponse.ExceptionResponse(e)
+        }
+    }
+
     fun <T> waitFor(fn: () -> CommandResponse<T>, timeoutInSeconds: Long = 10): Wait<T> {
         return Wait(fn, timeoutInSeconds * 1000)
     }
 
     sealed class CommandResponse<out T> {
-        data class DataResponse<out T>(val result: T) : CommandResponse<T>() {
-        }
-        data class FailedResponse<out T>(val errorCode: String) : CommandResponse<T>() {
-        }
-        data class ExceptionResponse<out T>(val e: Exception) : CommandResponse<T>() {
-        }
+        data class DataResponse<out T>(val result: T) : CommandResponse<T>()
+        data class FailedResponse<out T>(val errorCode: String) : CommandResponse<T>()
+        data class ExceptionResponse<out T>(val e: Exception) : CommandResponse<T>()
+        object EmptyResponse : CommandResponse<Nothing>()
     }
 
     data class WaitResponse<T>(val result: CommandResponse<T>) {

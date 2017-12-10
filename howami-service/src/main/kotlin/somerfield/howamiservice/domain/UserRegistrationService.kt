@@ -14,7 +14,7 @@ class UserRegistrationService(
         val id = userAccountRepository.create(UserAccount(
                 userRegistrationCommand.username,
                 hashPassword(userRegistrationCommand.password),
-                userRegistrationCommand.phoneNumber,
+                userRegistrationCommand.email,
                 AccountState.PENDING
         ))
 
@@ -26,7 +26,7 @@ class UserRegistrationService(
 
 data class UserRegistration(val userId: String)
 data class UserRegistrationError(val errorCode: String, val message: String)
-data class UserRegistrationCommand(val username: String, val password: String, val phoneNumber: String)
+data class UserRegistrationCommand(val username: String, val password: String, val email: String)
 
 sealed class Result<out T, out U> {
     data class Success<out T>(val response: T) : Result<T, Nothing>()
