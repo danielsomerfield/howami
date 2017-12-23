@@ -8,7 +8,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: make build
-      - run: make run
+      - run: make integration
 
       - store_test_results:
           paths:
