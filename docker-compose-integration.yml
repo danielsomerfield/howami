@@ -1,0 +1,31 @@
+version: '2'
+services:
+  howami-service:
+    build:
+      context: ./howami-service
+      args:
+        version: ${VERSION}
+    ports:
+      - 8080:8080
+      - 8081:8081
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    environment:
+      - TESTING_MODE_ENABLED=true
+      - TEST_MODE_ADMIN_TOKEN=changeme
+      - MONGO_HOST
+
+  integration-tests:
+    build:
+      context: ./howami-e2e
+      args:
+        version: ${VERSION}
+    depends_on:
+      - howami-service
+    links:
+      - mongo
+      - howami-service
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -2,11 +2,10 @@ package somerfield.howamiservice
 
 import org.apache.commons.lang3.RandomStringUtils.randomNumeric
 import org.hamcrest.CoreMatchers.`is`
+import org.joda.time.format.ISODateTimeFormat
 import org.json.JSONObject
 import org.junit.Assert.assertThat
-import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import somerfield.testing.Async.optionalOfResponse
 import somerfield.testing.Async.responseOf
@@ -34,14 +33,13 @@ class HowAmISmokeTest {
     }
 
     @Test(timeout = 5000)
-    @Ignore
     fun testUserRegistration() {
         val registration = user.register()
 
-        waitFor({ optionalOfResponse { user.receiveConfirmation() } }).toExist().then { confirmation ->
-            print(confirmation)
-//            user.confirm(sms.passCode)
-        }
+//        waitFor({ optionalOfResponse { user.receiveConfirmationRequest() } }).toExist().then { request ->
+//            print(request)
+//            user.confirm(request.passCode)
+//        }
 //
 //        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }
@@ -56,8 +54,6 @@ data class Header(val requestId: String, val status: Int)
 //data class EnvelopeWithData<out T>(override val header: Header, val data: T) : Envelope<T>()
 data class UserRegistration(val userId: String)
 
-data class Confirmation(val passCode: String)
-
 class User() {
 
     private val randomNumeric = randomNumeric(10)
@@ -69,23 +65,12 @@ class User() {
         return UserRegistrationService.registerUser(username, password, email)
     }
 
-    fun receiveConfirmation(): Optional<Confirmation> {
-        return Optional.empty()
+    fun receiveConfirmationRequest(): Optional<ConfirmationRequest> {
+        val requests = UserRegistrationService.getSentConfirmationRequestsForEmail(email);
+        return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
     }
 
     fun confirm(passCode: String) {}
-
-    companion object {
-        fun generatePhoneNumber() = "555-${randomNumeric(3)}-${randomNumeric(4)}"
-    }
-
-}
-
-
-object UserAccount {
-    fun registrationConfirmed(registration: UserRegistration): UserRegistration {
-        TODO("NYI")
-    }
 
 }
 
@@ -125,16 +110,37 @@ object UserRegistrationService : HealthCheckService {
         return UserRegistration(response.json.getJSONObject("body").getString("user-id"))
     }
 
-    fun getSentConfirmationRequestsForPhoneNumber(phoneNumber: String): ConfirmationRequest {
-
+    fun getSentConfirmationRequestsForEmail(email: String): Set<ConfirmationRequest> {
         val response = HTTP.get(
                 to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
                 headers = mapOf("Authorization" to "changeme")
         )
-        assertThat(response.status, `is`(200))
-        return TODO()
+        return when (response.status) {
+            404 -> emptySet()
+            200 -> parseConfirmationRequest(response.json).filter { it.email == email }.toSet()
+            else -> throw Exception("Unexpected status code ${response.status}")
+        }
+    }
+
+    private fun parseConfirmationRequest(json: JSONObject): List<ConfirmationRequest> {
+        return json.getJSONArray("body").map {
+            val confReqJSON = it as JSONObject
+            ConfirmationRequest(
+                    confReqJSON.getString("email"),
+                    confReqJSON.getString("user-id"),
+                    confReqJSON.getString("confirmation-code"),
+                    ISODateTimeFormat.dateTimeParser().parseDateTime(confReqJSON.getString("created-datetime")).toDate(),
+                    ConfirmationStatus.valueOf(confReqJSON.getString("confirmation-status"))
+            )
+        }
     }
 
 }
 
-data class ConfirmationRequest(val requestId: String)
+enum class ConfirmationStatus {
+    SENT,
+    CONFIRMED,
+    QUEUED
+}
+
+data class ConfirmationRequest(val email: String, val userId: String, val confirmationCode: String, val createdDateTime: Date, val confirmationStatus: ConfirmationStatus)
