@@ -15,7 +15,7 @@ services:
     environment:
       - TESTING_MODE_ENABLED=true
       - TEST_MODE_ADMIN_TOKEN=changeme
-      - MONGO_HOST
+      - MONGO_HOST=mongo
 
   integration-tests:
     build:
@@ -29,3 +29,5 @@ services:
       - howami-service
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - HOWAMI_SERVICE_BASE_URL=http://howami-service

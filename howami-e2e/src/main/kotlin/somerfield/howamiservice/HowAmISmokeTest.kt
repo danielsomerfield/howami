@@ -40,7 +40,6 @@ class HowAmISmokeTest {
 //            print(request)
 //            user.confirm(request.passCode)
 //        }
-//
 //        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }
 
@@ -76,7 +75,7 @@ class User() {
 
 object UserRegistrationService : HealthCheckService {
 
-    private fun getServiceHost() = System.getProperty("HOWAMI_SERVICE_BASE_URL", "http://howami-service")
+    private fun getServiceHost() = System.getenv().getOrDefault("HOWAMI_SERVICE_BASE_URL", "http://localhost")
 
     override fun healthEndpoint(): URI {
         return URI.create("${getServiceHost()}:${getHealthPort()}/healthcheck")

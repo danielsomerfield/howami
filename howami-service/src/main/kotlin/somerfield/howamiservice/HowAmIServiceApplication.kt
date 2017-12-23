@@ -16,6 +16,7 @@ import io.dropwizard.setup.Environment
 import org.bson.Document
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
+import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
 
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
@@ -31,6 +32,7 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
 
         val binding = OrderServiceBinding.new(configuration)
         environment.jersey().register(binding.userRegistrationResource())
+        environment.jersey().register(binding.registrationConfirmationResource())
         JSON.configureObjectMapper(environment.objectMapper)
     }
 
@@ -55,6 +57,8 @@ constructor(
         @JsonProperty("mongoDatabase")
         private val mongoDatabase: String?
 ) : Configuration() {
+
+    constructor() : this(null, null)
 
     fun getMongoHost(): String {
         return mongoHost ?: "localhost"
@@ -88,4 +92,6 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
     companion object {
         fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
     }
+
+    fun registrationConfirmationResource() = RegistrationConfirmationResource()
 }

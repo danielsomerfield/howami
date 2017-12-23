@@ -6,4 +6,4 @@ logging:
     - type: console
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
 
-mongoHost: mongo
+mongoHost: ${MONGO_HOST}
