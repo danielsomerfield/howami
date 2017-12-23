@@ -74,6 +74,8 @@ constructor(
  */
 class OrderServiceBinding(private val configuration: OrderServiceConfiguration) {
 
+    fun registrationConfirmationResource() = RegistrationConfirmationResource()
+
     fun userRegistrationResource() = UserRegistrationResource(
             userRegistrationService = userRegistrationService()
     )
@@ -84,14 +86,12 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
     )
 
     private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
-
     private fun mongoDatabase(): MongoDatabase = MongoClient(configuration.getMongoHost()).getDatabase(configuration.getMongoDatabase())
     private fun userAccountCollection(): MongoCollection<Document> = mongoDatabase().getCollection("user_account")
-    private fun userAccountRepository() = UserAccountRepository(userAccountCollection())
 
+    private fun userAccountRepository() = UserAccountRepository(userAccountCollection())
     companion object {
         fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
-    }
 
-    fun registrationConfirmationResource() = RegistrationConfirmationResource()
+    }
 }

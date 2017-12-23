@@ -33,13 +33,15 @@ object HTTP {
 
 }
 
-data class HttpResponse(val responseImpl: CloseableHttpResponse) {
+data class HttpResponse(private val responseImpl: CloseableHttpResponse) {
     val status: Int
         get() = responseImpl.statusLine.statusCode
 
     val json: JSONObject
-        get() {//TODO: make this reasonable twice
-            return JSONObject(responseImpl.entity.content.bufferedReader().use { it.readText() })
+        get() {
+            return JSONObject(responseImpl.entity.content.bufferedReader().use {
+                it.readText()
+            })
         }
 
 }
