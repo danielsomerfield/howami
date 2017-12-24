@@ -17,6 +17,7 @@ import org.bson.Document
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
+import somerfield.howamiservice.resources.RegistrationConfirmationService
 import somerfield.howamiservice.resources.UserRegistrationResource
 
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
@@ -74,7 +75,11 @@ constructor(
  */
 class OrderServiceBinding(private val configuration: OrderServiceConfiguration) {
 
-    fun registrationConfirmationResource() = RegistrationConfirmationResource()
+    fun registrationConfirmationResource() = RegistrationConfirmationResource(registrationConfirmationService())
+
+    private fun registrationConfirmationService(): RegistrationConfirmationService {
+        return RegistrationConfirmationService()
+    }
 
     fun userRegistrationResource() = UserRegistrationResource(
             userRegistrationService = userRegistrationService()

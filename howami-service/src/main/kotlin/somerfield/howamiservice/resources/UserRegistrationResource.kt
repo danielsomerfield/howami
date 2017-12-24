@@ -27,12 +27,12 @@ public class UserRegistrationResource(private val userRegistrationService: UserR
         }
     }
 
-    private fun sendFailureResponse(header: CommandResponseHeaderWireType, registrationResponse: Result.Failure<UserRegistrationError>): Response {
+    private fun sendFailureResponse(header: CommandResponseHeaderWireType, registrationResponse: Result.Failure<ServiceError>): Response {
         return Response.status(400).entity(
                 ErrorResponseWireType(
                         header = header,
-                        errorCode = registrationResponse.errorValue.errorCode,
-                        errorMessage = registrationResponse.errorValue.message
+                        errorCode = registrationResponse.errorValue.errorCode(),
+                        errorMessage = registrationResponse.errorValue.message()
 
                 )
         ).build()

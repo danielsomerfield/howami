@@ -47,7 +47,7 @@ class UserRegistrationResourceTest {
         val userRegistrationService: UserRegistrationService = mock<UserRegistrationService> {
             on {
                 register(any())
-            } doReturn (Result.Failure(UserRegistrationError(errorCode, "error message")))
+            } doReturn (Result.Failure(UnknownError(errorCode, "error message")))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService).register(
                 CommandWireType(CommandHeaderWireType(requestId), UserRegistrationCommandWireType("username2", "password1", "555-123-1234"))
