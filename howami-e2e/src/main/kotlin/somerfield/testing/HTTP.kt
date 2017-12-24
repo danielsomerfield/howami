@@ -23,8 +23,9 @@ object HTTP {
                 .build().execute(get))
     }
 
-    fun post(to: URI, content: String, contentType: String): HttpResponse {
+    fun post(to: URI, content: String, contentType: String, headers: Map<String, String> = emptyMap()): HttpResponse {
         val post = HttpPost(to)
+        headers.forEach { header -> post.addHeader(BasicHeader(header.key, header.value))}
         val entity = StringEntity(content)
         entity.setContentType(contentType)
         post.entity = entity

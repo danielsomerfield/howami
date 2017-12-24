@@ -5,13 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 
-data class CommandHeaderWireType
-constructor(
-        @JsonProperty("request-id") val requestId: String
-)
-
 data class CommandWireType<out T> constructor(
-        val header: CommandHeaderWireType, @JsonProperty("body") val body: T)
+        @JsonProperty("body") val body: T)
 
 sealed class ResponseWireType<T> {
     abstract val header: CommandResponseHeaderWireType

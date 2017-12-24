@@ -25,7 +25,7 @@ class UserRegistrationResourceTest {
             } doReturn (Result.Success(UserRegistration(generatedUserId)))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService).register(
-                CommandWireType(CommandHeaderWireType(requestId), UserRegistrationCommandWireType(username, password, phoneNumber))
+                CommandWireType(UserRegistrationCommandWireType(username, password, phoneNumber)), requestId
         )
 
         assertThat(registerResponse.status, `is`(200))
@@ -50,7 +50,8 @@ class UserRegistrationResourceTest {
             } doReturn (Result.Failure(UnknownError(errorCode, "error message")))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService).register(
-                CommandWireType(CommandHeaderWireType(requestId), UserRegistrationCommandWireType("username2", "password1", "555-123-1234"))
+                CommandWireType(UserRegistrationCommandWireType("username2", "password1", "555-123-1234")),
+                requestId
         )
 
         assertThat(registerResponse.status, `is`(400))

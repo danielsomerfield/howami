@@ -90,10 +90,8 @@ object UserRegistrationService : HealthCheckService {
     }
 
     fun registerUser(username: String, password: String, email: String): UserRegistration {
+        val requestId = UUID.randomUUID().toString()
         val message = JSONObject()
-                .put("header", JSONObject()
-                        .put("request-id", UUID.randomUUID().toString())
-                )
                 .put("body", JSONObject()
                         .put("username", username)
                         .put("password", password)
@@ -103,7 +101,9 @@ object UserRegistrationService : HealthCheckService {
         val response = HTTP.post(
                 to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/user-registrations"),
                 contentType = "application/json",
-                content = message.toString()
+                content = message.toString(),
+                headers = mapOf("request-id" to requestId)
+
         )
         assertThat(response.status, `is`(200))
         return UserRegistration(response.json.getJSONObject("body").getString("user-id"))

@@ -3,10 +3,7 @@ package somerfield.howamiservice.resources
 import somerfield.howamiservice.domain.*
 import somerfield.howamiservice.wire.*
 import javax.validation.Valid
-import javax.ws.rs.Consumes
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
@@ -16,9 +13,12 @@ public class UserRegistrationResource(private val userRegistrationService: UserR
     @POST()
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    fun register(@Valid command: CommandWireType<UserRegistrationCommandWireType>): Response {
+    fun register(
+            @Valid command: CommandWireType<UserRegistrationCommandWireType>,
+            @HeaderParam("request-id") requestId: String
+    ): Response {
         val registrationResponse = userRegistrationService.register(fromWireType(command.body))
-        val header = CommandResponseHeaderWireType(command.header.requestId)
+        val header = CommandResponseHeaderWireType(requestId)
         return when (registrationResponse) {
             is Result.Success -> {
                 sendSuccessResponse(header, registrationResponse)
