@@ -17,7 +17,7 @@ import org.bson.Document
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
-import somerfield.howamiservice.resources.RegistrationConfirmationService
+import somerfield.howamiservice.domain.RegistrationConfirmationService
 import somerfield.howamiservice.resources.UserRegistrationResource
 
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {

@@ -7,7 +7,6 @@ import org.json.JSONObject
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
-import somerfield.testing.Async.optionalOfResponse
 import somerfield.testing.Async.responseOf
 import somerfield.testing.Async.waitFor
 import somerfield.testing.HTTP
@@ -64,8 +63,8 @@ class User() {
         return UserRegistrationService.registerUser(username, password, email)
     }
 
-    fun receiveConfirmationRequest(): Optional<ConfirmationRequest> {
-        val requests = UserRegistrationService.getSentConfirmationRequestsForEmail(email);
+    fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
+        val requests = UserRegistrationService.getRegistrationConfirmation(email = email);
         return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
     }
 
@@ -109,7 +108,7 @@ object UserRegistrationService : HealthCheckService {
         return UserRegistration(response.json.getJSONObject("body").getString("user-id"))
     }
 
-    fun getSentConfirmationRequestsForEmail(email: String): Set<ConfirmationRequest> {
+    fun getRegistrationConfirmation(email: String): Set<RegistrationConfirmation> {
         val response = HTTP.get(
                 to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
                 headers = mapOf("Authorization" to "changeme")
@@ -121,10 +120,10 @@ object UserRegistrationService : HealthCheckService {
         }
     }
 
-    private fun parseConfirmationRequest(json: JSONObject): List<ConfirmationRequest> {
+    private fun parseConfirmationRequest(json: JSONObject): List<RegistrationConfirmation> {
         return json.getJSONArray("body").map {
             val confReqJSON = it as JSONObject
-            ConfirmationRequest(
+            RegistrationConfirmation(
                     confReqJSON.getString("email"),
                     confReqJSON.getString("user-id"),
                     confReqJSON.getString("confirmation-code"),
@@ -142,4 +141,10 @@ enum class ConfirmationStatus {
     QUEUED
 }
 
-data class ConfirmationRequest(val email: String, val userId: String, val confirmationCode: String, val createdDateTime: Date, val confirmationStatus: ConfirmationStatus)
+data class RegistrationConfirmation(
+        val email: String,
+        val userId: String,
+        val confirmationCode: String,
+        val createdDateTime: Date,
+        val confirmationStatus: ConfirmationStatus
+)

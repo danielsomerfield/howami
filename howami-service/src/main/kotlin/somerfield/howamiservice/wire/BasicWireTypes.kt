@@ -27,18 +27,6 @@ data class CommandResponseHeaderWireType
     constructor(
             @JsonProperty("request-id") val requestId: String)
 
-data class UserRegistrationCommandWireType
-constructor(
-        @JsonProperty("username") val username: String,
-        @JsonProperty("password") val password: String,
-        @JsonProperty("email") val email: String
-)
-
-data class UserRegistrationResponseWireType
-constructor (
-    @JsonProperty("user-id") val userID: String
-)
-
 object JSON {
     fun configureObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
         objectMapper.registerKotlinModule()
