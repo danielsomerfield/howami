@@ -2,6 +2,8 @@ package somerfield.howamiservice.resources
 
 import somerfield.howamiservice.domain.*
 import somerfield.howamiservice.wire.*
+import somerfield.resources.WireOperations
+import somerfield.resources.WireOperations.sendFailureResponse
 import javax.validation.Valid
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -18,30 +20,19 @@ public class UserRegistrationResource(private val userRegistrationService: UserR
             @HeaderParam("request-id") requestId: String
     ): Response {
         val registrationResponse = userRegistrationService.register(fromWireType(command.body))
-        val header = CommandResponseHeaderWireType(requestId)
         return when (registrationResponse) {
             is Result.Success -> {
-                sendSuccessResponse(header, registrationResponse)
+                sendSuccessResponse(requestId, registrationResponse)
             }
-            is Result.Failure -> sendFailureResponse(header, registrationResponse)
+            is Result.Failure -> sendFailureResponse(requestId, registrationResponse)
         }
     }
 
-    private fun sendFailureResponse(header: CommandResponseHeaderWireType, registrationResponse: Result.Failure<ServiceError>): Response {
-        return Response.status(400).entity(
-                ErrorResponseWireType(
-                        header = header,
-                        errorCode = registrationResponse.errorValue.errorCode(),
-                        errorMessage = registrationResponse.errorValue.message()
 
-                )
-        ).build()
-    }
-
-    private fun sendSuccessResponse(header: CommandResponseHeaderWireType, registration: Result.Success<UserRegistration>): Response {
+    private fun sendSuccessResponse(requestId: String, registration: Result.Success<UserRegistration>): Response {
         return Response.ok(
                 CommandResponseWireType(
-                        header = header,
+                        header = CommandResponseHeaderWireType(requestId),
                         body = toWireType(registration.response)
                 )
         ).build()

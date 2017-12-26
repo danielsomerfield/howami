@@ -7,6 +7,7 @@ import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.wire.CommandResponseHeaderWireType
 import somerfield.howamiservice.wire.CommandResponseWireType
 import somerfield.howamiservice.wire.RegistrationConfirmationWireType
+import somerfield.resources.WireOperations
 import javax.ws.rs.GET
 import javax.ws.rs.HeaderParam
 import javax.ws.rs.Path
@@ -21,33 +22,52 @@ class RegistrationConfirmationResource(
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     fun getAll(@HeaderParam("request-id") requestId: String): Response {
-        val outstandingConfirmations =
-                registrationConfirmationService.getOutstandingConfirmations()
-        val header = CommandResponseHeaderWireType(requestId)
+        val result =
+                registrationConfirmationService.getAllConfirmations()
 
-        return when(outstandingConfirmations) {
-            is Result.Success -> sendSuccessResponse(header, outstandingConfirmations.response)
-            else -> TODO()
+        return when (result) {
+            is Result.Success -> sendSuccessResponse(
+                    requestId,
+                    result.response
+            )
+            is Result.Failure -> WireOperations.sendFailureResponse(requestId, result)
         }
+    }
 
-}
+    @GET()
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getRegistrationConfirmations(
+            status: String,
+            @HeaderParam("request-id") requestId: String
+    ): Response {
+        val confirmationStatus = ConfirmationStatus.valueOf(status)
+        val result =
+                registrationConfirmationService.getConfirmations(status = confirmationStatus)
 
-    private fun sendSuccessResponse(header: CommandResponseHeaderWireType, confirmations: List<RegistrationConfirmation>): Response {
+        return when (result) {
+            is Result.Success -> sendSuccessResponse(requestId, result.response)
+            is Result.Failure -> WireOperations.sendFailureResponse(requestId, result)
+        }
+    }
+
+    private fun sendSuccessResponse(requestId: String, confirmations: List<RegistrationConfirmation>): Response {
         return Response.ok(
                 CommandResponseWireType(
-                        header = header,
+                        header = CommandResponseHeaderWireType(requestId),
                         body = toWireType(confirmations)
                 )
         ).build()
     }
 
     private fun toWireType(outstandingConfirmations: List<RegistrationConfirmation>): List<RegistrationConfirmationWireType> {
-        return outstandingConfirmations.map { RegistrationConfirmationWireType(
-                it.email,
-                it.userId,
-                it.confirmationCode,
-                it.createdDateTime,
-                it.confirmationStatus.name
-        ) }
+        return outstandingConfirmations.map {
+            RegistrationConfirmationWireType(
+                    it.email,
+                    it.userId,
+                    it.confirmationCode,
+                    it.createdDateTime,
+                    it.confirmationStatus.name
+            )
+        }
     }
 }
