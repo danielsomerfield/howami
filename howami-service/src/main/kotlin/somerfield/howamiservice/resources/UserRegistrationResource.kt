@@ -2,6 +2,7 @@ package somerfield.howamiservice.resources
 
 import somerfield.howamiservice.domain.*
 import somerfield.howamiservice.wire.*
+import somerfield.resources.RequestIdSource
 import somerfield.resources.WireOperations
 import somerfield.resources.WireOperations.sendFailureResponse
 import javax.validation.Valid
@@ -10,21 +11,24 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/user-registrations")
-public class UserRegistrationResource(private val userRegistrationService: UserRegistrationService) {
+public class UserRegistrationResource(
+        private val userRegistrationService: UserRegistrationService,
+        private val requestIdSource: RequestIdSource
+
+) {
 
     @POST()
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     fun register(
-            @Valid command: CommandWireType<UserRegistrationWireTypes>,
-            @HeaderParam("request-id") requestId: String
+            @Valid command: CommandWireType<UserRegistrationWireTypes>
     ): Response {
         val registrationResponse = userRegistrationService.register(fromWireType(command.body))
         return when (registrationResponse) {
             is Result.Success -> {
-                sendSuccessResponse(requestId, registrationResponse)
+                sendSuccessResponse(requestIdSource.getOrCreate(), registrationResponse)
             }
-            is Result.Failure -> sendFailureResponse(requestId, registrationResponse)
+            is Result.Failure -> sendFailureResponse(requestIdSource.getOrCreate(), registrationResponse)
         }
     }
 

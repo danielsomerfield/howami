@@ -33,7 +33,9 @@ object Async {
         data class DataResponse<out T>(val result: T) : CommandResponse<T>()
         data class FailedResponse<out T>(val errorCode: String) : CommandResponse<T>()
         data class ExceptionResponse<out T>(val e: Exception) : CommandResponse<T>()
-        object EmptyResponse : CommandResponse<Nothing>()
+        object EmptyResponse : CommandResponse<Nothing>() {
+            override fun toString() = "<empty response>"
+        }
     }
 
     data class WaitResponse<T>(val result: CommandResponse<T>) {

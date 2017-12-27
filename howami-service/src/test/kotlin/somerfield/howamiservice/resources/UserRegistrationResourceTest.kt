@@ -8,24 +8,32 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import somerfield.howamiservice.domain.*
 import somerfield.howamiservice.wire.*
+import somerfield.resources.RequestIdSource
 
 class UserRegistrationResourceTest {
+
+    private val requestId = "1234"
+
+    private val requestIdSource = mock<RequestIdSource> {
+        on {
+            getOrCreate()
+        } doReturn requestId
+    }
 
     @Test
     fun successfulRegistrationReturnsUserId() {
         val generatedUserId = "generated-id"
-        val requestId = "1234"
         val username = "username1"
         val password = "password1"
         val phoneNumber = "555-123-1234"
 
-        val userRegistrationService: UserRegistrationService = mock<UserRegistrationService> {
+        val userRegistrationService: UserRegistrationService = mock {
             on {
                 register(UserRegistrationCommand(username, password, phoneNumber))
             } doReturn (Result.Success(UserRegistration(generatedUserId)))
         }
-        val registerResponse = UserRegistrationResource(userRegistrationService).register(
-                CommandWireType(UserRegistrationWireTypes(username, password, phoneNumber)), requestId
+        val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
+                CommandWireType(UserRegistrationWireTypes(username, password, phoneNumber))
         )
 
         assertThat(registerResponse.status, `is`(200))
@@ -44,14 +52,13 @@ class UserRegistrationResourceTest {
         val errorMessage = "error message"
         val requestId = "1234"
 
-        val userRegistrationService: UserRegistrationService = mock<UserRegistrationService> {
+        val userRegistrationService: UserRegistrationService = mock {
             on {
                 register(any())
             } doReturn (Result.Failure(UnknownError(errorCode, "error message")))
         }
-        val registerResponse = UserRegistrationResource(userRegistrationService).register(
-                CommandWireType(UserRegistrationWireTypes("username2", "password1", "555-123-1234")),
-                requestId
+        val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
+                CommandWireType(UserRegistrationWireTypes("username2", "password1", "555-123-1234"))
         )
 
         assertThat(registerResponse.status, `is`(400))

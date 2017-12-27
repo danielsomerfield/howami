@@ -7,6 +7,7 @@ import org.json.JSONObject
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
+import somerfield.testing.Async.optionalOfResponse
 import somerfield.testing.Async.responseOf
 import somerfield.testing.Async.waitFor
 import somerfield.testing.HTTP
@@ -26,18 +27,19 @@ class HowAmISmokeTest {
         waitFor({ responseOf { Health.check(UserRegistrationService) } }).toBe(Healthy)
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 30000)
     fun testServiceHealth() {
         assertThat(Health.check(UserRegistrationService), `is`(healthy()))
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 30000)
     fun testUserRegistration() {
         val registration = user.register()
 
 //        waitFor({ optionalOfResponse { user.receiveConfirmationRequest() } }).toExist().then { request ->
 //            print(request)
-//            user.confirm(request.passCode)
+//
+////            user.confirm(request.passCode)
 //        }
 //        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }

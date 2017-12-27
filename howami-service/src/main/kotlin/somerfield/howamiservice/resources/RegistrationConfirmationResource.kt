@@ -3,51 +3,51 @@ package somerfield.howamiservice.resources
 import somerfield.howamiservice.domain.ConfirmationStatus
 import somerfield.howamiservice.domain.RegistrationConfirmation
 import somerfield.howamiservice.domain.RegistrationConfirmationService
-import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.wire.CommandResponseHeaderWireType
 import somerfield.howamiservice.wire.CommandResponseWireType
 import somerfield.howamiservice.wire.RegistrationConfirmationWireType
-import somerfield.resources.WireOperations
+import somerfield.resources.RequestIdSource
 import javax.ws.rs.GET
-import javax.ws.rs.HeaderParam
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
+import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Request
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/registration-confirmations")
 class RegistrationConfirmationResource(
-        private val registrationConfirmationService: RegistrationConfirmationService
+        private val registrationConfirmationService: RegistrationConfirmationService,
+        private val requestIdSource: RequestIdSource
 ) {
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAll(@HeaderParam("request-id") requestId: String): Response {
+    fun getAllRegistrationConfirmations(
+            @Context request: Request
+    ): Response {
         val result =
                 registrationConfirmationService.getAllConfirmations()
 
-        return when (result) {
-            is Result.Success -> sendSuccessResponse(
-                    requestId,
-                    result.response
-            )
-            is Result.Failure -> WireOperations.sendFailureResponse(requestId, result)
-        }
+        return sendSuccessResponse(
+                requestIdSource.getOrCreate(),
+                result
+        )
     }
 
-    @GET()
-    @Produces(MediaType.APPLICATION_JSON)
+//    @GET()
+//    @Produces(MediaType.APPLICATION_JSON)
     fun getRegistrationConfirmations(
-            status: String,
-            @HeaderParam("request-id") requestId: String
+            status: String
     ): Response {
         val confirmationStatus = ConfirmationStatus.valueOf(status)
+        //TODO: protect against invalid status
         val result =
                 registrationConfirmationService.getConfirmations(status = confirmationStatus)
-
-        return when (result) {
-            is Result.Success -> sendSuccessResponse(requestId, result.response)
-            is Result.Failure -> WireOperations.sendFailureResponse(requestId, result)
-        }
+        return sendSuccessResponse(
+                requestIdSource.getOrCreate(),
+                result
+        )
     }
 
     private fun sendSuccessResponse(requestId: String, confirmations: List<RegistrationConfirmation>): Response {
@@ -65,7 +65,7 @@ class RegistrationConfirmationResource(
                     it.email,
                     it.userId,
                     it.confirmationCode,
-                    it.createdDateTime,
+                    it.createdDateTime.toEpochMilli(),
                     it.confirmationStatus.name
             )
         }

@@ -27,7 +27,7 @@ constructor(
         val confirmationCode: String,
 
         @JsonProperty("created-date-time")
-        val createdDateTime: Date,
+        val createdDateTime: Long,
 
         @JsonProperty("confirmation-status")
         val confirmationStatus: String
