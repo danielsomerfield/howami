@@ -8,6 +8,13 @@ import somerfield.howamiservice.domain.RegistrationConfirmation
 import java.time.Instant
 
 class RegistrationConfirmationRepository(private val registrationConfirmationCollection: MongoCollection<Document>) {
+
+    private val emailField = "email"
+    private val userIdField = "user-id"
+    private val createdDateTimeField = "created-datetime"
+    private val confirmationStatusField = "confirmation-status"
+    private val confirmationCodeField = "confirmation-code"
+
     fun find(
             status: ConfirmationStatus? = null
     ): List<RegistrationConfirmation> {
@@ -16,12 +23,23 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
                         .append("status", status)
         ).toList().map {
             RegistrationConfirmation(
-                    email = it.getString("email"),
-                    userId = it.getString("user-id"),
-                    confirmationCode = it.getString("confirmation-code"),
-                    createdDateTime = Instant.ofEpochMilli(it.getLong("created-datetime")),
-                    confirmationStatus = ConfirmationStatus.valueOf(it.getString("confirmation-status"))
+                    email = it.getString(emailField),
+                    userId = it.getString(userIdField),
+                    confirmationCode = it.getString(this.confirmationCodeField),
+                    createdDateTime = Instant.ofEpochMilli(it.getLong(createdDateTimeField)),
+                    confirmationStatus = ConfirmationStatus.valueOf(it.getString(confirmationStatusField))
             )
         }
+    }
+
+    fun create(registrationConfirmation: RegistrationConfirmation) {
+        registrationConfirmationCollection.insertOne(
+                Document()
+                        .append(emailField, registrationConfirmation.email)
+                        .append(userIdField, registrationConfirmation.userId)
+                        .append(confirmationCodeField, registrationConfirmation.confirmationCode)
+                        .append(confirmationStatusField, registrationConfirmation.confirmationStatus.name)
+                        .append(createdDateTimeField, registrationConfirmation.createdDateTime.toEpochMilli())
+        )
     }
 }

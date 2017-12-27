@@ -12,6 +12,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.commons.lang3.RandomStringUtils
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
@@ -77,10 +78,12 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
 
     private val requestIdSource = RequestIdSource()
 
-    val registrationConfirmationService = RegistrationConfirmationService(
-            registrationConfirmationRepository = registrationConfirmationRepository()
+    private val registrationConfirmationService = RegistrationConfirmationService(
+            registrationConfirmationRepository = registrationConfirmationRepository(),
+            confirmationCodeGenerator = confirmationCodeGenerator()
     )
 
+    private fun confirmationCodeGenerator() = { RandomStringUtils.randomAlphabetic(5).toUpperCase() }
 
     private fun requestIdSource() = requestIdSource //TODO: This needs to be replaced with something that reads headers
 
@@ -113,6 +116,5 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
 
     companion object {
         fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
-
     }
 }

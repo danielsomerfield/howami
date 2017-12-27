@@ -20,7 +20,7 @@ import java.util.*
 
 class HowAmISmokeTest {
 
-    val user = User()
+    private val user = User()
 
     @Before
     fun setup() {
@@ -35,12 +35,13 @@ class HowAmISmokeTest {
     @Test(timeout = 30000)
     fun testUserRegistration() {
         val registration = user.register()
+        println(registration)
 
-//        waitFor({ optionalOfResponse { user.receiveConfirmationRequest() } }).toExist().then { request ->
-//            print(request)
-//
-////            user.confirm(request.passCode)
-//        }
+        waitFor({ optionalOfResponse { user.receiveConfirmationRequest() } }).toExist()
+        /*.then { request ->
+            print(request)
+            user.confirm(request.passCode)
+        }*/
 //        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }
 
@@ -70,7 +71,9 @@ class User() {
         return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
     }
 
-    fun confirm(passCode: String) {}
+    fun confirm(passCode: String) {
+        println("Confirmed pass code $passCode")
+    }
 
 }
 

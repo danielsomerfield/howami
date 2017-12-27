@@ -32,3 +32,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Offline sync
 
 # TODO
+
+## Operational
+* Enable caching in circle CI
+* Run smoke tests against production

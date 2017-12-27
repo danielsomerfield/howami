@@ -38,9 +38,10 @@ object Async {
         }
     }
 
-    data class WaitResponse<T>(val result: CommandResponse<T>) {
+    data class WaitResponse<T>(private val result: CommandResponse<T>) {
         fun <Y> then(thenFn: (T) -> Y): WaitResponse<Y> {
             TODO()
+//            return this(thenFn)
         }
     }
 
@@ -49,7 +50,7 @@ object Async {
             private val timeoutInMillis: Long
     ) {
 
-        fun condition(checkFn: (CommandResponse<T>) -> Boolean): WaitResponse<T> {
+        private fun condition(checkFn: (CommandResponse<T>) -> Boolean): WaitResponse<T> {
             val startTime = System.currentTimeMillis()
 
             var ex: Exception? = null
@@ -81,16 +82,15 @@ object Async {
             }
         }
 
-
         fun toExist(): WaitResponse<T> {
-            return condition {
-                when (it) {
+            val conditionResult = condition { response ->
+                when (response) {
                     is CommandResponse.DataResponse -> true
                     else -> false
                 }
             }
+            return conditionResult
         }
-
 
     }
 }
