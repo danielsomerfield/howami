@@ -17,7 +17,7 @@ def get_test_results(line):
 
 def run():
     start_time = datetime.datetime.now()
-    log_file = open("./integration-test.log", "r")
+    log_file = open("./e2e-test.log", "r")
 
     while (datetime.datetime.now() - start_time).seconds < TIMEOUT_SECONDS:
         file_location = log_file.tell()

@@ -25,7 +25,7 @@ task dockerBuild(type: Exec) {
 	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
 }
 
-task smoke(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+task smoke(type: Test, description: 'Runs the smoke tests.', group: 'Verification') {
     dependsOn cleanTest
     testLogging.showStandardStreams = true
     include "**/*SmokeTest*"

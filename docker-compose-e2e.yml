@@ -17,7 +17,7 @@ services:
       - TEST_MODE_ADMIN_TOKEN=changeme
       - MONGO_HOST=mongo
 
-  integration-tests:
+  e2e-tests:
     build:
       context: ./howami-e2e
       args:

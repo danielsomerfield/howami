@@ -13,15 +13,15 @@ integration: build
 	./gradlew integration
 
 e2e: stop
-	$(COMPOSE) -f docker-compose-integration.yml up --force-recreate --build -d
-	$(COMPOSE) -f docker-compose-integration.yml logs -f integration-tests > integration-test.log
+	$(COMPOSE) -f docker-compose-e2e.yml up --force-recreate --build -d
+	$(COMPOSE) -f docker-compose-e2e.yml logs -f e2e-tests > e2e-test.log
 	bin/wait_for_tests.py
 
 dependencies:
 	$(COMPOSE) up --force-recreate --build -d
 
 stop:
-	$(COMPOSE) -f docker-compose-integration.yml down
+	$(COMPOSE) -f docker-compose-e2e.yml down
 
 clean:
 	./gradlew clean
