@@ -77,14 +77,17 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
 
     private val requestIdSource = RequestIdSource()
 
+    val registrationConfirmationService = RegistrationConfirmationService(
+            registrationConfirmationRepository = registrationConfirmationRepository()
+    )
+
+
     private fun requestIdSource() = requestIdSource //TODO: This needs to be replaced with something that reads headers
 
     fun registrationConfirmationResource() = RegistrationConfirmationResource(registrationConfirmationService(), requestIdSource())
 
     private fun registrationConfirmationService(): RegistrationConfirmationService {
-        return RegistrationConfirmationService(
-                registrationConfirmationRepository = registrationConfirmationRepository()
-        )
+        return registrationConfirmationService
     }
 
     private fun registrationConfirmationRepository(): RegistrationConfirmationRepository {
@@ -98,6 +101,7 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
 
     private fun userRegistrationService() = UserRegistrationService(
             userAccountRepository = userAccountRepository(),
+            registrationConfirmationService = registrationConfirmationService(),
             hashPassword = hashPasswordFn()
     )
 

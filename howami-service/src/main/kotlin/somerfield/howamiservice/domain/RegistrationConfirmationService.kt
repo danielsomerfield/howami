@@ -12,4 +12,8 @@ class RegistrationConfirmationService(private val registrationConfirmationReposi
                 status = status
         )
     }
+
+    fun queueConfirmation(emailAddress: String, userId: String) {
+//        TODO("NYI")
+    }
 }

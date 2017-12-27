@@ -4,6 +4,7 @@ import somerfield.howamiservice.repositories.UserAccountRepository
 
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
+        private val registrationConfirmationService: RegistrationConfirmationService,
         private val hashPassword: (String) -> String = { it }
 ) {
 
@@ -11,15 +12,17 @@ class UserRegistrationService(
 
         //TODO: validation
 
-        val id = userAccountRepository.create(UserAccount(
+        val userId = userAccountRepository.create(UserAccount(
                 userRegistrationCommand.username,
                 hashPassword(userRegistrationCommand.password),
                 userRegistrationCommand.email,
                 AccountState.PENDING
         ))
 
+        registrationConfirmationService.queueConfirmation(userRegistrationCommand.email, userId)
+
         return Result.Success(UserRegistration(
-                userId = id
+                userId = userId
         ))
     }
 }

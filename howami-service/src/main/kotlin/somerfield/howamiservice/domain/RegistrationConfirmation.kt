@@ -1,7 +1,6 @@
 package somerfield.howamiservice.domain
 
 import java.time.Instant
-import java.util.*
 
 data class RegistrationConfirmation(
         val email: String,
