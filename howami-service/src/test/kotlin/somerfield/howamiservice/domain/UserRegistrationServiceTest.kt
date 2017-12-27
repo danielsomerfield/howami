@@ -35,7 +35,7 @@ class UserRegistrationServiceTest {
         verify(userRegistrationRepository).create(UserAccount(
                 username = "uname",
                 passwordHash = "PWD",
-                phoneNumber = "1-555-1212",
+                emailAddress = "1-555-1212",
                 state = AccountState.PENDING
         ))
     }

@@ -28,6 +28,18 @@ task dockerBuild(type: Exec) {
 	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
 }
 
+test {
+    useJUnit {
+        excludeCategories("somerfield.testing.IntegrationTests")
+    }
+}
+
+task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+    useJUnit {
+        includeCategories("somerfield.testing.IntegrationTests")
+    }
+}
+
 //task dockerStop(type: Exec) {
 //    commandLine "docker-compose", "down"
 //    environment VERSION: "$version"

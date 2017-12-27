@@ -9,7 +9,10 @@ export VERSION
 build:
 	./gradlew buildAll
 
-integration: stop
+integration: build
+	./gradlew integration
+
+e2e: stop
 	$(COMPOSE) -f docker-compose-integration.yml up --force-recreate --build -d
 	$(COMPOSE) -f docker-compose-integration.yml logs -f integration-tests > integration-test.log
 	bin/wait_for_tests.py

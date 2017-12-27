@@ -25,15 +25,15 @@ class UserRegistrationResourceTest {
         val generatedUserId = "generated-id"
         val username = "username1"
         val password = "password1"
-        val phoneNumber = "555-123-1234"
+        val emailAddress = "foo@example.com"
 
         val userRegistrationService: UserRegistrationService = mock {
             on {
-                register(UserRegistrationCommand(username, password, phoneNumber))
+                register(UserRegistrationCommand(username, password, emailAddress))
             } doReturn (Result.Success(UserRegistration(generatedUserId)))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
-                CommandWireType(UserRegistrationWireTypes(username, password, phoneNumber))
+                CommandWireType(UserRegistrationWireTypes(username, password, emailAddress))
         )
 
         assertThat(registerResponse.status, `is`(200))
