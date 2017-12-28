@@ -11,6 +11,7 @@ import somerfield.testing.*
 import somerfield.testing.Async.responseOf
 import somerfield.testing.Async.responseOfOptional
 import somerfield.testing.Async.waitFor
+import somerfield.testing.Async.waitForData
 import somerfield.testing.Matchers.healthy
 
 class HowAmISmokeTest {
@@ -31,11 +32,8 @@ class HowAmISmokeTest {
     fun testUserRegistration() {
         val registration = user.register()
 
-        waitFor(responseOfOptional { user.receiveConfirmationRequest() }, toExist()).then { maybeRegistrationConfirmation ->
-            when (maybeRegistrationConfirmation) {
-                is Async.CommandResponse.DataResponse -> user.confirm(maybeRegistrationConfirmation.result.confirmationCode)
-                else -> fail("Unexpected type $maybeRegistrationConfirmation")
-            }
+        waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
+            user.confirm(it)
         }
 //        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }

@@ -30,6 +30,17 @@ object Async {
         }
     }
 
+    fun <T> waitForData(fn: () -> CommandResponse<T>, timeoutInSeconds: Long = 10): WaitWithData<T> {
+        val received = waitFor(fn, { response ->
+            when (response) {
+                is Async.CommandResponse.DataResponse -> true
+                else -> false
+            }
+        }, timeoutInSeconds)
+
+        return WaitWithData(received.response as Async.CommandResponse.DataResponse)
+    }
+
     fun <T> waitFor(fn: () -> CommandResponse<T>, testFn: (CommandResponse<T>) -> Boolean, timeoutInSeconds: Long = 10): Wait<T> {
         val timeoutInMillis = timeoutInSeconds * 1000
         val startTime = System.currentTimeMillis()
@@ -64,9 +75,15 @@ object Async {
         }
     }
 
-    class Wait<T>(private val response: CommandResponse<T>) {
+    class Wait<T>(internal val response: CommandResponse<T>) {
         fun then(thenFn: (CommandResponse<T>) -> Unit) {
             thenFn(response)
+        }
+    }
+
+    class WaitWithData<T>(private val response: CommandResponse.DataResponse<T>) {
+        fun then(thenFn: (T) -> Unit) {
+            thenFn(response.result)
         }
     }
 

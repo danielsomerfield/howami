@@ -26,8 +26,8 @@ class User {
         return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
     }
 
-    fun confirm(passCode: String) {
-        println("Confirming pass code $passCode")
+    fun confirm(confirmation: RegistrationConfirmation) {
+        println("Confirming pass code ${confirmation.confirmationCode}")
     }
 
 }
