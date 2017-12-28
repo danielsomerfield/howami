@@ -14,7 +14,6 @@ class WireTypesTest {
 
     @Test
     fun deserializeCommand() {
-        val id = UUID.randomUUID().toString()
         val message = JSONObject()
                 .put("body", JSONObject()
                         .put("username", "uname")

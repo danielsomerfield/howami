@@ -4,10 +4,11 @@ import junit.framework.AssertionFailedError
 import java.util.*
 
 object Async {
-    fun <T> responseOf(fn: () -> T): () -> CommandResponse<T> {
+    fun <T> responseOf(fn: () -> T?): () -> CommandResponse<T> {
         return {
             try {
-                CommandResponse.DataResponse(fn())
+                val result = fn()
+                if (result == null) CommandResponse.EmptyResponse() else CommandResponse.DataResponse(result)
             } catch (e: Exception) {
                 CommandResponse.ExceptionResponse(e)
             }
@@ -80,10 +81,10 @@ fun <T> toBe(expected: T): (Async.CommandResponse<T>) -> Boolean {
     }
 }
 
-fun <T> toExist(): (Async.CommandResponse<Optional<T>>) -> Boolean {
+fun <T> toExist(): (Async.CommandResponse<T>) -> Boolean {
     return { response ->
         when (response) {
-            is Async.CommandResponse.DataResponse -> response.result.isPresent
+            is Async.CommandResponse.DataResponse -> true
             else -> false
         }
     }

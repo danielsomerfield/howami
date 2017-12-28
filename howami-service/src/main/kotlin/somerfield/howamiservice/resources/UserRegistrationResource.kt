@@ -1,17 +1,22 @@
 package somerfield.howamiservice.resources
 
-import somerfield.howamiservice.domain.*
+import somerfield.howamiservice.domain.Result
+import somerfield.howamiservice.domain.UserRegistration
+import somerfield.howamiservice.domain.UserRegistrationCommand
+import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
-import somerfield.resources.WireOperations
 import somerfield.resources.WireOperations.sendFailureResponse
 import javax.validation.Valid
-import javax.ws.rs.*
+import javax.ws.rs.Consumes
+import javax.ws.rs.POST
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/user-registrations")
-public class UserRegistrationResource(
+class UserRegistrationResource(
         private val userRegistrationService: UserRegistrationService,
         private val requestIdSource: RequestIdSource
 

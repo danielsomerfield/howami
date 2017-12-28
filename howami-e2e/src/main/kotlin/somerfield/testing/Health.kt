@@ -7,11 +7,11 @@ import java.net.URI
 object Health {
     fun check(service: HealthCheckService): HealthResponse {
         val response = HTTP.get(to = service.healthEndpoint())
-        if (response.status == 200 && response.json.getJSONObject("basic")?.getBoolean("healthy") == true) {
-            return Healthy
+        return if (response.status == 200 && response.json.getJSONObject("basic")?.getBoolean("healthy") == true) {
+            Healthy
         } else {
             val message = response.json.getJSONObject("basic")?.getString("message") ?: "not provided"
-            return Unhealthy("Response code was '${response.status}'. Message was '${message}'")
+            Unhealthy("Response code was '${response.status}'. Message was '${message}'")
         }
     }
 }
