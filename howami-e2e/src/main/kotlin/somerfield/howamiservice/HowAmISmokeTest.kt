@@ -7,13 +7,10 @@ import org.json.JSONObject
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
-import somerfield.testing.Async.optionalOfResponse
+import somerfield.testing.*
 import somerfield.testing.Async.responseOf
+import somerfield.testing.Async.responseOfOptional
 import somerfield.testing.Async.waitFor
-import somerfield.testing.HTTP
-import somerfield.testing.Health
-import somerfield.testing.HealthCheckService
-import somerfield.testing.Healthy
 import somerfield.testing.Matchers.healthy
 import java.net.URI
 import java.util.*
@@ -24,7 +21,7 @@ class HowAmISmokeTest {
 
     @Before
     fun setup() {
-        waitFor({ responseOf { Health.check(UserRegistrationService) } }).toBe(Healthy)
+        waitFor(responseOf { Health.check(UserRegistrationService) }, toBe(Healthy))
     }
 
     @Test(timeout = 30000)
@@ -35,9 +32,11 @@ class HowAmISmokeTest {
     @Test(timeout = 30000)
     fun testUserRegistration() {
         val registration = user.register()
-        println(registration)
 
-        waitFor({ optionalOfResponse { user.receiveConfirmationRequest() } }).toExist()
+        waitFor( responseOf { user.receiveConfirmationRequest() }, toExist() ).then {
+            maybeRegistrationConfirmation ->
+            println(maybeRegistrationConfirmation)
+        }
         /*.then { request ->
             print(request)
             user.confirm(request.passCode)
@@ -52,7 +51,6 @@ class HowAmISmokeTest {
 //}
 
 data class Header(val requestId: String, val status: Int)
-//data class EnvelopeWithData<out T>(override val header: Header, val data: T) : Envelope<T>()
 data class UserRegistration(val userId: String)
 
 class User() {

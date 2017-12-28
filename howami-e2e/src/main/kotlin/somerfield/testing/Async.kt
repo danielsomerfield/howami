@@ -4,93 +4,87 @@ import junit.framework.AssertionFailedError
 import java.util.*
 
 object Async {
-    fun <T> responseOf(fn: () -> T): CommandResponse<T> {
-        return try {
-            CommandResponse.DataResponse(fn())
-        } catch (e: Exception) {
-            CommandResponse.ExceptionResponse(e)
-        }
-    }
-
-    fun <T> optionalOfResponse(fn: () -> Optional<T>): CommandResponse<T> {
-        return try {
-            val result = fn()
-            return if (result.isPresent) {
-                CommandResponse.DataResponse(result.get())
-            } else {
-                CommandResponse.EmptyResponse
+    fun <T> responseOf(fn: () -> T): () -> CommandResponse<T> {
+        return {
+            try {
+                CommandResponse.DataResponse(fn())
+            } catch (e: Exception) {
+                CommandResponse.ExceptionResponse(e)
             }
-        } catch (e: Exception) {
-            CommandResponse.ExceptionResponse(e)
         }
     }
 
-    fun <T> waitFor(fn: () -> CommandResponse<T>, timeoutInSeconds: Long = 10): Wait<T> {
-        return Wait(fn, timeoutInSeconds * 1000)
+    fun <T> responseOfOptional(fn: () -> Optional<T>): () -> CommandResponse<T> {
+        return {
+            try {
+                val result = fn()
+                if (result.isPresent) {
+                    CommandResponse.DataResponse(result.get())
+                } else {
+                    CommandResponse.EmptyResponse()
+                }
+            } catch (e: Exception) {
+                CommandResponse.ExceptionResponse(e)
+            }
+        }
     }
 
-    sealed class CommandResponse<out T> {
-        data class DataResponse<out T>(val result: T) : CommandResponse<T>()
-        data class FailedResponse<out T>(val errorCode: String) : CommandResponse<T>()
-        data class ExceptionResponse<out T>(val e: Exception) : CommandResponse<T>()
-        object EmptyResponse : CommandResponse<Nothing>() {
+    fun <T> waitFor(fn: () -> CommandResponse<T>, testFn: (CommandResponse<T>) -> Boolean, timeoutInSeconds: Long = 10): Wait<T> {
+        val timeoutInMillis = timeoutInSeconds * 1000
+        val startTime = System.currentTimeMillis()
+
+        var ex: Exception? = null
+        var response: CommandResponse<T>? = null
+        while (System.currentTimeMillis() - startTime < timeoutInMillis) {
+            try {
+                //TODO: make this call on a cancelable executor so it can't hang
+                response = fn()
+                if (testFn(response)) {
+                    return Wait(response)
+                }
+                Thread.sleep(500)
+            } catch (e: Exception) {
+                ex = e
+            }
+        }
+
+        throw if (ex == null) AssertionFailedError("Timed out waiting for condition. Last response was $response") else {
+            AssertionFailedError("Timed out waiting for condition. Exception was: $ex")
+        }
+
+    }
+
+    sealed class CommandResponse<in T> {
+        data class DataResponse<T>(val result: T) : CommandResponse<T>()
+        //        data class FailedResponse<T>(val errorCode: String) : CommandResponse<Nothing>()
+        data class ExceptionResponse<in T>(val e: Exception) : CommandResponse<T>()
+        class EmptyResponse<in T> : CommandResponse<T>() {
             override fun toString() = "<empty response>"
         }
     }
 
-    data class WaitResponse<T>(private val result: CommandResponse<T>) {
-        fun <Y> then(thenFn: (T) -> Y): WaitResponse<Y> {
-            TODO()
-//            return this(thenFn)
+    class Wait<T>(private val response: CommandResponse<T>) {
+        fun then(thenFn: (CommandResponse<T>) -> Unit) {
+            thenFn(response)
         }
     }
 
-    class Wait<T>(
-            private val fn: () -> CommandResponse<T>,
-            private val timeoutInMillis: Long
-    ) {
+}
 
-        private fun condition(checkFn: (CommandResponse<T>) -> Boolean): WaitResponse<T> {
-            val startTime = System.currentTimeMillis()
-
-            var ex: Exception? = null
-            var response: CommandResponse<T>? = null
-            while (System.currentTimeMillis() - startTime < timeoutInMillis) {
-                try {
-                    //TODO: make this call on a cancelable executor so it can't hang
-                    response = fn()
-                    if (checkFn(response)) {
-                        return WaitResponse(response)
-                    }
-                    Thread.sleep(500)
-                } catch (e: Exception) {
-                    ex = e
-                }
-            }
-
-            throw if (ex == null) AssertionFailedError("Timed out waiting for condition. Last response was $response") else {
-                AssertionFailedError("Timed out waiting for condition. Exception was: $ex")
-            }
+fun <T> toBe(expected: T): (Async.CommandResponse<T>) -> Boolean {
+    return { response ->
+        when (response) {
+            is Async.CommandResponse.DataResponse<*> -> response.result == expected
+            else -> false
         }
+    }
+}
 
-        fun toBe(expected: T): WaitResponse<T> {
-            return condition {
-                when (it) {
-                    is CommandResponse.DataResponse -> it.result == expected
-                    else -> false
-                }
-            }
+fun <T> toExist(): (Async.CommandResponse<Optional<T>>) -> Boolean {
+    return { response ->
+        when (response) {
+            is Async.CommandResponse.DataResponse -> response.result.isPresent
+            else -> false
         }
-
-        fun toExist(): WaitResponse<T> {
-            val conditionResult = condition { response ->
-                when (response) {
-                    is CommandResponse.DataResponse -> true
-                    else -> false
-                }
-            }
-            return conditionResult
-        }
-
     }
 }

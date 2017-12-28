@@ -34,9 +34,11 @@ object Matchers {
 }
 
 sealed class HealthResponse
+
 object Healthy : HealthResponse() {
     override fun toString() = "Healthy"
 }
-data class Unhealthy(val reason: String) : HealthResponse() {
+
+data class Unhealthy(private val reason: String) : HealthResponse() {
     override fun toString() = "Unhealthy for reason '$reason'"
 }
