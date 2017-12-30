@@ -1,5 +1,6 @@
 package somerfield.howamiservice.resources
 
+import somerfield.howamiservice.domain.LoginResponse
 import somerfield.howamiservice.domain.LoginService
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -16,6 +17,7 @@ class LoginResource(private val loginService: LoginService) {
             @FormParam("password") password: String
     ): Response {
         val response = loginService.login(username, password)
-        return Response.status(401).build()
+        val status = if (response == LoginResponse.SUCCEEDED) 200 else 401
+        return Response.status(status).build()
     }
 }

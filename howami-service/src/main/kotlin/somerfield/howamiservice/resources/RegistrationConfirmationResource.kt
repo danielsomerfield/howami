@@ -24,27 +24,10 @@ class RegistrationConfirmationResource(
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun getAllRegistrationConfirmations(
-            @Context request: Request
-    ): Response {
+    fun getAllRegistrationConfirmations(): Response {
         val result =
                 registrationConfirmationService.getAllConfirmations()
 
-        return sendSuccessResponse(
-                requestIdSource.getOrCreate(),
-                result
-        )
-    }
-
-//    @GET()
-//    @Produces(MediaType.APPLICATION_JSON)
-    fun getRegistrationConfirmations(
-            status: String
-    ): Response {
-        val confirmationStatus = ConfirmationStatus.valueOf(status)
-        //TODO: protect against invalid status
-        val result =
-                registrationConfirmationService.getConfirmations(status = confirmationStatus)
         return sendSuccessResponse(
                 requestIdSource.getOrCreate(),
                 result

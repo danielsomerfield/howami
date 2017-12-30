@@ -108,6 +108,7 @@ object UserServicesClient : HealthCheckService {
     }
 
     fun confirmRegistration(userId: String, confirmationCode: String) {
+        println("confirming $userId / $confirmationCode")
 //        val response = HTTP.get(
 //                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
 //                headers = mapOf("Authorization" to "changeme") //TODO: enable authorization

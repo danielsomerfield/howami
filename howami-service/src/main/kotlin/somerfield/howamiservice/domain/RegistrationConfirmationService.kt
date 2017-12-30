@@ -13,12 +13,6 @@ class RegistrationConfirmationService(
         return registrationConfirmationRepository.find()
     }
 
-    fun getConfirmations(status: ConfirmationStatus): List<RegistrationConfirmation> {
-        return registrationConfirmationRepository.find(
-                status = status
-        )
-    }
-
     fun queueConfirmation(emailAddress: String, userId: String) {
         registrationConfirmationRepository.create(RegistrationConfirmation(
                 email = emailAddress,
