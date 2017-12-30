@@ -17,7 +17,7 @@ e2e: stop
 	$(COMPOSE) -f docker-compose-e2e.yml logs -f e2e-tests > e2e-test.log
 	bin/wait_for_tests.py
 
-dependencies:
+dependencies: stop
 	$(COMPOSE) up --force-recreate --build -d
 
 stop:

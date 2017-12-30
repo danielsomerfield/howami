@@ -5,7 +5,7 @@ import somerfield.howamiservice.repositories.UserAccountRepository
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
         private val registrationConfirmationService: RegistrationConfirmationService,
-        private val hashPassword: (String) -> String = { it }
+        private val hashPassword: PasswordHashAlgorithm = { it }
 ) {
 
     fun register(userRegistrationCommand: UserRegistrationCommand): Result<UserRegistration, ServiceError> {

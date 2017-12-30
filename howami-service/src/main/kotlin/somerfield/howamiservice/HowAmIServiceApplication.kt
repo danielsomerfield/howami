@@ -13,11 +13,13 @@ import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.apache.commons.lang3.RandomStringUtils
+import somerfield.howamiservice.domain.LoginService
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.domain.RegistrationConfirmationService
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
+import somerfield.howamiservice.resources.LoginResource
 import somerfield.howamiservice.resources.UserRegistrationResource
 import somerfield.resources.RequestIdSource
 
@@ -35,6 +37,7 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
         val binding = OrderServiceBinding.new(configuration)
         environment.jersey().register(binding.userRegistrationResource())
         environment.jersey().register(binding.registrationConfirmationResource())
+        environment.jersey().register(binding.loginResource())
         JSON.configureObjectMapper(environment.objectMapper)
     }
 
@@ -100,6 +103,13 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
     fun userRegistrationResource() = UserRegistrationResource(
             userRegistrationService = userRegistrationService(),
             requestIdSource = requestIdSource()
+    )
+
+    fun loginResource() = LoginResource(loginService())
+
+    private fun loginService() = LoginService(
+            userAccountRepository(),
+            hashPasswordFn()
     )
 
     private fun userRegistrationService() = UserRegistrationService(

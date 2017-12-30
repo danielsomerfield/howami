@@ -2,11 +2,12 @@ package somerfield.howamiservice
 
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import somerfield.howamiservice.domain.LoginResult.FAILURE
+import somerfield.howamiservice.domain.LoginResult.SUCCESS
 import somerfield.howamiservice.domain.User
-import somerfield.howamiservice.domain.UserRegistrationService
+import somerfield.howamiservice.domain.UserServicesClient
 import somerfield.testing.*
 import somerfield.testing.Async.responseOf
 import somerfield.testing.Async.responseOfOptional
@@ -20,22 +21,24 @@ class HowAmISmokeTest {
 
     @Before
     fun setup() {
-        waitFor(responseOf { Health.check(UserRegistrationService) }, toBe(Healthy))
+        waitFor(responseOf { Health.check(UserServicesClient) }, toBe(Healthy))
     }
 
     @Test(timeout = 30000)
     fun testServiceHealth() {
-        assertThat(Health.check(UserRegistrationService), `is`(healthy()))
+        assertThat(Health.check(UserServicesClient), `is`(healthy()))
     }
 
     @Test(timeout = 30000)
     fun testUserRegistration() {
-        val registration = user.register()
+        assertThat(user.login(), `is`(FAILURE))
+        user.register()
 
         waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
+            assertThat(user.login(), `is`(FAILURE))
             user.confirm(it)
+//            assertThat(user.login(), `is`(SUCCESS))
         }
-//        waitFor({ responseOf { UserAccount.registrationConfirmed(registration) } }).toExist()
     }
 
 }

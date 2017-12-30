@@ -5,9 +5,11 @@ import org.hamcrest.CoreMatchers
 import org.joda.time.format.ISODateTimeFormat
 import org.json.JSONObject
 import org.junit.Assert
+import somerfield.howamiservice.domain.LoginResult.*
 import somerfield.testing.HTTP
 import somerfield.testing.HealthCheckService
 import java.net.URI
+import java.net.URLEncoder
 import java.util.*
 
 class User {
@@ -18,22 +20,33 @@ class User {
     private val email = "email-$randomNumeric@example.com"
 
     fun register(): UserRegistration {
-        return UserRegistrationService.registerUser(username, password, email)
+        return UserServicesClient.registerUser(username, password, email)
     }
 
     fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
-        val requests = UserRegistrationService.getRegistrationConfirmation(email = email)
+        val requests = UserServicesClient.getRegistrationConfirmation(email = email)
         return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
     }
 
     fun confirm(confirmation: RegistrationConfirmation) {
-        println("Confirming pass code ${confirmation.confirmationCode}")
+        UserServicesClient.confirmRegistration(confirmation.userId, confirmation.confirmationCode)
+    }
+
+    fun login(): LoginResult {
+        return UserServicesClient.login(username, password)
     }
 
 }
 
+enum class LoginResult {
+    FAILURE,
+    SUCCESS,
+    ERROR
+}
+
 data class UserRegistration(val userId: String)
-object UserRegistrationService : HealthCheckService {
+
+object UserServicesClient : HealthCheckService {
 
     private fun getServiceHost() = System.getenv().getOrDefault("HOWAMI_SERVICE_BASE_URL", "http://localhost")
 
@@ -91,6 +104,31 @@ object UserRegistrationService : HealthCheckService {
                     ISODateTimeFormat.dateTimeParser().parseDateTime(confReqJSON.getString("created-datetime")).toDate(),
                     ConfirmationStatus.valueOf(confReqJSON.getString("confirmation-status"))
             )
+        }
+    }
+
+    fun confirmRegistration(userId: String, confirmationCode: String) {
+//        val response = HTTP.get(
+//                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
+//                headers = mapOf("Authorization" to "changeme") //TODO: enable authorization
+//        )
+//        return when (response.status) {
+//            404 -> emptySet()
+//            200 -> parseConfirmationRequest(response.json).filter { it.email == email }.toSet()
+//            else -> throw Exception("Unexpected status code ${response.status}")
+//        }
+    }
+
+    fun login(username: String, password: String): LoginResult {
+        val response = HTTP.post(
+                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/login"),
+                content = "username=${URLEncoder.encode(username, "UTF-8")}&password=${URLEncoder.encode(password, "UTF-8")}",
+                contentType = "application/x-www-form-urlencoded"
+        )
+        return when (response.status) {
+            200 -> SUCCESS
+            in(400..499) -> FAILURE
+            else -> ERROR
         }
     }
 }

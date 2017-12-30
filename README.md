@@ -36,3 +36,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Operational
 * Enable caching in circle CI
 * Run smoke tests against production
+
+## Security
+* Disable confirmation after a time period
+* Enable authorization on admin endpoints

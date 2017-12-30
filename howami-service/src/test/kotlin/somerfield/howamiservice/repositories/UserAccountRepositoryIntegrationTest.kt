@@ -13,6 +13,7 @@ import org.junit.experimental.categories.Category
 import somerfield.howamiservice.domain.AccountState
 import somerfield.howamiservice.domain.UserAccount
 import somerfield.testing.IntegrationTests
+import java.util.*
 
 @Category(IntegrationTests::class)
 class UserAccountRepositoryIntegrationTest {
@@ -21,7 +22,7 @@ class UserAccountRepositoryIntegrationTest {
 
     private val mongo = Fongo("mock-mongo")
 
-    private var repository:UserAccountRepository? = null
+    private var repository: UserAccountRepository? = null
 
     private var userAccountCollection: MongoCollection<Document>? = null
 
@@ -49,4 +50,27 @@ class UserAccountRepositoryIntegrationTest {
                 "state" to "PENDING"
         ))))
     }
+
+    @Test
+    fun findRecordInDataStore() {
+        val username = "username2"
+        val passwordHash = "password2Hash"
+        val emailAddress = "fo2@example.com"
+        val state = AccountState.PENDING
+        userAccountCollection!!.insertOne(Document(mapOf(
+                "username" to username,
+                "password_hash" to passwordHash,
+                "email_address" to emailAddress,
+                "state" to "PENDING"
+        )))
+
+        assertThat(repository!!.find(username), `is`(Optional.of(UserAccount(
+                username = username,
+                passwordHash = passwordHash,
+                emailAddress = emailAddress,
+                state = state
+        ))))
+    }
+
+    //TODO: prevent duplicate usernames
 }
