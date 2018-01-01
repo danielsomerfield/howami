@@ -83,6 +83,7 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
 
     private val registrationConfirmationService = RegistrationConfirmationService(
             registrationConfirmationRepository = registrationConfirmationRepository(),
+            userAccountRepository = userAccountRepository(),
             confirmationCodeGenerator = confirmationCodeGenerator()
     )
 

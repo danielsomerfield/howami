@@ -1,19 +1,17 @@
 package somerfield.howamiservice.resources
 
-import somerfield.howamiservice.domain.ConfirmationStatus
+import somerfield.howamiservice.domain.ConfirmationResult
+import somerfield.howamiservice.domain.ConfirmationResult.*
 import somerfield.howamiservice.domain.RegistrationConfirmation
 import somerfield.howamiservice.domain.RegistrationConfirmationService
 import somerfield.howamiservice.wire.CommandResponseHeaderWireType
 import somerfield.howamiservice.wire.CommandResponseWireType
+import somerfield.howamiservice.wire.ConfirmationResponseWireType
 import somerfield.howamiservice.wire.RegistrationConfirmationWireType
 import somerfield.resources.RequestIdSource
 import java.time.format.DateTimeFormatter
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.core.Context
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Request
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/registration-confirmations")
@@ -32,6 +30,31 @@ class RegistrationConfirmationResource(
                 requestIdSource.getOrCreate(),
                 result
         )
+    }
+
+    @POST
+    fun confirmRegistration(
+            @FormParam("userId")
+            userId: String,
+            @FormParam("confirmationCode")
+            confirmationCode: String
+    ): Response {
+        val confirmationResult = registrationConfirmationService.confirm(userId, confirmationCode)
+        return when (confirmationResult) {
+            CONFIRMED -> sendWithMessage(201, confirmationResult, "Account confirmed")
+            EXPIRED -> sendWithMessage(401, confirmationResult, "The confirmation has expired. Please request a new confirmation code.")
+            INVALID -> sendWithMessage(401, confirmationResult, "The confirmation code is invalid.")
+        }.build()
+    }
+
+    private fun sendWithMessage(statusCode: Int, confirmationResult: ConfirmationResult, message: String): Response.ResponseBuilder {
+        return Response.status(statusCode).entity(CommandResponseWireType(
+                header = CommandResponseHeaderWireType(requestIdSource.getOrCreate()),
+                body = ConfirmationResponseWireType(
+                        result = confirmationResult.name,
+                        message = message
+                )
+        )).type(MediaType.APPLICATION_JSON_TYPE)
     }
 
     private fun sendSuccessResponse(requestId: String, confirmations: List<RegistrationConfirmation>): Response {

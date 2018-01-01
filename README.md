@@ -33,10 +33,14 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 # TODO
 
+## Primary Use Case
+* Service that sends email and transitiions queued -> sent
+
 ## Operational
 * Enable caching in circle CI
 * Run smoke tests against production
 
 ## Security
+* Implement hash
 * Disable confirmation after a time period
 * Enable authorization on admin endpoints

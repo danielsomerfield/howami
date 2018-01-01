@@ -6,20 +6,32 @@ import org.bson.Document
 import somerfield.howamiservice.domain.ConfirmationStatus
 import somerfield.howamiservice.domain.RegistrationConfirmation
 import java.time.Instant
+import java.util.*
 
 class RegistrationConfirmationRepository(private val registrationConfirmationCollection: MongoCollection<Document>) {
 
     private val emailField = "email"
-    private val userIdField = "user-id"
+    private val userIdField = "_id"
     private val createdDateTimeField = "created-datetime"
     private val confirmationStatusField = "confirmation-status"
     private val confirmationCodeField = "confirmation-code"
 
     fun find(
+            userId: String
+    ): Optional<RegistrationConfirmation> {
+        return Optional.ofNullable(find(
+                userId = userId,
+                status = null
+        ).firstOrNull())
+    }
+
+    fun find(
+            userId: String? = null,
             status: ConfirmationStatus? = null
     ): List<RegistrationConfirmation> {
         return registrationConfirmationCollection.find(
                 BasicDBObject()
+                        .append("_id", userId)
                         .append("status", status)
         ).toList().map {
             RegistrationConfirmation(
@@ -41,5 +53,10 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
                         .append(confirmationStatusField, registrationConfirmation.confirmationStatus.name)
                         .append(createdDateTimeField, registrationConfirmation.createdDateTime.toEpochMilli())
         )
+    }
+
+    fun delete(userId: String): Boolean {
+        return registrationConfirmationCollection.deleteOne(BasicDBObject()
+                .append("_id", userId)).deletedCount == 1L
     }
 }

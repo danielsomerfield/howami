@@ -2,9 +2,11 @@ package somerfield.howamiservice.domain
 
 import org.apache.commons.lang3.RandomStringUtils
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.`is`
 import org.joda.time.format.ISODateTimeFormat
 import org.json.JSONObject
 import org.junit.Assert
+import org.junit.Assert.assertThat
 import somerfield.howamiservice.domain.LoginResult.*
 import somerfield.testing.HTTP
 import somerfield.testing.HealthCheckService
@@ -89,7 +91,9 @@ object UserServicesClient : HealthCheckService {
         )
         return when (response.status) {
             404 -> emptySet()
-            200 -> parseConfirmationRequest(response.json).filter { it.email == email }.toSet()
+            200 -> parseConfirmationRequest(response.json).filter {
+                it.email == email && it.confirmationStatus == ConfirmationStatus.SENT
+            }.toSet()
             else -> throw Exception("Unexpected status code ${response.status}")
         }
     }
@@ -108,30 +112,29 @@ object UserServicesClient : HealthCheckService {
     }
 
     fun confirmRegistration(userId: String, confirmationCode: String) {
-        println("confirming $userId / $confirmationCode")
-//        val response = HTTP.get(
-//                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
-//                headers = mapOf("Authorization" to "changeme") //TODO: enable authorization
-//        )
-//        return when (response.status) {
-//            404 -> emptySet()
-//            200 -> parseConfirmationRequest(response.json).filter { it.email == email }.toSet()
-//            else -> throw Exception("Unexpected status code ${response.status}")
-//        }
+        val response = HTTP.post(
+                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
+                contentType = "application/x-www-form-urlencoded",
+                content = "userId=${encode(userId)}&confirmationCode=${encode(confirmationCode)}"
+        )
+
+        assertThat(response.status, `is`(201))
     }
 
     fun login(username: String, password: String): LoginResult {
         val response = HTTP.post(
                 to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/login"),
-                content = "username=${URLEncoder.encode(username, "UTF-8")}&password=${URLEncoder.encode(password, "UTF-8")}",
+                content = "username=${encode(username)}&password=${encode(password)}",
                 contentType = "application/x-www-form-urlencoded"
         )
         return when (response.status) {
             200 -> SUCCESS
-            in(400..499) -> FAILURE
+            in (400..499) -> FAILURE
             else -> ERROR
         }
     }
+
+    private fun encode(paramValue: String) = URLEncoder.encode(paramValue, "UTF-8")
 }
 
 enum class ConfirmationStatus {

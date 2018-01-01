@@ -1,7 +1,6 @@
 package somerfield.howamiservice.wire
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.*
 
 data class UserRegistrationWireTypes
 constructor(
@@ -12,7 +11,7 @@ constructor(
 
 data class UserRegistrationResponseWireType
 constructor(
-        @JsonProperty("user-id") val userID: String
+        @JsonProperty("user-id") val userId: String
 )
 
 data class RegistrationConfirmationWireType
@@ -31,4 +30,11 @@ constructor(
 
         @JsonProperty("confirmation-status")
         val confirmationStatus: String
+)
+
+data class ConfirmationResponseWireType
+constructor(
+    @JsonProperty("result")
+    val result: String,
+    val message: String
 )

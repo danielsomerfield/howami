@@ -3,6 +3,7 @@ package somerfield.howamiservice.repositories
 import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
 import org.bson.Document
+import org.bson.types.ObjectId
 import somerfield.howamiservice.domain.AccountState
 import somerfield.howamiservice.domain.UserAccount
 import java.util.*
@@ -12,6 +13,7 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
     private val usernameField: String = "username"
     private val emailAddressField = "email_address"
     private val stateField = "state"
+    private val idField = "_id"
 
     fun create(userAccount: UserAccount): String {
         val document = Document()
@@ -21,7 +23,7 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
                 .append(emailAddressField, userAccount.emailAddress)
                 .append(stateField, userAccount.state.name)
         )
-        return document.getObjectId("_id").toString()
+        return document.getObjectId(idField).toString()
     }
 
     fun find(username: String): Optional<UserAccount> {
@@ -35,5 +37,11 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
                     state = AccountState.valueOf(doc.getString(stateField))
             )
         }
+    }
+
+    fun update(userId: String, state: AccountState): Boolean {
+        return userAccountCollection.findOneAndUpdate(
+                BasicDBObject().append(idField, ObjectId(userId)),
+                BasicDBObject().append("\$set", BasicDBObject(stateField, state.name))) != null
     }
 }
