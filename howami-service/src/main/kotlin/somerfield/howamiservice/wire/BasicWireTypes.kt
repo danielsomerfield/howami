@@ -26,10 +26,3 @@ data class ErrorResponseWireType (
 data class CommandResponseHeaderWireType
     constructor(
             @JsonProperty("request-id") val requestId: String)
-
-object JSON {
-    fun configureObjectMapper(objectMapper: ObjectMapper): ObjectMapper {
-        objectMapper.registerKotlinModule()
-        return objectMapper
-    }
-}

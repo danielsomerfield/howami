@@ -1,0 +1,10 @@
+group 'somerfield'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile ("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion")
+}
+

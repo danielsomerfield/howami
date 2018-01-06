@@ -2,19 +2,15 @@ group 'somerfield'
 
 apply plugin: 'application'
 
-mainClassName = "somerfield.howamiservice.HowAmIServiceApplicationKt"
+mainClassName = "somerfield.howami.commsservice.CommsService"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "io.dropwizard:dropwizard-core:$dropwizardVersion"
-    compile "com.github.fakemongo:fongo:2.1.+"
-    compile "org.mongodb:mongo-java-driver:3.5.+"
     compile ("com.smoketurner:dropwizard-swagger:$dropwizardVersion")
-
     compile project (':howami-common')
 
     testCompile "org.skyscreamer:jsonassert:$jsonAssertVersion"
@@ -25,8 +21,8 @@ dependencies {
 
 task dockerBuild(type: Exec) {
     commandLine('docker', 'build',
-            '--tag', "danielsomerfield/howami:${project.version}",
-            "--tag", "danielsomerfield/howami:latest",
+            '--tag', "danielsomerfield/howami-comms:${project.version}",
+            "--tag", "danielsomerfield/howami-comms:latest",
 	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
 }
 
