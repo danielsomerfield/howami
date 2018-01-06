@@ -25,6 +25,7 @@ import somerfield.howamiservice.resources.UserRegistrationResource
 import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
 import io.federecio.dropwizard.swagger.SwaggerBundle
+import org.apache.commons.text.RandomStringGenerator
 
 
 class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
@@ -102,7 +103,9 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
             confirmationCodeGenerator = confirmationCodeGenerator()
     )
 
-    private fun confirmationCodeGenerator() = { RandomStringUtils.randomAlphabetic(5).toUpperCase() }
+    private val randomStringGenerator = RandomStringGenerator.Builder().withinRange(arrayOf('A', 'Z').toCharArray()).build()
+
+    private fun confirmationCodeGenerator() = { randomStringGenerator.generate(5) }
 
     private fun requestIdSource() = requestIdSource //TODO: This needs to be replaced with something that reads headers
 
