@@ -14,6 +14,7 @@ dependencies {
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.5.+'
     compile group: 'com.github.fakemongo', name: 'fongo', version: '2.1.+'
     compile ("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
+    compile ("com.smoketurner:dropwizard-swagger:1.2.2-2")
 
     testCompile "org.skyscreamer:jsonassert:1.5.0"
     testCompile "org.json:json:20170516"

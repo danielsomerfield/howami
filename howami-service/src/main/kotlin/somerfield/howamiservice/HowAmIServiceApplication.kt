@@ -11,6 +11,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration
 import org.apache.commons.lang3.RandomStringUtils
 import somerfield.howamiservice.domain.LoginService
 import somerfield.howamiservice.domain.RegistrationConfirmationService
@@ -23,10 +24,12 @@ import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
 import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
+import io.federecio.dropwizard.swagger.SwaggerBundle
 
-class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
 
-    override fun run(configuration: OrderServiceConfiguration, environment: Environment) {
+class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
+
+    override fun run(configuration: HowamiServiceConfiguration, environment: Environment) {
 
 
         environment.healthChecks().register("basic", object : HealthCheck() {
@@ -35,19 +38,28 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
             }
         })
 
-        val binding = OrderServiceBinding.new(configuration)
+        val binding = HowamiServiceBinding.new(configuration)
         environment.jersey().register(binding.userRegistrationResource())
         environment.jersey().register(binding.registrationConfirmationResource())
         environment.jersey().register(binding.loginResource())
         environment.jersey().register(binding.confirmationNotificationResource())
         JSON.configureObjectMapper(environment.objectMapper)
+
     }
 
-    override fun initialize(bootstrap: Bootstrap<OrderServiceConfiguration>) {
+    override fun initialize(bootstrap: Bootstrap<HowamiServiceConfiguration>) {
         bootstrap.configurationSourceProvider = SubstitutingSourceProvider(
                 bootstrap.configurationSourceProvider,
                 EnvironmentVariableSubstitutor()
         )
+
+        bootstrap.addBundle(object : SwaggerBundle<HowamiServiceConfiguration>() {
+            override fun getSwaggerBundleConfiguration(configuration: HowamiServiceConfiguration): SwaggerBundleConfiguration {
+                return SwaggerBundleConfiguration().apply {
+                    this.resourcePackage = "somerfield.howamiservice.resources"
+                }
+            }
+        })
     }
 }
 
@@ -56,7 +68,7 @@ fun main(args: Array<String>) {
     HowAmIServiceApplication().run(*arguments)
 }
 
-data class OrderServiceConfiguration
+data class HowamiServiceConfiguration
 @JsonCreator
 constructor(
         @JsonProperty("mongoHost")
@@ -74,12 +86,13 @@ constructor(
     fun getMongoDatabase(): String {
         return mongoHost ?: "howami"
     }
+
 }
 
 /**
  * Low tech injection
  */
-class OrderServiceBinding(private val configuration: OrderServiceConfiguration) {
+class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration) {
 
     private val requestIdSource = RequestIdSource()
 
@@ -128,7 +141,7 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
     private fun userAccountRepository() = UserAccountRepository(mongoDatabase().getCollection("user_account"))
 
     companion object {
-        fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
+        fun new(howamiServiceConfiguration: HowamiServiceConfiguration) = HowamiServiceBinding(howamiServiceConfiguration)
     }
 
     fun confirmationNotificationResource() = ConfirmationNotificationsResource(requestIdSource, registrationConfirmationService())

@@ -47,3 +47,6 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Performance
 * Cached headers on resources
+
+## Misc Features
+* Integrate with swagger

@@ -1,5 +1,6 @@
 package somerfield.howamiservice.resources
 
+import io.swagger.annotations.Api
 import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.domain.UserRegistration
 import somerfield.howamiservice.domain.UserRegistrationCommand
@@ -16,6 +17,7 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/user-registrations")
+@Api()
 class UserRegistrationResource(
         private val userRegistrationService: UserRegistrationService,
         private val requestIdSource: RequestIdSource

@@ -1,5 +1,6 @@
 package somerfield.howamiservice.resources
 
+import io.swagger.annotations.Api
 import somerfield.howamiservice.domain.ConfirmationResult
 import somerfield.howamiservice.domain.ConfirmationResult.*
 import somerfield.howamiservice.domain.RegistrationConfirmation
@@ -11,6 +12,7 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/api/v1/registration-confirmations")
+@Api()
 class RegistrationConfirmationResource(
         private val registrationConfirmationService: RegistrationConfirmationService,
         private val requestIdSource: RequestIdSource
