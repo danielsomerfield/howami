@@ -2,7 +2,7 @@ group 'somerfield'
 
 apply plugin: 'application'
 
-mainClassName = "somerfield.howami.commsservice.CommsService"
+mainClassName = "somerfield.howami.commsservice.CommsServiceApplicationKt"
 
 repositories {
     mavenCentral()

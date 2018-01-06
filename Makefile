@@ -1,4 +1,4 @@
-.PHONY: integration build stop dependencies
+.PHONY: integration build stop dependencies ps logs logsf
 
 STAMP=`date +'%Y-%m-%d_%H%M%S'`
 VERSION := 1.0-SNAPSHOT
@@ -25,3 +25,12 @@ stop:
 
 clean:
 	./gradlew clean
+
+ps:
+	$(COMPOSE) -f docker-compose-e2e.yml ps
+
+logs:
+	$(COMPOSE) -f docker-compose-e2e.yml logs
+
+logsf:
+	$(COMPOSE) -f docker-compose-e2e.yml logs -f

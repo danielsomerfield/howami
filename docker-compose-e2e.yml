@@ -16,6 +16,23 @@ services:
       - TEST_MODE_ADMIN_TOKEN=changeme
       - MONGO_HOST=mongo
 
+  comms-service:
+    build:
+      context: ./howami-comms-service
+      args:
+        version: ${VERSION}
+    ports:
+      - 8090:8090
+      - 8091:8091
+    links:
+      - howami-service
+    depends_on:
+      - howami-service
+    environment:
+      - TEST_MODE_ADMIN_TOKEN=changeme
+      - TEST_MODE=true
+      - HOWAMI_SERVICE_HOST=howami-service
+
   e2e-tests:
     build:
       context: ./howami-e2e
@@ -23,10 +40,13 @@ services:
         version: ${VERSION}
     depends_on:
       - howami-service
+      - comms-service
     links:
       - mongo
       - howami-service
+      - comms-service
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - HOWAMI_SERVICE_BASE_URL=http://howami-service
+      - COMMS_SERVICE_BASE_URL=http://comms-service
