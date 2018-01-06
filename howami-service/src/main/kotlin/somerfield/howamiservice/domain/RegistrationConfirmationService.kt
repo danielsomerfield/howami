@@ -37,6 +37,12 @@ class RegistrationConfirmationService(
             INVALID
         }
     }
+
+    fun getUnsentConfirmations(): List<RegistrationConfirmation> {
+        return registrationConfirmationRepository.find(
+                status = ConfirmationStatus.QUEUED
+        )
+    }
 }
 
 enum class ConfirmationResult {

@@ -4,12 +4,8 @@ import somerfield.howamiservice.domain.ConfirmationResult
 import somerfield.howamiservice.domain.ConfirmationResult.*
 import somerfield.howamiservice.domain.RegistrationConfirmation
 import somerfield.howamiservice.domain.RegistrationConfirmationService
-import somerfield.howamiservice.wire.CommandResponseHeaderWireType
-import somerfield.howamiservice.wire.CommandResponseWireType
-import somerfield.howamiservice.wire.ConfirmationResponseWireType
-import somerfield.howamiservice.wire.RegistrationConfirmationWireType
+import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
-import java.time.format.DateTimeFormatter
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -61,20 +57,9 @@ class RegistrationConfirmationResource(
         return Response.ok(
                 CommandResponseWireType(
                         header = CommandResponseHeaderWireType(requestId),
-                        body = toWireType(confirmations)
+                        body = RegistrationConfirmationWireAdapter.toWireType(confirmations)
                 )
         ).build()
     }
-
-    private fun toWireType(outstandingConfirmations: List<RegistrationConfirmation>): List<RegistrationConfirmationWireType> {
-        return outstandingConfirmations.map {
-            RegistrationConfirmationWireType(
-                    it.email,
-                    it.userId,
-                    it.confirmationCode,
-                    DateTimeFormatter.ISO_INSTANT.format(it.createdDateTime),
-                    it.confirmationStatus.name
-            )
-        }
-    }
 }
+

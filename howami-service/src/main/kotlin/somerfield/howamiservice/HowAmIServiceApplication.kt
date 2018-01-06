@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase
-import somerfield.howamiservice.wire.JSON
 import io.dropwizard.Application
 import io.dropwizard.Configuration
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor
@@ -14,13 +13,15 @@ import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.apache.commons.lang3.RandomStringUtils
 import somerfield.howamiservice.domain.LoginService
-import somerfield.howamiservice.domain.UserRegistrationService
-import somerfield.howamiservice.repositories.UserAccountRepository
-import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.domain.RegistrationConfirmationService
+import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
+import somerfield.howamiservice.repositories.UserAccountRepository
+import somerfield.howamiservice.resources.ConfirmationNotificationsResource
 import somerfield.howamiservice.resources.LoginResource
+import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
+import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
 
 class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
@@ -38,6 +39,7 @@ class HowAmIServiceApplication : Application<OrderServiceConfiguration>() {
         environment.jersey().register(binding.userRegistrationResource())
         environment.jersey().register(binding.registrationConfirmationResource())
         environment.jersey().register(binding.loginResource())
+        environment.jersey().register(binding.confirmationNotificationResource())
         JSON.configureObjectMapper(environment.objectMapper)
     }
 
@@ -128,4 +130,6 @@ class OrderServiceBinding(private val configuration: OrderServiceConfiguration) 
     companion object {
         fun new(orderServiceConfiguration: OrderServiceConfiguration) = OrderServiceBinding(orderServiceConfiguration)
     }
+
+    fun confirmationNotificationResource() = ConfirmationNotificationsResource(requestIdSource, registrationConfirmationService())
 }

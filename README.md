@@ -44,3 +44,6 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Implement hash
 * Disable confirmation after a time period
 * Enable authorization on admin endpoints
+
+## Performance
+* Cached headers on resources
