@@ -6,15 +6,15 @@ import org.junit.Before
 import org.junit.Test
 import somerfield.howamiservice.domain.CommsServiceClient
 import somerfield.howamiservice.domain.LoginResult.FAILURE
-import somerfield.howamiservice.domain.LoginResult.SUCCESS
 import somerfield.howamiservice.domain.User
 import somerfield.howamiservice.domain.UserServicesClient
-import somerfield.testing.*
+import somerfield.testing.Async
 import somerfield.testing.Async.responseOf
-import somerfield.testing.Async.responseOfOptional
 import somerfield.testing.Async.waitFor
-import somerfield.testing.Async.waitForData
+import somerfield.testing.Health
+import somerfield.testing.Healthy
 import somerfield.testing.Matchers.healthy
+import somerfield.testing.toBe
 
 typealias CommandResponseSupplier<T> = () -> Async.CommandResponse<T>
 
