@@ -1,24 +1,26 @@
 package somerfield.howami.commsservice.jobs
 
-import java.time.Instant
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class JobScheduler {
+class JobScheduler(private val executorFactory: () -> ScheduledExecutorService = JobScheduler.createExecutor) {
 
-    private var maybeExecutor = Optional.of(createExecutor())
+    private var maybeExecutor = Optional.of(executorFactory())
 
     fun start() {
         maybeExecutor.ifPresent {
             if (it.isShutdown) {
-                maybeExecutor = Optional.of(createExecutor())
+                maybeExecutor = Optional.of(executorFactory())
             }
         }
     }
 
-    private fun createExecutor() = Executors.newSingleThreadScheduledExecutor()
+    companion object {
+        private val createExecutor = { Executors.newSingleThreadScheduledExecutor() }
+    }
 
     fun stop() {
         maybeExecutor.ifPresent { it.shutdown() }

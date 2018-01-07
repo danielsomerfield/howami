@@ -2,6 +2,7 @@ package somerfield.howami.commsservice.jobs
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import org.junit.Test
 import somerfield.howami.commsservice.domain.NotificationQueueService
@@ -57,7 +58,23 @@ class SendNotificationsJobTest {
         verify(userNotificationService).sendConfirmationRequest(notification2)
     }
 
+    @Test
+    fun testUnsentNotificationsNotSentIfDisabled() {
+        SendNotificationsJob(
+                notificationQueueService = notificationQueueService,
+                userNotificationService = userNotificationService,
+                notificationConfiguration = NotificationConfiguration(
+                        testMode = true
+                )
+        ).runJob()
+
+        verify(notificationQueueService).confirmingNotificationSent(userId1)
+        verify(notificationQueueService).confirmingNotificationSent(userId2)
+        verify(userNotificationService, times(0)).sendConfirmationRequest(notification1)
+        verify(userNotificationService,  times(0)).sendConfirmationRequest(notification2)
+    }
+
+
     //TODO: rety if failed
-    //TODO: test (non send) mode
     //TODO: what do we do if there is a failure to update the sent status? Local cache of status?
 }

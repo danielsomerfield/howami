@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import somerfield.testing.IntegrationTests
-import java.time.Instant
 
 @Category(IntegrationTests::class)
 class JobSchedulerIntegrationTest {
