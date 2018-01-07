@@ -27,7 +27,7 @@ class User {
 
     fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
         val requests = UserServicesClient.getRegistrationConfirmation(email = email)
-        return Optional.ofNullable(requests.sortedBy { request -> request.createdDateTime }.lastOrNull())
+        return Optional.ofNullable(requests.lastOrNull())
     }
 
     fun confirm(confirmation: RegistrationConfirmation) {
