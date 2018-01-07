@@ -64,7 +64,7 @@ class SendNotificationsJobTest {
                 notificationQueueService = notificationQueueService,
                 userNotificationService = userNotificationService,
                 notificationConfiguration = NotificationConfiguration(
-                        testMode = true
+                        disableSending = true
                 )
         ).runJob()
 

@@ -1,35 +1,28 @@
 package somerfield.howami.commsservice.jobs
 
-import java.util.*
+import somerfield.time.TimeInterval
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class JobScheduler(private val executorFactory: () -> ScheduledExecutorService = JobScheduler.createExecutor) {
+typealias Job = () -> Unit
 
-    private var maybeExecutor = Optional.of(executorFactory())
+class JobScheduler(private val executorFactory: ScheduledExecutorService = JobScheduler.createExecutor()) {
 
-    fun start() {
-        maybeExecutor.ifPresent {
-            if (it.isShutdown) {
-                maybeExecutor = Optional.of(executorFactory())
-            }
-        }
-    }
+    private var executor = executorFactory
 
     companion object {
         private val createExecutor = { Executors.newSingleThreadScheduledExecutor() }
     }
 
     fun stop() {
-        maybeExecutor.ifPresent { it.shutdown() }
+        executor.shutdown()
     }
 
-    fun schedule(job: () -> Unit, every: TimeInterval): JobControl {
-        val scheduled = maybeExecutor.orElseThrow { RuntimeException("") }
-                .scheduleAtFixedRate(job, 0, every.toMillis(), TimeUnit.MILLISECONDS)
+    fun schedule(job: Job, every: TimeInterval): JobControl {
 
+        val scheduled = executor.scheduleAtFixedRate(job, 0, every.inMillis(), TimeUnit.MILLISECONDS)
         return JobControl(scheduled)
     }
 
@@ -43,12 +36,4 @@ data class JobControl(private val future: Future<*>) {
     fun stop(mayInterruptIfRunning: Boolean = false) {
         future.cancel(mayInterruptIfRunning)
     }
-}
-
-data class TimeInterval(private val millis: Long) {
-    fun toMillis() = millis;
-}
-
-fun Number.seconds(): TimeInterval {
-    return TimeInterval(this.toLong() * 1000)
 }

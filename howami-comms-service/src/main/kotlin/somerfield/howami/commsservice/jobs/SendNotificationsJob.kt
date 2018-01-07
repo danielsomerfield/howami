@@ -9,19 +9,24 @@ class SendNotificationsJob(
         private val notificationConfiguration: NotificationConfiguration = NotificationConfiguration.default()
 ) {
     fun runJob() {
-        notificationQueueService.getPendingNotifications().forEach {
-            if (notificationConfiguration.testMode) {
-                println("Warning: test mode enabled. Messages will not be sent")
-            } else {
-                userNotificationService.sendConfirmationRequest(it)
+        try {
+            val pendingNotifications = notificationQueueService.getPendingNotifications()
+            pendingNotifications.forEach {
+                if (notificationConfiguration.disableSending) {
+                    println("Warning: SendNotificationsJob sending disabled, messages will not be sent")
+                } else {
+                    userNotificationService.sendConfirmationRequest(it)
+                }
+                notificationQueueService.confirmingNotificationSent(it.userId)
             }
-            notificationQueueService.confirmingNotificationSent(it.userId)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }
 
 data class NotificationConfiguration(
-    val testMode: Boolean = false
+    val disableSending: Boolean = false
 ) {
     companion object {
         fun default() = NotificationConfiguration()

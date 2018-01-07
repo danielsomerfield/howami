@@ -7,38 +7,34 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import somerfield.testing.IntegrationTests
+import somerfield.time.seconds
 
 @Category(IntegrationTests::class)
 class JobSchedulerIntegrationTest {
 
-    private val jobScheduler = JobScheduler()
+    private var jobScheduler:JobScheduler? = null
 
     @Before
     fun init() {
-        jobScheduler.start()
+        jobScheduler = JobScheduler()
     }
 
     @After
     fun cleanup() {
-        jobScheduler.stop()
+        jobScheduler?.stop()
     }
 
     @Test()
     fun jobRunsOnExpectedSchedule() {
         var runCount = 0
 
-        val jobId = jobScheduler.schedule(
+        val jobId = jobScheduler!!.schedule(
                 job = { runCount++ },
                 every = 2.seconds()
         )
 
-        Thread.sleep(7.seconds().toMillis())
+        Thread.sleep(7.seconds().inMillis())
 
-        assertThat(runCount, `is`(4))
-
-        jobScheduler.stopJob(jobId)
-
-        Thread.sleep(3.seconds().toMillis())
         assertThat(runCount, `is`(4))
 
     }
