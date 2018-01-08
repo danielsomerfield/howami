@@ -28,7 +28,7 @@ class JobSchedulerIntegrationTest {
     fun jobRunsOnExpectedSchedule() {
         var runCount = 0
 
-        val jobId = jobScheduler!!.schedule(
+        jobScheduler!!.schedule(
                 job = { runCount++ },
                 every = 2.seconds()
         )
@@ -38,6 +38,28 @@ class JobSchedulerIntegrationTest {
         assertThat(runCount, `is`(4))
 
     }
+
+    @Test()
+    fun jobStops() {
+        var runCount = 0
+
+        val job = jobScheduler!!.schedule(
+                job = { runCount++ },
+                every = 2.seconds()
+        )
+
+        Thread.sleep(7.seconds().inMillis())
+
+        assertThat(runCount, `is`(4))
+
+        jobScheduler!!.stopJob(job)
+
+        Thread.sleep(4.seconds().inMillis())
+
+        assertThat(runCount, `is`(4))
+
+    }
+
 }
 
 

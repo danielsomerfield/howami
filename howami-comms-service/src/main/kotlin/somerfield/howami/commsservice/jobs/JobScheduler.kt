@@ -8,20 +8,13 @@ import java.util.concurrent.TimeUnit
 
 typealias Job = () -> Unit
 
-class JobScheduler(private val executorFactory: ScheduledExecutorService = JobScheduler.createExecutor()) {
-
-    private var executor = executorFactory
-
-    companion object {
-        private val createExecutor = { Executors.newSingleThreadScheduledExecutor() }
-    }
+class JobScheduler(private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()) {
 
     fun stop() {
         executor.shutdown()
     }
 
     fun schedule(job: Job, every: TimeInterval): JobControl {
-
         val scheduled = executor.scheduleAtFixedRate(job, 0, every.inMillis(), TimeUnit.MILLISECONDS)
         return JobControl(scheduled)
     }

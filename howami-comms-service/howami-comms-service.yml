@@ -8,4 +8,4 @@ logging:
 
 testMode: ${TEST_MODE}
 notificationIntervalSeconds: ${NOTIFICATION_INTERVAL_SECONDS}
-#howamiServiceHost: ${HOWAMI_SERVICE_HOST}
+howamiServiceHost: ${HOWAMI_SERVICE_HOST}

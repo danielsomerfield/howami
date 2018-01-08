@@ -1,6 +1,8 @@
 package somerfield.howami.commsservice.domain
 
-class NotificationQueueService {
+import somerfield.http.HttpClient
+
+class NotificationQueueService(private val httpClient: HttpClient = HttpClient()) {
 
     fun getPendingNotifications(): List<PendingNotification> {
         TODO()

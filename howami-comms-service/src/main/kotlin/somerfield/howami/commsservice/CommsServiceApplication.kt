@@ -51,19 +51,26 @@ constructor(
         @JsonProperty("testMode")
         private val testMode: Boolean?,
         @JsonProperty("notificationIntervalSeconds")
-        private val notificationIntervalSeconds: Long?
+        private val notificationIntervalSeconds: Long?,
+        @JsonProperty("howamiServiceHost")
+        private val howamiServiceHost: String?
 ) : Configuration() {
 
-    constructor() : this(testMode = null, notificationIntervalSeconds = null)
+    constructor() : this(testMode = null, notificationIntervalSeconds = null, howamiServiceHost = null)
+
+    private val defaultNotificationInterval = 1.minute().inSeconds()
+    private val defaultHowamiServiceHost: String = "localhost:8080"
 
     fun getTestMode(): Boolean {
         return testMode ?: true
     }
 
-    private val defaultNotificationInterval = 1.minute().inSeconds()
-
     fun getNotificationIntervalSeconds(): Long {
         return notificationIntervalSeconds ?: defaultNotificationInterval
+    }
+
+    fun getHowamiServiceHost(): String {
+        return howamiServiceHost ?: defaultHowamiServiceHost;
     }
 }
 
@@ -75,7 +82,7 @@ class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceCon
         jobs().forEach { job -> jobScheduler.schedule(job.job, job.interval) }
     }
 
-    fun jobs(): List<ScheduledJob> = listOf(
+    private fun jobs(): List<ScheduledJob> = listOf(
             ScheduledJob(
                     SendNotificationsJob(
                             notificationQueueService = notificationQueueService(),
