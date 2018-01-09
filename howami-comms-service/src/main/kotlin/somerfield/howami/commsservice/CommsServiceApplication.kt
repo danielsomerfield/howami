@@ -99,7 +99,9 @@ class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceCon
             disableSending = commsServiceConfiguration.getTestMode()
     )
 
-    private fun notificationQueueService() = NotificationQueueService()
+    private fun notificationQueueService() = NotificationQueueService(
+            baseURI = commsServiceConfiguration.getHowamiServiceHost()
+    )
 
     private fun userNotificationService() = UserNotificationService()
 

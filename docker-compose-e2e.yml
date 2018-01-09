@@ -31,7 +31,7 @@ services:
     environment:
       - TEST_MODE_ADMIN_TOKEN=changeme
       - TEST_MODE=true
-      - HOWAMI_SERVICE_HOST=howami-service
+      - HOWAMI_SERVICE_HOST=http://howami-service
       - NOTIFICATION_INTERVAL_SECONDS=2
 
   e2e-tests:
