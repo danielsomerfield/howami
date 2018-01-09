@@ -1,10 +1,9 @@
 package somerfield.howamiservice.wire
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class CommandWireType<out T> constructor(
         @JsonProperty("body") val body: T)
 
@@ -23,6 +22,7 @@ data class ErrorResponseWireType (
         val errorMessage: String
 ) : ResponseWireType<Nothing>()
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class CommandResponseHeaderWireType
-    constructor(
-            @JsonProperty("request-id") val requestId: String)
+constructor(
+        @JsonProperty("request-id") val requestId: String)

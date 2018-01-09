@@ -6,7 +6,6 @@ import org.hamcrest.CoreMatchers.`is`
 import org.json.JSONObject
 import org.junit.Assert.assertThat
 import org.junit.Test
-import java.util.*
 
 class WireTypesTest {
 

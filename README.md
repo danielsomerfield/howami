@@ -32,9 +32,13 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Offline sync
 
 # TODO
+## Cleanup
+* Consistency in JSON naming
 
-## Primary Use Case
-* Service that sends email and transitiions queued -> sent
+## Primary Use Cases
+* Account Confirmation
+    * Service that sends email and transitions queued -> sent (in process)
+    * Disable confirmation after a time period* 
 
 ## Operational
 * Enable caching in circle CI
@@ -42,11 +46,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Security
 * Implement hash
-* Disable confirmation after a time period
 * Enable authorization on admin endpoints
 
 ## Performance
 * Cached headers on resources
-
-## Misc Features
-* Integrate with swagger

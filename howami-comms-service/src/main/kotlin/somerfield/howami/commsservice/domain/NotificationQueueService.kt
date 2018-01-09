@@ -3,6 +3,8 @@ package somerfield.howami.commsservice.domain
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import somerfield.howami.commsservice.wire.PendingNotificationWireType
+import somerfield.howamiservice.wire.CommandResponseWireType
 import somerfield.http.HttpClient
 import java.io.InputStream
 import java.net.URI
@@ -20,17 +22,24 @@ class NotificationQueueService(
         println(to)
         return httpClient.get(
                 to
-        ).entityStream.map {input ->
+        ).entityStream.map { input ->
             fromWireType(input)
         }.orElse(emptyList())
     }
 
-    private val typeReference = object : TypeReference<List<PendingNotification>>() {
-
-    }
+    private val typeReference = object : TypeReference<CommandResponseWireType<List<PendingNotificationWireType>>>() {}
 
     private fun fromWireType(input: InputStream): List<PendingNotification> {
-        TODO()
+        val (header, body) = objectMapper.readValue(input, typeReference) as CommandResponseWireType<List<PendingNotificationWireType>>
+        return body.map { fromWireType(it) }
+    }
+
+    private fun fromWireType(wireType: PendingNotificationWireType): PendingNotification {
+        return PendingNotification(
+                userId = wireType.userId,
+                email = wireType.email,
+                confirmationCode = wireType.confirmationCode
+        )
     }
 
     fun confirmingNotificationSent(userId: String) {
@@ -38,5 +47,4 @@ class NotificationQueueService(
     }
 }
 
-//TODO: need wire types with entire message shape
 data class PendingNotification(val userId: String, val email: String, val confirmationCode: String)

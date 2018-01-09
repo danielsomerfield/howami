@@ -61,7 +61,6 @@ class NotificationQueueServiceTest {
     }
 
     @Test
-    @Ignore
     fun getPendingNotificationsWhenSuccessfulResponse() {
         val notifications = NotificationQueueService(
                 httpClient = httpClient,
