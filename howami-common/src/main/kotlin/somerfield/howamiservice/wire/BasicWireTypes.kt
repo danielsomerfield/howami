@@ -11,14 +11,19 @@ sealed class ResponseWireType<T> {
     abstract val header: CommandResponseHeaderWireType
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class CommandResponseWireType<T>(
         override val header: CommandResponseHeaderWireType,
         val body: T
 ) : ResponseWireType<T>()
 
-data class ErrorResponseWireType (
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ErrorResponseWireType constructor(
+        @JsonProperty("header")
         override val header: CommandResponseHeaderWireType,
+        @JsonProperty("error-code")
         val errorCode: String,
+        @JsonProperty("error-message")
         val errorMessage: String
 ) : ResponseWireType<Nothing>()
 

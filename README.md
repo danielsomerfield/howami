@@ -33,9 +33,10 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 # TODO
 ## Cleanup
-* Consistency in JSON naming
+
 
 ## Primary Use Cases
+* Implement hash
 * Account Confirmation
     * Service that sends email and transitions queued -> sent (in process)
     * Disable confirmation after a time period* 
@@ -45,8 +46,8 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Run smoke tests against production
 
 ## Security
-* Implement hash
 * Enable authorization on admin endpoints
 
 ## Performance
 * Cached headers on resources
+* Speed up JobSchedulerIntegrationTest
