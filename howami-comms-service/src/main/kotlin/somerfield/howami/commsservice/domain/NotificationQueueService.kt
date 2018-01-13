@@ -1,50 +1,40 @@
 package somerfield.howami.commsservice.domain
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import somerfield.howami.commsservice.wire.PendingNotificationWireType
-import somerfield.howamiservice.wire.CommandResponseWireType
-import somerfield.http.HttpClient
-import java.io.InputStream
-import java.net.URI
+import somerfield.howami.commsservice.domain.NotificationStatus.FAILED
+import somerfield.howami.commsservice.domain.NotificationStatus.SUCCESS
+
+typealias MessageBuilder = (userId: String, emailAddress: String, confirmationCode: String) -> String
 
 class NotificationQueueService(
-        private val httpClient: HttpClient = HttpClient(),
-        private val baseURI: String
+        private val userNotificationService: UserNotificationService,
+        private val userNotificationEventNotifier: NotificationEventNotifier,
+        private val messageBuilder: MessageBuilder,
+        private val testMode: () -> Boolean
 ) {
-
-    private val servicePath = "api/v1/confirmation-notifications"
-    private val objectMapper = ObjectMapper().registerKotlinModule()
-
-    fun getPendingNotifications(): List<PendingNotification> {
-        val to = URI.create("$baseURI/$servicePath")
-        println(to)
-        return httpClient.get(
-                to
-        ).entityStream.map { input ->
-            fromWireType(input)
-        }.orElse(emptyList())
-    }
-
-    private val typeReference = object : TypeReference<CommandResponseWireType<List<PendingNotificationWireType>>>() {}
-
-    private fun fromWireType(input: InputStream): List<PendingNotification> {
-        val (header, body) = objectMapper.readValue(input, typeReference) as CommandResponseWireType<List<PendingNotificationWireType>>
-        return body.map { fromWireType(it) }
-    }
-
-    private fun fromWireType(wireType: PendingNotificationWireType): PendingNotification {
-        return PendingNotification(
-                userId = wireType.userId,
-                email = wireType.email,
-                confirmationCode = wireType.confirmationCode
+    fun userRegistered(userRegistrationEvent: UserRegistrationEvent) {
+        val message = messageBuilder(
+                userRegistrationEvent.userId,
+                userRegistrationEvent.emailAddress,
+                userRegistrationEvent.confirmationCode
         )
-    }
 
-    fun confirmingNotificationSent(userId: String) {
-        TODO()
+        if (!testMode()) {
+            val notifyResult = userNotificationService.sendNotification(userRegistrationEvent.emailAddress, message)
+            when (notifyResult.result) {
+                SUCCESS -> userNotificationEventNotifier.send(NotificationSentEvent(
+                        userId = userRegistrationEvent.userId
+                ))
+                FAILED -> userNotificationEventNotifier.send(NotificationSendFailedEvent(
+                        userId = userRegistrationEvent.userId, errorMessage = notifyResult.message
+                ))
+            }
+
+        }
     }
 }
 
-data class PendingNotification(val userId: String, val email: String, val confirmationCode: String)
+data class UserRegistrationEvent(
+        val userId: String,
+        val emailAddress: String,
+        val confirmationCode: String
+)

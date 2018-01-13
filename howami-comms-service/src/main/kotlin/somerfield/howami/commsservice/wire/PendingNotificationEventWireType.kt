@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PendingNotificationWireType
+data class PendingNotificationEventWireType
 constructor(
         @JsonProperty("user-id")
         val userId: String,

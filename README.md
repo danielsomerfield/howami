@@ -49,6 +49,10 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Security
 * Enable authorization on admin endpoints
 
+## Testing
+* Add "test" header to message format so that destructive external operations can be disabled
+ per-message
+
 ## Performance
 * Cached headers on resources
 * Speed up JobSchedulerIntegrationTest

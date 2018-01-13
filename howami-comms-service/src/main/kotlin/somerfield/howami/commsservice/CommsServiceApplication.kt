@@ -9,13 +9,8 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
-import somerfield.howami.commsservice.domain.NotificationQueueService
-import somerfield.howami.commsservice.domain.UserNotificationService
-import somerfield.howami.commsservice.jobs.*
 import somerfield.howamiservice.wire.JSON
-import somerfield.time.TimeInterval
 import somerfield.time.minute
-import somerfield.time.seconds
 
 class CommsServiceApplication : Application<CommsServiceConfiguration>() {
 
@@ -64,51 +59,12 @@ constructor(
     fun getTestMode(): Boolean {
         return testMode ?: true
     }
-
-    fun getNotificationIntervalSeconds(): Long {
-        return notificationIntervalSeconds ?: defaultNotificationInterval
-    }
-
-    fun getHowamiServiceHost(): String {
-        return howamiServiceHost ?: defaultHowamiServiceHost;
-    }
 }
 
 class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceConfiguration) {
 
-    private val jobScheduler = JobScheduler()
-
     fun bind() {
-//        jobs().forEach { job -> jobScheduler.schedule(job.job, job.interval) }
+
     }
 
-    private fun jobs(): List<ScheduledJob> = listOf(
-            ScheduledJob(
-                    SendNotificationsJob(
-                            notificationQueueService = notificationQueueService(),
-                            userNotificationService = userNotificationService(),
-                            notificationConfiguration = notificationConfiguration()
-                    )::runJob,
-                    sendNotificationsInterval()
-            )
-    )
-
-    private fun sendNotificationsInterval() = commsServiceConfiguration.getNotificationIntervalSeconds().seconds()
-
-    private fun notificationConfiguration() = NotificationConfiguration(
-            disableSending = commsServiceConfiguration.getTestMode()
-    )
-
-    private fun notificationQueueService() = NotificationQueueService(
-            baseURI = commsServiceConfiguration.getHowamiServiceHost()
-    )
-
-    private fun userNotificationService() = UserNotificationService()
-
-
 }
-
-data class ScheduledJob(
-        val job: Job,
-        val interval: TimeInterval
-)
