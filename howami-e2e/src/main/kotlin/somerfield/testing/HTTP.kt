@@ -29,7 +29,8 @@ object HTTP {
         val entity = StringEntity(content)
         entity.setContentType(contentType)
         post.entity = entity
-        return HttpResponse(HttpClientBuilder.create().build().execute(post))
+        val responseImpl = HttpClientBuilder.create().build().execute(post)
+        return HttpResponse(responseImpl)
     }
 
 }

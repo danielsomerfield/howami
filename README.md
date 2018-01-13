@@ -33,7 +33,8 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 # TODO
 ## Cleanup
-
+- replace links with user defined networks in compose
+- remove dependency ordering so services don't count on it
 
 ## Primary Use Cases
 * Implement hash
@@ -51,3 +52,6 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Performance
 * Cached headers on resources
 * Speed up JobSchedulerIntegrationTest
+
+## Reliability
+* Retry / back-offs on cross-service operations

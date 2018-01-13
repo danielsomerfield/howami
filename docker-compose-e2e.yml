@@ -12,9 +12,11 @@ services:
       - mongo
     depends_on:
       - mongo
+      - kafka
     environment:
       - TEST_MODE_ADMIN_TOKEN=changeme
       - MONGO_HOST=mongo
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   comms-service:
     build:
@@ -42,6 +44,7 @@ services:
     depends_on:
       - howami-service
       - comms-service
+      - kafka
     links:
       - mongo
       - howami-service

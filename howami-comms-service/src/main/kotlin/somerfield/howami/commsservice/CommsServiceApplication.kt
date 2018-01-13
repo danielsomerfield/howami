@@ -79,7 +79,7 @@ class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceCon
     private val jobScheduler = JobScheduler()
 
     fun bind() {
-        jobs().forEach { job -> jobScheduler.schedule(job.job, job.interval) }
+//        jobs().forEach { job -> jobScheduler.schedule(job.job, job.interval) }
     }
 
     private fun jobs(): List<ScheduledJob> = listOf(

@@ -11,10 +11,13 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import io.federecio.dropwizard.swagger.SwaggerBundle
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration
-import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.text.RandomStringGenerator
+import org.apache.kafka.clients.producer.KafkaProducer
 import somerfield.howamiservice.domain.LoginService
 import somerfield.howamiservice.domain.RegistrationConfirmationService
+import somerfield.howamiservice.domain.UserEventProducer
 import somerfield.howamiservice.domain.UserRegistrationService
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
@@ -24,9 +27,6 @@ import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
 import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
-import io.federecio.dropwizard.swagger.SwaggerBundle
-import org.apache.commons.text.RandomStringGenerator
-import somerfield.howamiservice.domain.UserEventProducer
 
 
 class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
@@ -76,10 +76,12 @@ constructor(
         @JsonProperty("mongoHost")
         private val mongoHost: String?,
         @JsonProperty("mongoDatabase")
-        private val mongoDatabase: String?
+        private val mongoDatabase: String?,
+        @JsonProperty("kafkaBootstrapServers")
+        private val kafkaBootstrapServers: String?
 ) : Configuration() {
 
-    constructor() : this(null, null)
+    constructor() : this(null, null, null)
 
     fun getMongoHost(): String {
         return mongoHost ?: "localhost"
@@ -89,6 +91,9 @@ constructor(
         return mongoHost ?: "howami"
     }
 
+    fun getKafkaBootstrapServers(): String {
+        return kafkaBootstrapServers ?: "localhost:9092"
+    }
 }
 
 /**
@@ -139,7 +144,15 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
             userEventProducer = userEventProducer()
     )
 
-    private fun userEventProducer(): UserEventProducer = UserEventProducer()
+    private fun userEventProducer(): UserEventProducer = UserEventProducer(kafkaProducer())
+
+    private fun kafkaProducer() = KafkaProducer<Unit, ByteArray>(kafkaProperties())
+
+    private fun kafkaProperties() = mapOf(
+            "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
+            "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
+            "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer"
+    )
 
     private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
 
