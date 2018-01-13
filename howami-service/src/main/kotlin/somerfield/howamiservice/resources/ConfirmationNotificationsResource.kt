@@ -19,6 +19,7 @@ class ConfirmationNotificationsResource(
         private val registrationConfirmationService: RegistrationConfirmationService
 ) {
 
+    //TODO: remove this entirely and fire event
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     fun get(): Response {

@@ -15,8 +15,6 @@ class RegistrationConfirmationServiceTest {
     private val userAccountRepository: UserAccountRepository = mock {}
 
     private val userId = UUID.randomUUID().toString()
-    private val emailAddress = "test@example.com"
-
 
     @Test
     fun queueConfirmationHappyPath() {
@@ -25,14 +23,16 @@ class RegistrationConfirmationServiceTest {
 
         val confirmationService = service(confirmationCode, now)
 
-        confirmationService.queueConfirmation(emailAddress, userId)
-        verify(registrationConfirmationRepository).create(RegistrationConfirmation(
-                email = emailAddress,
+        val confirmation = confirmationService.queueConfirmation(userId)
+        val expectedConfirmation = RegistrationConfirmation(
                 userId = userId,
                 confirmationCode = confirmationCode,
                 createdDateTime = now,
-                confirmationStatus = ConfirmationStatus.QUEUED
-        ))
+                confirmationStatus = ConfirmationStatus.UNCONFIRMED
+        )
+        verify(registrationConfirmationRepository).create(expectedConfirmation)
+
+        assertThat(confirmation, `is`(expectedConfirmation))
     }
 
     @Test
@@ -62,11 +62,10 @@ class RegistrationConfirmationServiceTest {
     private fun service(confirmationCode: String, now: Instant): RegistrationConfirmationService {
         whenever(registrationConfirmationRepository.find(userId)).thenReturn(
                 Optional.of(RegistrationConfirmation(
-                        email = emailAddress,
                         userId = userId,
                         confirmationCode = confirmationCode,
                         createdDateTime = now,
-                        confirmationStatus = ConfirmationStatus.SENT
+                        confirmationStatus = ConfirmationStatus.UNCONFIRMED
                 ))
         )
         return RegistrationConfirmationService(

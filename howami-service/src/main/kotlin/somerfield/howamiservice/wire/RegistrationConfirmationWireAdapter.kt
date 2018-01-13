@@ -12,7 +12,6 @@ object RegistrationConfirmationWireAdapter {
 
     private fun toWireType(it: RegistrationConfirmation): RegistrationConfirmationWireType {
         return RegistrationConfirmationWireType(
-                it.email,
                 it.userId,
                 it.confirmationCode,
                 DateTimeFormatter.ISO_INSTANT.format(it.createdDateTime),

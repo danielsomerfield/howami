@@ -26,6 +26,7 @@ import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
 import io.federecio.dropwizard.swagger.SwaggerBundle
 import org.apache.commons.text.RandomStringGenerator
+import somerfield.howamiservice.domain.UserEventProducer
 
 
 class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
@@ -134,8 +135,11 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
     private fun userRegistrationService() = UserRegistrationService(
             userAccountRepository = userAccountRepository(),
             registrationConfirmationService = registrationConfirmationService(),
-            hashPassword = hashPasswordFn()
+            hashPassword = hashPasswordFn(),
+            userEventProducer = userEventProducer()
     )
+
+    private fun userEventProducer(): UserEventProducer = UserEventProducer()
 
     private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
 

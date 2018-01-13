@@ -36,17 +36,16 @@ class RegistrationConfirmationRepositoryIntegrationTest {
     private val userId1 = ObjectId.get()
     private val email1 = "test@example.com"
     private val createdDateTime1 = now()
-    private val confirmationStatus1 = ConfirmationStatus.QUEUED
+    private val confirmationStatus1 = ConfirmationStatus.UNCONFIRMED
     private val confirmationCode1 = UUID.randomUUID().toString()
 
     private val userId2 = ObjectId.get()
     private val email2 = "test@example.com"
     private val createdDateTime2 = now()
-    private val confirmationStatus2 = ConfirmationStatus.SENT
+    private val confirmationStatus2 = ConfirmationStatus.CONFIRMED
     private val confirmationCode2 = UUID.randomUUID().toString()
 
     private val expected1 = RegistrationConfirmation(
-            email = email1,
             userId = userId1.toString(),
             confirmationCode = confirmationCode1,
             createdDateTime = createdDateTime1,
@@ -54,7 +53,6 @@ class RegistrationConfirmationRepositoryIntegrationTest {
     )
 
     private val expected2 = RegistrationConfirmation(
-            email = email2,
             userId = userId2.toString(),
             confirmationCode = confirmationCode2,
             createdDateTime = createdDateTime2,
@@ -108,8 +106,8 @@ class RegistrationConfirmationRepositoryIntegrationTest {
     @Test
     fun testFindByConfirmationStatus() {
         assertThat(repository!!.find(
-                status = ConfirmationStatus.SENT
-        ), `is`(listOf(expected2)))
+                status = ConfirmationStatus.UNCONFIRMED
+        ), `is`(listOf(expected1)))
     }
 
 }

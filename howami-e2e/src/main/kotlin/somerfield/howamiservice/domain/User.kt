@@ -26,8 +26,8 @@ class User {
     }
 
     fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
-        val requests = UserServicesClient.getRegistrationConfirmation(email = email)
-        return Optional.ofNullable(requests.lastOrNull())
+        //TODO: read from kafka topic
+        return Optional.empty()
     }
 
     fun confirm(confirmation: RegistrationConfirmation) {
@@ -84,25 +84,10 @@ object UserServicesClient : HealthCheckService {
         return UserRegistration(response.json.getJSONObject("body").getString("user-id"))
     }
 
-    fun getRegistrationConfirmation(email: String): Set<RegistrationConfirmation> {
-        val response = HTTP.get(
-                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
-                headers = mapOf("Authorization" to "changeme")
-        )
-        return when (response.status) {
-            404 -> emptySet()
-            200 -> parseConfirmationRequest(response.json).filter {
-                it.email == email && it.confirmationStatus == ConfirmationStatus.SENT
-            }.toSet()
-            else -> throw Exception("Unexpected status code ${response.status}")
-        }
-    }
-
     private fun parseConfirmationRequest(json: JSONObject): List<RegistrationConfirmation> {
         return json.getJSONArray("body").map {
             val confReqJSON = it as JSONObject
             RegistrationConfirmation(
-                    confReqJSON.getString("email"),
                     confReqJSON.getString("user-id"),
                     confReqJSON.getString("confirmation-code"),
                     ISODateTimeFormat.dateTimeParser().parseDateTime(confReqJSON.getString("created-datetime")).toDate(),
@@ -144,7 +129,6 @@ enum class ConfirmationStatus {
 }
 
 data class RegistrationConfirmation(
-        val email: String,
         val userId: String,
         val confirmationCode: String,
         val createdDateTime: Date,

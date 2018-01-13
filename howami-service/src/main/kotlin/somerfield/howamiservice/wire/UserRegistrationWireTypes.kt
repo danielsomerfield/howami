@@ -20,9 +20,6 @@ constructor(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RegistrationConfirmationWireType
 constructor(
-        @JsonProperty("email")
-        val email: String,
-
         @JsonProperty("user-id")
         val userId: String,
 

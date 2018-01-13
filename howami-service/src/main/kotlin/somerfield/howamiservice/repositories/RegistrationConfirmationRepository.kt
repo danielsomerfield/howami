@@ -36,7 +36,6 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
                         .appendIfNotNull(confirmationStatusField, status, { it.name })
         ).toList().map {
             RegistrationConfirmation(
-                    email = it.getString(emailField),
                     userId = it.getObjectId(userIdField).toString(),
                     confirmationCode = it.getString(this.confirmationCodeField),
                     createdDateTime = Instant.ofEpochMilli(it.getLong(createdDateTimeField)),
@@ -48,7 +47,6 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
     fun create(registrationConfirmation: RegistrationConfirmation) {
         registrationConfirmationCollection.insertOne(
                 Document()
-                        .append(emailField, registrationConfirmation.email)
                         .append(userIdField, ObjectId(registrationConfirmation.userId))
                         .append(confirmationCodeField, registrationConfirmation.confirmationCode)
                         .append(confirmationStatusField, registrationConfirmation.confirmationStatus.name)

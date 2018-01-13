@@ -17,14 +17,15 @@ class RegistrationConfirmationService(
         return registrationConfirmationRepository.find()
     }
 
-    fun queueConfirmation(emailAddress: String, userId: String) {
-        registrationConfirmationRepository.create(RegistrationConfirmation(
-                email = emailAddress,
+    fun queueConfirmation(userId: String): RegistrationConfirmation {
+        val newConfirmation = RegistrationConfirmation(
                 userId = userId,
                 confirmationCode = confirmationCodeGenerator(),
                 createdDateTime = dateTimeSource(),
-                confirmationStatus = ConfirmationStatus.QUEUED
-        ))
+                confirmationStatus = ConfirmationStatus.UNCONFIRMED
+        )
+        registrationConfirmationRepository.create(newConfirmation)
+        return newConfirmation;
     }
 
     fun confirm(userId: String, confirmationCode: String): ConfirmationResult {
@@ -40,7 +41,7 @@ class RegistrationConfirmationService(
 
     fun getUnsentConfirmations(): List<RegistrationConfirmation> {
         return registrationConfirmationRepository.find(
-                status = ConfirmationStatus.QUEUED
+                status = ConfirmationStatus.UNCONFIRMED
         )
     }
 }

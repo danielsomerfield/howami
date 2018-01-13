@@ -5,7 +5,8 @@ import somerfield.howamiservice.repositories.UserAccountRepository
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
         private val registrationConfirmationService: RegistrationConfirmationService,
-        private val hashPassword: PasswordHashAlgorithm = { it }
+        private val hashPassword: PasswordHashAlgorithm = { it },
+        private val userEventProducer: UserEventProducer
 ) {
 
     fun register(userRegistrationCommand: UserRegistrationCommand): Result<UserRegistration, ServiceError> {
@@ -19,7 +20,13 @@ class UserRegistrationService(
                 AccountState.PENDING
         ))
 
-        registrationConfirmationService.queueConfirmation(userRegistrationCommand.email, userId)
+        val confirmation = registrationConfirmationService.queueConfirmation(userId)
+
+        userEventProducer.userRegistered(UserRegistrationEvent(
+                userId = userId,
+                emailAddress = userRegistrationCommand.email,
+                confirmationCode = confirmation.confirmationCode
+        ))
 
         return Result.Success(UserRegistration(
                 userId = userId

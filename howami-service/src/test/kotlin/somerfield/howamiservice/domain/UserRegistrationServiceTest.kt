@@ -8,12 +8,19 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
+import org.mockito.Mockito.`when`
 import somerfield.howamiservice.repositories.UserAccountRepository
+import java.time.Instant
 import java.util.*
 
 class UserRegistrationServiceTest {
 
-    val generatedUserId = UUID.randomUUID().toString()
+    //Mocked data
+    private val generatedUserId = UUID.randomUUID().toString()
+    private val confirmationCode = UUID.randomUUID().toString()
+    private val now = Instant.now()
+
+    //Mocks
     private val userRegistrationRepository = mock<UserAccountRepository> {
         on {
             create(any())
@@ -24,35 +31,50 @@ class UserRegistrationServiceTest {
 
     }
 
+    private val userEventProducer = mock<UserEventProducer> {
+
+    }
+
     private val userRegistrationService = UserRegistrationService(
             userAccountRepository = userRegistrationRepository,
             registrationConfirmationService = registrationConfirmationService,
-            hashPassword = { pwd -> pwd.toUpperCase() }
+            hashPassword = { pwd -> pwd.toUpperCase() },
+            userEventProducer = userEventProducer
     )
 
     @Test
-    fun userRegistrationCreatesRecord() {
+    fun userRegistrationHappyPath() {
 
-        val result = userRegistrationService.register(UserRegistrationCommand("uname", "pwd", "foo@example.com"))
+        val username = "uname"
+        val emailAddress = "foo@example.com"
+
+        `when`(registrationConfirmationService.queueConfirmation(
+                userId = generatedUserId
+        )).thenReturn(RegistrationConfirmation(
+                userId = generatedUserId,
+                confirmationCode = confirmationCode,
+                createdDateTime = now,
+                confirmationStatus = ConfirmationStatus.UNCONFIRMED
+        ))
+
+        val result = userRegistrationService.register(UserRegistrationCommand(username, "pwd", emailAddress))
         when (result) {
             is Result.Success -> assertThat(result.response.userId, `is`(generatedUserId))
             else -> fail()
         }
+
         verify(userRegistrationRepository).create(UserAccount(
-                username = "uname",
+                username = username,
                 passwordHash = "PWD",
-                emailAddress = "foo@example.com",
+                emailAddress = emailAddress,
                 state = AccountState.PENDING
         ))
-    }
 
-    @Test
-    fun userRegistrationSendsConfirmationRequest() {
-        userRegistrationService.register(UserRegistrationCommand("uname", "pwd", "foo@example.com"))
-        verify(registrationConfirmationService).queueConfirmation(
-                emailAddress = "foo@example.com",
-                userId = generatedUserId
-        )
+        verify(userEventProducer).userRegistered(UserRegistrationEvent(
+                userId = generatedUserId,
+                emailAddress = emailAddress,
+                confirmationCode = confirmationCode
+        ))
     }
 
     //TODO: validations
