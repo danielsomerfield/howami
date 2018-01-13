@@ -9,6 +9,10 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import somerfield.howami.commsservice.domain.MessageBuilder
+import somerfield.howami.commsservice.domain.NotificationEventNotifier
+import somerfield.howami.commsservice.domain.NotificationQueueService
+import somerfield.howami.commsservice.domain.UserNotificationService
 import somerfield.howamiservice.wire.JSON
 import somerfield.time.minute
 
@@ -53,9 +57,6 @@ constructor(
 
     constructor() : this(testMode = null, notificationIntervalSeconds = null, howamiServiceHost = null)
 
-    private val defaultNotificationInterval = 1.minute().inSeconds()
-    private val defaultHowamiServiceHost: String = "localhost:8080"
-
     fun getTestMode(): Boolean {
         return testMode ?: true
     }
@@ -64,7 +65,16 @@ constructor(
 class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceConfiguration) {
 
     fun bind() {
-
+        NotificationQueueService(
+                userNotificationService = userNotificationService(),
+                userNotificationEventNotifier = NotificationEventNotifier(),
+                messageBuilder = messageBuilder(),
+                testMode = { commsServiceConfiguration.getTestMode() }
+        )
     }
+
+    private fun messageBuilder(): MessageBuilder = { _, _, _ -> "NYI" }
+
+    private fun userNotificationService() = UserNotificationService()
 
 }

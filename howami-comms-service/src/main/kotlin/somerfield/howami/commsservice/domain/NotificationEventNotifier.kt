@@ -2,11 +2,11 @@ package somerfield.howami.commsservice.domain
 
 class NotificationEventNotifier {
     fun send(notificationSentEvent: NotificationSentEvent) {
-        TODO("NYI")
+//        TODO("NYI")
     }
 
     fun send(notificationSentEvent: NotificationSendFailedEvent) {
-        TODO("NYI")
+//        TODO("NYI")
     }
 }
 

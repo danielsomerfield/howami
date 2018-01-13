@@ -12,6 +12,9 @@ dependencies {
     compile "io.dropwizard:dropwizard-core:$dropwizardVersion"
     compile ("com.smoketurner:dropwizard-swagger:$dropwizardVersion")
     compile project (':howami-common')
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+    compile group: 'org.apache.kafka', name: 'kafka-streams', version: '1.0.0'
 
     testCompile "org.skyscreamer:jsonassert:$jsonAssertVersion"
     testCompile "org.json:json:$jsonVersion"

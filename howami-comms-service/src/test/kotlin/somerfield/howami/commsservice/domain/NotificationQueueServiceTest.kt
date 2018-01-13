@@ -37,7 +37,6 @@ class NotificationQueueServiceTest {
 
     @Test
     fun userNotificationOnRegistrationEvent() {
-
         notificationQueueService.userRegistered(UserRegistrationEvent(
                 userId = userId,
                 emailAddress = emailAddress,

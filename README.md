@@ -59,3 +59,4 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Reliability
 * Retry / back-offs on cross-service operations
+* Handle bad messages on the kafka streams
