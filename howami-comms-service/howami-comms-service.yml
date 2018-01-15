@@ -7,5 +7,4 @@ logging:
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
 
 testMode: ${TEST_MODE}
-notificationIntervalSeconds: ${NOTIFICATION_INTERVAL_SECONDS}
-howamiServiceHost: ${HOWAMI_SERVICE_HOST}
+kafkaBootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS}

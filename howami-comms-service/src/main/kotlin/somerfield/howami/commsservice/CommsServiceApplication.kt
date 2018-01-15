@@ -11,7 +11,7 @@ import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Producer
-import somerfield.howami.commsservice.domain.MessageBuilder
+import somerfield.howami.commsservice.domain.DefaultMessageBuilder
 import somerfield.howami.commsservice.domain.NotificationEventProducer
 import somerfield.howami.commsservice.domain.NotificationQueueService
 import somerfield.howami.commsservice.domain.UserNotificationService
@@ -50,35 +50,45 @@ class CommsServiceConfiguration
 constructor(
         @JsonProperty("testMode")
         private val testMode: Boolean?,
-        @JsonProperty("notificationIntervalSeconds")
-        private val notificationIntervalSeconds: Long?,
-        @JsonProperty("howamiServiceHost")
-        private val howamiServiceHost: String?
+        @JsonProperty("kafkaBootstrapServers")
+        private val kafkaBootstrapServers: String?
 ) : Configuration() {
 
-    constructor() : this(testMode = null, notificationIntervalSeconds = null, howamiServiceHost = null)
+    constructor() : this(
+            testMode = null,
+            kafkaBootstrapServers = null
+    )
 
     fun getTestMode(): Boolean {
         return testMode ?: true
     }
+
+    fun getKafkaBootstrapServers(): String {
+        return kafkaBootstrapServers ?: "localhost:9092"
+    }
 }
 
-class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceConfiguration) {
+class CommsServiceBinding(private val configuration: CommsServiceConfiguration) {
 
     fun bind() {
-//        NotificationQueueService(
-//                userNotificationService = userNotificationService(),
-//                userNotificationEventProducer = NotificationEventProducer(kafkaProducer()),
-//                messageBuilder = messageBuilder(),
-//                testMode = { commsServiceConfiguration.getTestMode() }
-//        )
+        NotificationQueueService(
+                userNotificationService = userNotificationService(),
+                userNotificationEventProducer = NotificationEventProducer(kafkaProducer()),
+                messageBuilder = messageBuilder(),
+                testMode = { configuration.getTestMode() }
+        )
     }
 
     private fun kafkaProducer(): Producer<Unit, ByteArray> {
-        TODO()
+        return KafkaProducer<Unit, ByteArray>(kafkaProperties())
     }
 
-    private fun messageBuilder(): MessageBuilder = { _, _, _ -> "NYI" }
+    private fun kafkaProperties() = mapOf(
+            "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
+            "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
+            "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer")
+
+    private fun messageBuilder() = DefaultMessageBuilder.buildMessage
 
     private fun userNotificationService() = UserNotificationService()
 

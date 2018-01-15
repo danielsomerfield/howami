@@ -6,7 +6,6 @@ import com.nhaarman.mockito_kotlin.verify
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json.JSONObject
-import org.junit.Ignore
 import org.junit.Test
 import java.util.*
 
@@ -20,24 +19,34 @@ class NotificationEventProducerTest {
             kafkaProducer = kafkaProducer
     )
 
-    val expectedMessage = """
+    private val expectedNotificationSentMessage = """
+            {
+                "body": {
+                    "user-id":"$userId"
+                }
+            }
+        """.trimIndent()
+
+    private val expectedNotificationFailedMessage = """
             {
                 "body": {
                     "user-id":"$userId",
+                    "error-message":"send failed"
                 }
             }
         """.trimIndent()
 
     @Test
-    @Ignore
     fun sendNotificationSentEvent() {
         notificationEventProducer.send(NotificationSentEvent(userId))
-        verify(kafkaProducer).send(argThat { matches(jsonMessage = expectedMessage, topicName = "notification-sent-event") })
-
+        verify(kafkaProducer).send(argThat { matches(jsonMessage = expectedNotificationSentMessage, topicName = "registration-notification-sent-event") })
     }
 
     @Test
     fun sendNotificationSendFailedEvent() {
+        notificationEventProducer.send(NotificationSendFailedEvent(userId, "send failed"))
+        verify(kafkaProducer).send(argThat { matches(
+                jsonMessage = expectedNotificationFailedMessage, topicName = "registration-notification-failed-event") })
     }
 }
 

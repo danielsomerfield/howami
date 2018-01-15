@@ -3,8 +3,6 @@ package somerfield.howami.commsservice.domain
 import somerfield.howami.commsservice.domain.NotificationStatus.FAILED
 import somerfield.howami.commsservice.domain.NotificationStatus.SUCCESS
 
-typealias MessageBuilder = (userId: String, emailAddress: String, confirmationCode: String) -> String
-
 class NotificationQueueService(
         private val userNotificationService: UserNotificationService,
         private val userNotificationEventProducer: NotificationEventProducer,
