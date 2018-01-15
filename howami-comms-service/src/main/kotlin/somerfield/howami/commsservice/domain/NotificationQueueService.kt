@@ -7,7 +7,7 @@ typealias MessageBuilder = (userId: String, emailAddress: String, confirmationCo
 
 class NotificationQueueService(
         private val userNotificationService: UserNotificationService,
-        private val userNotificationEventNotifier: NotificationEventNotifier,
+        private val userNotificationEventProducer: NotificationEventProducer,
         private val messageBuilder: MessageBuilder,
         private val testMode: () -> Boolean
 ) {
@@ -21,10 +21,10 @@ class NotificationQueueService(
         if (!testMode()) {
             val notifyResult = userNotificationService.sendNotification(userRegistrationEvent.emailAddress, message)
             when (notifyResult.result) {
-                SUCCESS -> userNotificationEventNotifier.send(NotificationSentEvent(
+                SUCCESS -> userNotificationEventProducer.send(NotificationSentEvent(
                         userId = userRegistrationEvent.userId
                 ))
-                FAILED -> userNotificationEventNotifier.send(NotificationSendFailedEvent(
+                FAILED -> userNotificationEventProducer.send(NotificationSendFailedEvent(
                         userId = userRegistrationEvent.userId, errorMessage = notifyResult.message
                 ))
             }

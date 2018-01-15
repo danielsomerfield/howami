@@ -7,6 +7,7 @@ repositories {
 dependencies {
     compile ("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion")
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+    compile "org.json:json:$jsonVersion"
 
 }
 

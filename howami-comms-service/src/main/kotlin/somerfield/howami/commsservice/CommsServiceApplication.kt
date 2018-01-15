@@ -9,12 +9,13 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.Producer
 import somerfield.howami.commsservice.domain.MessageBuilder
-import somerfield.howami.commsservice.domain.NotificationEventNotifier
+import somerfield.howami.commsservice.domain.NotificationEventProducer
 import somerfield.howami.commsservice.domain.NotificationQueueService
 import somerfield.howami.commsservice.domain.UserNotificationService
 import somerfield.howamiservice.wire.JSON
-import somerfield.time.minute
 
 class CommsServiceApplication : Application<CommsServiceConfiguration>() {
 
@@ -65,12 +66,16 @@ constructor(
 class CommsServiceBinding(private val commsServiceConfiguration: CommsServiceConfiguration) {
 
     fun bind() {
-        NotificationQueueService(
-                userNotificationService = userNotificationService(),
-                userNotificationEventNotifier = NotificationEventNotifier(),
-                messageBuilder = messageBuilder(),
-                testMode = { commsServiceConfiguration.getTestMode() }
-        )
+//        NotificationQueueService(
+//                userNotificationService = userNotificationService(),
+//                userNotificationEventProducer = NotificationEventProducer(kafkaProducer()),
+//                messageBuilder = messageBuilder(),
+//                testMode = { commsServiceConfiguration.getTestMode() }
+//        )
+    }
+
+    private fun kafkaProducer(): Producer<Unit, ByteArray> {
+        TODO()
     }
 
     private fun messageBuilder(): MessageBuilder = { _, _, _ -> "NYI" }

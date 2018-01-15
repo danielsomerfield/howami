@@ -1,10 +1,8 @@
 package somerfield.howami.commsservice.domain
 
 import com.nhaarman.mockito_kotlin.*
-import org.junit.Ignore
 import org.junit.Test
 
-import java.time.Instant
 import java.util.*
 
 class NotificationQueueServiceTest {
@@ -26,11 +24,11 @@ class NotificationQueueServiceTest {
             sendNotification(emailAddress, successMessage)
         } doReturn (NotificationResponse("success", NotificationStatus.SUCCESS))
     }
-    private val userNotificationEventNotifier = mock<NotificationEventNotifier> {}
+    private val userNotificationEventNotifier = mock<NotificationEventProducer> {}
 
     private val notificationQueueService = NotificationQueueService(
             userNotificationService = userNotificationService,
-            userNotificationEventNotifier = userNotificationEventNotifier,
+            userNotificationEventProducer = userNotificationEventNotifier,
             messageBuilder = messageBuilder,
             testMode = { testMode }
     )

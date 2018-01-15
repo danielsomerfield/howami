@@ -1,6 +1,11 @@
 package somerfield.howami.commsservice.domain
 
-class NotificationEventNotifier {
+import org.apache.kafka.clients.producer.Producer
+
+class NotificationEventProducer(
+        private val kafkaProducer: Producer<Unit, ByteArray>
+
+) {
     fun send(notificationSentEvent: NotificationSentEvent) {
 //        TODO("NYI")
     }
