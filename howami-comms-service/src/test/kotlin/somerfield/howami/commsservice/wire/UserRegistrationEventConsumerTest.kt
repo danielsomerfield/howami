@@ -12,6 +12,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
+import somerfield.howami.commsservice.domain.UserRegistrationEvent
 import java.util.*
 
 class UserRegistrationEventConsumerTest {
@@ -42,7 +43,7 @@ class UserRegistrationEventConsumerTest {
         )))
     }
 
-    private val collected = mutableListOf<UserRegistrationEventWireType>()
+    private val collected = mutableListOf<UserRegistrationEvent>()
 
     private val userRegistrationEventConsumer = UserRegistrationEventConsumer(
             kafkaConsumer = kafkaConsumer,
@@ -57,9 +58,9 @@ class UserRegistrationEventConsumerTest {
     @Test
     fun pollOnceWithData() {
         userRegistrationEventConsumer.pollOnce()
-        assertThat(collected, `is`(listOf(UserRegistrationEventWireType(
+        assertThat(collected, `is`(listOf(UserRegistrationEvent(
                 userId = userId,
-                email = emailAddress,
+                emailAddress = emailAddress,
                 confirmationCode = confirmationCode
         )).asIterable()))
     }
@@ -79,9 +80,9 @@ class UserRegistrationEventConsumerTest {
         whenever(kafkaConsumer.poll(any())).thenReturn(ConsumerRecords(withBadRecords))
 
         val result = userRegistrationEventConsumer.pollOnce()
-        assertThat(collected, `is`(listOf(UserRegistrationEventWireType(
+        assertThat(collected, `is`(listOf(UserRegistrationEvent(
                 userId = userId,
-                email = emailAddress,
+                emailAddress = emailAddress,
                 confirmationCode = confirmationCode
         )).asIterable()))
     }

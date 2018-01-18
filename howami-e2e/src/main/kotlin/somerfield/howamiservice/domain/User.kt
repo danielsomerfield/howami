@@ -1,6 +1,8 @@
 package somerfield.howamiservice.domain
 
 import org.apache.commons.lang3.RandomStringUtils
+import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.joda.time.format.ISODateTimeFormat
@@ -26,7 +28,9 @@ class User {
     }
 
     fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
-        //TODO: read from kafka topic
+//        val consumer = KafkaConsumer<Unit, ByteArray>(mapOf(
+//
+//        ))
         return Optional.empty()
     }
 

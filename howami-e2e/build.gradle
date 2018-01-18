@@ -16,6 +16,8 @@ dependencies {
     compile "junit:junit:4.12"
     compile "org.json:json:20170516"
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.235'
+    compile group: 'org.apache.kafka', name: 'kafka-streams', version: '1.0.0'
+
 }
 
 task dockerBuild(type: Exec) {

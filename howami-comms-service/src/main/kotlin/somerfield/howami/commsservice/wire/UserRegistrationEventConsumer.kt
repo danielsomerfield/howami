@@ -1,20 +1,23 @@
 package somerfield.howami.commsservice.wire
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
+import somerfield.howami.commsservice.domain.UserRegistrationEvent
 import somerfield.howamiservice.wire.JSON
 import java.io.Closeable
 import java.util.*
 
-typealias UserRegistrationCallback = (UserRegistrationEventWireType)->Unit
+typealias UserRegistrationCallback = (UserRegistrationEvent) -> Unit
 
 class UserRegistrationEventConsumer(
         private val kafkaConsumer: Consumer<Unit, ByteArray>,
-        private val configuration: Configuration = Configuration.default(),
-        private val callback: UserRegistrationCallback = {}
+        private val callback: UserRegistrationCallback = {},
+        private val configuration: Configuration = Configuration.default()
 ) : Closeable, Runnable {
 
     private val objectMapper = JSON.configureObjectMapper(ObjectMapper())
@@ -29,7 +32,7 @@ class UserRegistrationEventConsumer(
     }
 
     override fun run() {
-        while(running) {
+        while (running) {
             pollOnce()
         }
     }
@@ -40,11 +43,18 @@ class UserRegistrationEventConsumer(
 
     fun pollOnce() {
         kafkaConsumer.poll(configuration.pollTimeMillis)
-                .map { message -> toWireType(message)}
+                .map { message -> toWireType(message) }
                 .filter { it.isPresent }
-                .map { message -> message.get()}
-                .forEach { callback(it) }
+                .map { message -> message.get() }
+                .forEach { callback(fromWireType(it)) }
     }
+
+    private fun fromWireType(wire: UserRegistrationEventWireType) = UserRegistrationEvent(
+            userId = wire.userId,
+            emailAddress = wire.email,
+            confirmationCode = wire.confirmationCode
+    )
+
 
     private fun toWireType(record: ConsumerRecord<Unit, ByteArray>): Optional<UserRegistrationEventWireType> {
         return try {
@@ -67,6 +77,17 @@ class UserRegistrationEventConsumer(
             fun default() = Configuration()
         }
     }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class UserRegistrationEventWireType
+    constructor(
+            @JsonProperty("user-id")
+            val userId: String,
+            @JsonProperty("email")
+            val email: String,
+            @JsonProperty("confirmation-code")
+            val confirmationCode: String
+    )
 
 
 }

@@ -5,12 +5,15 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import somerfield.howamiservice.domain.CommsServiceClient
-import somerfield.howamiservice.domain.LoginResult.FAILURE
+import somerfield.howamiservice.domain.LoginResult
+import somerfield.howamiservice.domain.LoginResult.*
 import somerfield.howamiservice.domain.User
 import somerfield.howamiservice.domain.UserServicesClient
 import somerfield.testing.Async
 import somerfield.testing.Async.responseOf
+import somerfield.testing.Async.responseOfOptional
 import somerfield.testing.Async.waitFor
+import somerfield.testing.Async.waitForData
 import somerfield.testing.Health
 import somerfield.testing.Healthy
 import somerfield.testing.Matchers.healthy
@@ -38,10 +41,10 @@ class HowAmISmokeTest {
         assertThat(user.login(), `is`(FAILURE))
         user.register()
 
-        //TODO: enable this once the confirmationing messaging service is implemented
+        //TODO: enable this once the confirmation messaging service is implemented
 //        waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
 //            assertThat(user.login(), `is`(FAILURE))
-//            user.confirm(it)
+////            user.confirm(it)
 ////            assertThat(user.login(), `is`(SUCCESS))
 //        }
     }

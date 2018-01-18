@@ -9,12 +9,12 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor
 import io.dropwizard.configuration.SubstitutingSourceProvider
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Producer
-import somerfield.howami.commsservice.domain.DefaultMessageBuilder
-import somerfield.howami.commsservice.domain.NotificationEventProducer
-import somerfield.howami.commsservice.domain.NotificationQueueService
-import somerfield.howami.commsservice.domain.UserNotificationService
+import somerfield.howami.commsservice.domain.*
+import somerfield.howami.commsservice.wire.UserRegistrationEventConsumer
 import somerfield.howamiservice.wire.JSON
 
 class CommsServiceApplication : Application<CommsServiceConfiguration>() {
@@ -27,7 +27,7 @@ class CommsServiceApplication : Application<CommsServiceConfiguration>() {
             }
         })
 
-        CommsServiceBinding(configuration).bind()
+        CommsServiceBinding(configuration, environment).bind()
 
         JSON.configureObjectMapper(environment.objectMapper)
     }
@@ -68,25 +68,58 @@ constructor(
     }
 }
 
-class CommsServiceBinding(private val configuration: CommsServiceConfiguration) {
+class CommsServiceBinding(
+        private val configuration: CommsServiceConfiguration,
+        private val environment: Environment
+
+) {
 
     fun bind() {
-        NotificationQueueService(
-                userNotificationService = userNotificationService(),
-                userNotificationEventProducer = NotificationEventProducer(kafkaProducer()),
-                messageBuilder = messageBuilder(),
-                testMode = { configuration.getTestMode() }
+        val userRegistrationEventConsumer = userRegistrationEventConsumer()
+        val eventConsumerExecutor = eventConsumerExecutor()
+        eventConsumerExecutor.execute(userRegistrationEventConsumer)
+    }
+
+    private fun eventConsumerExecutor() = environment.lifecycle().executorService("event-consumer-executor").build()
+
+    private fun userRegistrationEventConsumer(): UserRegistrationEventConsumer {
+        val notificationQueueService = notificationQueueService()
+        return UserRegistrationEventConsumer(
+                kafkaConsumer = kafkaConsumer(),
+                callback = { evt ->
+                    notificationQueueService.userRegistered(evt)
+                }
         )
     }
 
-    private fun kafkaProducer(): Producer<Unit, ByteArray> {
-        return KafkaProducer<Unit, ByteArray>(kafkaProperties())
+    private fun kafkaConsumer(): Consumer<Unit, ByteArray> {
+        return KafkaConsumer<Unit, ByteArray>(kafkaConsumerProperties())
     }
 
-    private fun kafkaProperties() = mapOf(
+    private fun notificationQueueService() = NotificationQueueService(
+            userNotificationService = userNotificationService(),
+            userNotificationEventProducer = NotificationEventProducer(kafkaProducer()),
+            messageBuilder = messageBuilder(),
+            testMode = { configuration.getTestMode() }
+    )
+
+
+    private fun kafkaProducer(): Producer<Unit, ByteArray> {
+        return KafkaProducer<Unit, ByteArray>(kafkaProducerProperties())
+    }
+
+    private fun kafkaProducerProperties() = mapOf(
             "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
             "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
             "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer")
+
+    private fun kafkaConsumerProperties() = mapOf(
+            "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
+            "group.id" to "comms-service-application",
+            "enable.auto.commit" to "true",
+            "key.deserializer" to "org.apache.kafka.common.serialization.ByteArrayDeserializer",
+            "value.deserializer" to "org.apache.kafka.common.serialization.ByteArrayDeserializer"
+    )
 
     private fun messageBuilder() = DefaultMessageBuilder.buildMessage
 
