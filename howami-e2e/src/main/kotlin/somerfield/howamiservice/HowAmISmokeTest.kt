@@ -44,6 +44,9 @@ class HowAmISmokeTest {
         //TODO: enable this once the confirmation messaging service is implemented
 //        waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
 //            assertThat(user.login(), `is`(FAILURE))
+//            println("*************************")
+//            println("********* $it ***********")
+//            println("*************************")
 ////            user.confirm(it)
 ////            assertThat(user.login(), `is`(SUCCESS))
 //        }

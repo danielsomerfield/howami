@@ -51,7 +51,7 @@ class UserRegistrationEventConsumer(
 
     private fun fromWireType(wire: UserRegistrationEventWireType) = UserRegistrationEvent(
             userId = wire.userId,
-            emailAddress = wire.email,
+            emailAddress = wire.emailAddress,
             confirmationCode = wire.confirmationCode
     )
 
@@ -61,7 +61,7 @@ class UserRegistrationEventConsumer(
             val event: EventWireType<UserRegistrationEventWireType> = objectMapper.readValue(record.value(), typeRef)
             Optional.ofNullable(event.body)
         } catch (e: Exception) {
-            logger.warn("Bad user-registration-event record at offset ${record.offset()}, partition: ${record.partition()}, timestamp ${record.timestamp()}")
+            logger.warn("Bad user-registration-event record at offset ${record.offset()}, partition: ${record.partition()}, timestamp ${record.timestamp()}: $e")
             Optional.empty()
         }
     }
@@ -83,8 +83,8 @@ class UserRegistrationEventConsumer(
     constructor(
             @JsonProperty("user-id")
             val userId: String,
-            @JsonProperty("email")
-            val email: String,
+            @JsonProperty("email-address")
+            val emailAddress: String,
             @JsonProperty("confirmation-code")
             val confirmationCode: String
     )

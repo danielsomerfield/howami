@@ -16,7 +16,11 @@ class NotificationQueueService(
                 userRegistrationEvent.confirmationCode
         )
 
-        if (!testMode()) {
+        if (testMode()) {
+            userNotificationEventProducer.send(NotificationSentEvent(
+                    userId = userRegistrationEvent.userId
+            ))
+        } else {
             val notifyResult = userNotificationService.sendNotification(userRegistrationEvent.emailAddress, message)
             when (notifyResult.result) {
                 SUCCESS -> userNotificationEventProducer.send(NotificationSentEvent(
@@ -26,7 +30,6 @@ class NotificationQueueService(
                         userId = userRegistrationEvent.userId, errorMessage = notifyResult.message
                 ))
             }
-
         }
     }
 }

@@ -65,6 +65,7 @@ class NotificationQueueServiceTest {
                 confirmationCode = confirmationCode
         ));
 
-        verifyNoMoreInteractions(userNotificationEventNotifier)
+        verifyNoMoreInteractions(userNotificationService)
+        verify(userNotificationEventNotifier).send(NotificationSentEvent(userId))
     }
 }

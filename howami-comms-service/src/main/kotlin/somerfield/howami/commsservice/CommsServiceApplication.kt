@@ -64,7 +64,7 @@ constructor(
     }
 
     fun getKafkaBootstrapServers(): String {
-        return kafkaBootstrapServers ?: "localhost:9092"
+        return kafkaBootstrapServers ?: "kafka:9092"
     }
 }
 

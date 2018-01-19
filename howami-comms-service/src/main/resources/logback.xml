@@ -27,4 +27,8 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
+    <logger name="somerfield" level="debug">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
 </configuration>

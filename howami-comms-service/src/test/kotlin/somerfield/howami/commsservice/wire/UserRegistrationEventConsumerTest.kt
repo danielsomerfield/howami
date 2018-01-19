@@ -26,7 +26,7 @@ class UserRegistrationEventConsumerTest {
     {
         "body": {
             "user-id": "$userId",
-            "email": "$emailAddress",
+            "email-address": "$emailAddress",
             "confirmation-code": "$confirmationCode"
         }
     }
