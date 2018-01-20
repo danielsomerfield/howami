@@ -34,6 +34,10 @@ object Async {
         val received = waitFor(fn, { response ->
             when (response) {
                 is Async.CommandResponse.DataResponse -> true
+                is Async.CommandResponse.ExceptionResponse -> {
+                    println(response.e.message)
+                    false
+                }
                 else -> false
             }
         }, timeoutInSeconds)

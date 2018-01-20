@@ -19,8 +19,6 @@ import somerfield.testing.Healthy
 import somerfield.testing.Matchers.healthy
 import somerfield.testing.toBe
 
-typealias CommandResponseSupplier<T> = () -> Async.CommandResponse<T>
-
 class HowAmISmokeTest {
 
     private val user = User()
@@ -42,14 +40,14 @@ class HowAmISmokeTest {
         user.register()
 
         //TODO: enable this once the confirmation messaging service is implemented
-//        waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
-//            assertThat(user.login(), `is`(FAILURE))
-//            println("*************************")
-//            println("********* $it ***********")
-//            println("*************************")
-////            user.confirm(it)
-////            assertThat(user.login(), `is`(SUCCESS))
-//        }
+        waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
+            assertThat(user.login(), `is`(FAILURE))
+            println("*************************")
+            println("********* $it ***********")
+            println("*************************")
+//            user.confirm(it)
+//            assertThat(user.login(), `is`(SUCCESS))
+        }
     }
 
 }

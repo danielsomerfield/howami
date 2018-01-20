@@ -22,16 +22,45 @@ class User {
     private val username = "user-$randomNumeric"
     private val password = "password-$randomNumeric"
     private val email = "email-$randomNumeric@example.com"
+    private val kafkaBootstrapServers = System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
+
+    private val consumer = KafkaConsumer<Unit, ByteArray>(mapOf(
+            "bootstrap.servers" to kafkaBootstrapServers,
+            "group.id" to "howami-e2e-user",
+            "enable.auto.commit" to "true",
+            "key.deserializer" to "org.apache.kafka.common.serialization.ByteArrayDeserializer",
+            "value.deserializer" to "org.apache.kafka.common.serialization.ByteArrayDeserializer"
+    ))
+
+    init {
+        consumer.subscribe(mutableListOf("registration-notification-sent-event"))
+    }
 
     fun register(): UserRegistration {
         return UserServicesClient.registerUser(username, password, email)
     }
 
     fun receiveConfirmationRequest(): Optional<RegistrationConfirmation> {
-//        val consumer = KafkaConsumer<Unit, ByteArray>(mapOf(
-//
-//        ))
-        return Optional.empty()
+        return consumer.poll(100)
+                .map { record -> record.value() }
+                .map { bytes -> JSONObject(String(bytes, Charsets.UTF_8)) }
+                .firstOrNull()
+                .toOptional()
+                .flatMap { notificationSentEventJSONToUserId(it) }
+                .flatMap { id -> UserServicesClient.getConfirmations(id) }
+    }
+
+    companion object {
+        fun notificationSentEventJSONToUserId(jsonObject: JSONObject): Optional<String> {
+            return try {
+                val body = jsonObject.getJSONObject("body")
+                Optional.of(body.getString("user-id"))
+            } catch (e: Exception) {
+                println("Failed to parse $jsonObject")
+                e.printStackTrace()
+                Optional.empty()
+            }
+        }
     }
 
     fun confirm(confirmation: RegistrationConfirmation) {
@@ -124,12 +153,25 @@ object UserServicesClient : HealthCheckService {
     }
 
     private fun encode(paramValue: String) = URLEncoder.encode(paramValue, "UTF-8")
+
+    fun getConfirmations(userId: String): Optional<RegistrationConfirmation> {
+        val response = HTTP.get(
+                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
+                headers = mapOf("Authorization" to "changeme")
+        )
+        return when (response.status) {
+            404 -> Optional.empty()
+            200 -> parseConfirmationRequest(response.json).filter {
+                it.userId == userId
+            }.first().toOptional()
+            else -> throw Exception("Unexpected status code ${response.status}")
+        }
+    }
 }
 
 enum class ConfirmationStatus {
-    SENT,
     CONFIRMED,
-    QUEUED
+    UNCONFIRMED
 }
 
 data class RegistrationConfirmation(
@@ -138,3 +180,5 @@ data class RegistrationConfirmation(
         val createdDateTime: Date,
         val confirmationStatus: ConfirmationStatus
 )
+
+fun <T> T?.toOptional() = Optional.ofNullable<T>(this)

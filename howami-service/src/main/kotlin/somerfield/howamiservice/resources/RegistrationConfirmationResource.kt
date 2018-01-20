@@ -18,7 +18,7 @@ class RegistrationConfirmationResource(
         private val requestIdSource: RequestIdSource
 ) {
 
-    /*@GET
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     fun getAllRegistrationConfirmations(): Response {
         val result =
@@ -28,7 +28,7 @@ class RegistrationConfirmationResource(
                 requestIdSource.getOrCreate(),
                 result
         )
-    }*/
+    }
 
     @POST
     fun confirmRegistration(

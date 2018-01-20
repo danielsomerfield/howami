@@ -17,7 +17,7 @@ dependencies {
     compile "org.json:json:20170516"
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.235'
     compile group: 'org.apache.kafka', name: 'kafka-streams', version: '1.0.0'
-
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
 task dockerBuild(type: Exec) {
