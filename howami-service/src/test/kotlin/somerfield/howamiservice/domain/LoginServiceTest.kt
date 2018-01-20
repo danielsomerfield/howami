@@ -12,6 +12,7 @@ import java.util.*
 class LoginServiceTest {
 
     private val hash: PasswordHashAlgorithm = String::toUpperCase
+    private val validateHash: PasswordValidationAlgorithm = { value, hash -> value.toUpperCase() == hash }
 
     private val invalidUsername = "invalidUsername"
     private val validUsername = "validUsername"
@@ -43,7 +44,7 @@ class LoginServiceTest {
         )))
     }
 
-    private val loginService = LoginService(userAccountRepository, hash)
+    private val loginService = LoginService(userAccountRepository, validateHash)
 
     @Test
     fun loginFailureBadUsername() {

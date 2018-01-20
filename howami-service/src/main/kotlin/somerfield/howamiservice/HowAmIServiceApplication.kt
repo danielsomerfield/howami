@@ -15,6 +15,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration
 import org.apache.commons.text.RandomStringGenerator
 import org.apache.kafka.clients.producer.KafkaProducer
+import somerfield.howamiservice.crypto.Hashing
 import somerfield.howamiservice.domain.accounts.LoginService
 import somerfield.howamiservice.domain.accounts.RegistrationConfirmationService
 import somerfield.howamiservice.domain.accounts.UserEventProducer
@@ -134,7 +135,7 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
 
     private fun loginService() = LoginService(
             userAccountRepository(),
-            hashPasswordFn()
+            validatePasswordFn()
     )
 
     private fun userRegistrationService() = UserRegistrationService(
@@ -154,7 +155,9 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
             "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer"
     )
 
-    private fun hashPasswordFn() = { password: String -> password } //TODO: implement scrypt-based hashing
+    private fun hashPasswordFn() = Hashing::buildHash
+
+    private fun validatePasswordFn() = Hashing::validate
 
     private fun mongoDatabase(): MongoDatabase = MongoClient(configuration.getMongoHost()).getDatabase(configuration.getMongoDatabase())
 

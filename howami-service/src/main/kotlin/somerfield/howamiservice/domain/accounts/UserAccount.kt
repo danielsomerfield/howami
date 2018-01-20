@@ -8,3 +8,4 @@ enum class AccountState {
 }
 
 typealias PasswordHashAlgorithm = (String) -> String
+typealias PasswordValidationAlgorithm = (String, String) -> Boolean

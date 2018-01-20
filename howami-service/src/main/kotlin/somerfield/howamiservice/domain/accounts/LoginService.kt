@@ -4,7 +4,7 @@ import somerfield.howamiservice.repositories.UserAccountRepository
 
 class LoginService(
         private val userAccountRepository: UserAccountRepository,
-        private val hash: PasswordHashAlgorithm
+        private val validation: PasswordValidationAlgorithm
 
 ) {
     fun login(username: String, password: String): LoginResponse {
@@ -13,8 +13,8 @@ class LoginService(
                 .filter { passwordMatches(password, it) }.isPresent) LoginResponse.SUCCEEDED else LoginResponse.FAILED
     }
 
-    private fun passwordMatches(password: String, user: UserAccount) =
-            hash(password) == user.passwordHash
+    private fun passwordMatches(password: String, user: UserAccount) = validation(password, user.passwordHash)
+
 
 }
 
