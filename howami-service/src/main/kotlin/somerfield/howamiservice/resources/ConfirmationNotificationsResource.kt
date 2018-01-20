@@ -1,7 +1,7 @@
 package somerfield.howamiservice.resources
 
 import io.swagger.annotations.Api
-import somerfield.howamiservice.domain.RegistrationConfirmationService
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmationService
 import somerfield.howamiservice.wire.CommandResponseHeaderWireType
 import somerfield.howamiservice.wire.CommandResponseWireType
 import somerfield.howamiservice.wire.RegistrationConfirmationWireAdapter

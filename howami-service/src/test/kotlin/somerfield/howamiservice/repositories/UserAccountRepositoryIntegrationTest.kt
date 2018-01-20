@@ -10,8 +10,8 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
-import somerfield.howamiservice.domain.AccountState
-import somerfield.howamiservice.domain.UserAccount
+import somerfield.howamiservice.domain.accounts.AccountState
+import somerfield.howamiservice.domain.accounts.UserAccount
 import somerfield.testing.IntegrationTests
 import java.util.*
 

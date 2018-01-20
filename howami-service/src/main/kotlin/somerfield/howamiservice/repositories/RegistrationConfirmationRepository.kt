@@ -4,8 +4,8 @@ import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
 import org.bson.Document
 import org.bson.types.ObjectId
-import somerfield.howamiservice.domain.ConfirmationStatus
-import somerfield.howamiservice.domain.RegistrationConfirmation
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
 import java.time.Instant
 import java.util.*
 

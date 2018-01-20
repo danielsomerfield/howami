@@ -1,4 +1,4 @@
-package somerfield.howamiservice.domain
+package somerfield.howamiservice.domain.accounts
 
 data class UserAccount(val username: String, val passwordHash: String, val emailAddress: String, val state: AccountState)
 

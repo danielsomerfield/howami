@@ -1,4 +1,4 @@
-package somerfield.howamiservice.domain
+package somerfield.howamiservice.domain.accounts
 
 import java.time.Instant
 

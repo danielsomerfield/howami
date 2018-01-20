@@ -15,10 +15,10 @@ import io.federecio.dropwizard.swagger.SwaggerBundle
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration
 import org.apache.commons.text.RandomStringGenerator
 import org.apache.kafka.clients.producer.KafkaProducer
-import somerfield.howamiservice.domain.LoginService
-import somerfield.howamiservice.domain.RegistrationConfirmationService
-import somerfield.howamiservice.domain.UserEventProducer
-import somerfield.howamiservice.domain.UserRegistrationService
+import somerfield.howamiservice.domain.accounts.LoginService
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmationService
+import somerfield.howamiservice.domain.accounts.UserEventProducer
+import somerfield.howamiservice.domain.accounts.UserRegistrationService
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.ConfirmationNotificationsResource

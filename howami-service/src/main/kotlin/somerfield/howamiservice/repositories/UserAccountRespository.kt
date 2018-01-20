@@ -4,8 +4,8 @@ import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
 import org.bson.Document
 import org.bson.types.ObjectId
-import somerfield.howamiservice.domain.AccountState
-import somerfield.howamiservice.domain.UserAccount
+import somerfield.howamiservice.domain.accounts.AccountState
+import somerfield.howamiservice.domain.accounts.UserAccount
 import java.util.*
 
 class UserAccountRepository(private val userAccountCollection: MongoCollection<Document>) {

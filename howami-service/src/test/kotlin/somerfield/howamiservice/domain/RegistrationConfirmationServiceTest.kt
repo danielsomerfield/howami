@@ -5,6 +5,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Ignore
 import org.junit.Test
+import somerfield.howamiservice.domain.accounts.*
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant

@@ -1,6 +1,6 @@
 package somerfield.howamiservice.wire
 
-import somerfield.howamiservice.domain.RegistrationConfirmation
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
 import java.time.format.DateTimeFormatter
 
 object RegistrationConfirmationWireAdapter {

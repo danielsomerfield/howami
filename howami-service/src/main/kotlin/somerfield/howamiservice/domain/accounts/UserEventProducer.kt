@@ -1,4 +1,4 @@
-package somerfield.howamiservice.domain
+package somerfield.howamiservice.domain.accounts
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -44,8 +44,3 @@ constructor(
         val body: T
 )
 
-data class UserRegistrationEvent(
-        val userId: String,
-        val emailAddress: String,
-        val confirmationCode: String
-)

@@ -1,8 +1,8 @@
 package somerfield.howamiservice.resources
 
 import io.swagger.annotations.Api
-import somerfield.howamiservice.domain.LoginResponse
-import somerfield.howamiservice.domain.LoginService
+import somerfield.howamiservice.domain.accounts.LoginResponse
+import somerfield.howamiservice.domain.accounts.LoginService
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response

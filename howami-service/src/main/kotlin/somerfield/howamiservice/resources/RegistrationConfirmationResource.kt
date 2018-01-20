@@ -1,10 +1,10 @@
 package somerfield.howamiservice.resources
 
 import io.swagger.annotations.Api
-import somerfield.howamiservice.domain.ConfirmationResult
-import somerfield.howamiservice.domain.ConfirmationResult.*
-import somerfield.howamiservice.domain.RegistrationConfirmation
-import somerfield.howamiservice.domain.RegistrationConfirmationService
+import somerfield.howamiservice.domain.accounts.ConfirmationResult
+import somerfield.howamiservice.domain.accounts.ConfirmationResult.*
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmationService
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
 import javax.ws.rs.*

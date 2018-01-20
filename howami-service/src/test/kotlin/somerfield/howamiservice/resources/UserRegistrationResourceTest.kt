@@ -7,6 +7,9 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 import somerfield.howamiservice.domain.*
+import somerfield.howamiservice.domain.accounts.UserRegistration
+import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
+import somerfield.howamiservice.domain.accounts.UserRegistrationService
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
 

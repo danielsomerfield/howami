@@ -1,5 +1,7 @@
-package somerfield.howamiservice.domain
+package somerfield.howamiservice.domain.accounts
 
+import somerfield.howamiservice.domain.Result
+import somerfield.howamiservice.domain.ServiceError
 import somerfield.howamiservice.repositories.UserAccountRepository
 
 class UserRegistrationService(

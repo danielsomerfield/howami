@@ -9,8 +9,8 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
-import somerfield.howamiservice.domain.ConfirmationStatus
-import somerfield.howamiservice.domain.RegistrationConfirmation
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus
+import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
 import somerfield.testing.IntegrationTests
 import java.time.Instant.now
 import java.util.*

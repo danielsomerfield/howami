@@ -9,6 +9,7 @@ import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.`when`
+import somerfield.howamiservice.domain.accounts.*
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant
 import java.util.*

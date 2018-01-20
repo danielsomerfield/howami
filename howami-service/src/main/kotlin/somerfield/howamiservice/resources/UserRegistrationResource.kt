@@ -2,9 +2,9 @@ package somerfield.howamiservice.resources
 
 import io.swagger.annotations.Api
 import somerfield.howamiservice.domain.Result
-import somerfield.howamiservice.domain.UserRegistration
-import somerfield.howamiservice.domain.UserRegistrationCommand
-import somerfield.howamiservice.domain.UserRegistrationService
+import somerfield.howamiservice.domain.accounts.UserRegistration
+import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
+import somerfield.howamiservice.domain.accounts.UserRegistrationService
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
 import somerfield.resources.WireOperations.sendFailureResponse

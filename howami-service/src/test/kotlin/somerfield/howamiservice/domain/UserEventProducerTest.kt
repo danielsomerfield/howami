@@ -7,6 +7,8 @@ import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.json.JSONObject
 import org.junit.Test
+import somerfield.howamiservice.domain.accounts.UserEventProducer
+import somerfield.howamiservice.domain.accounts.UserRegistrationEvent
 import java.util.*
 
 class UserEventProducerTest {

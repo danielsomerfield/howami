@@ -1,7 +1,7 @@
-package somerfield.howamiservice.domain
+package somerfield.howamiservice.domain.accounts
 
-import somerfield.howamiservice.domain.ConfirmationResult.CONFIRMED
-import somerfield.howamiservice.domain.ConfirmationResult.INVALID
+import somerfield.howamiservice.domain.accounts.ConfirmationResult.CONFIRMED
+import somerfield.howamiservice.domain.accounts.ConfirmationResult.INVALID
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant
