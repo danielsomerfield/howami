@@ -26,7 +26,7 @@ class LoginServiceTest {
 
     private val userAccountRepository = mock<UserAccountRepository> {
         on {
-            find(validUsername)
+            findByUsername(validUsername)
         } doReturn (Optional.of(UserAccount(
                 username = validUsername,
                 emailAddress = "valid@example.com",
@@ -35,7 +35,7 @@ class LoginServiceTest {
         )))
 
         on {
-            find(pendingUsername)
+            findByUsername(pendingUsername)
         } doReturn (Optional.of(UserAccount(
                 username = pendingUsername,
                 emailAddress = "pending@example.com",

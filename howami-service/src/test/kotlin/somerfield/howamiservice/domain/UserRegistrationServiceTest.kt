@@ -1,11 +1,10 @@
 package somerfield.howamiservice.domain
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.mongodb.DuplicateKeyException
+import com.nhaarman.mockito_kotlin.*
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert.*
+import org.junit.Assert.assertThat
+import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.`when`
@@ -21,20 +20,27 @@ class UserRegistrationServiceTest {
     private val confirmationCode = UUID.randomUUID().toString()
     private val now = Instant.now()
 
+    private val alreadyRegisteredUser = UserAccount(
+            username = UUID.randomUUID().toString(),
+            passwordHash = UUID.randomUUID().toString(),
+            emailAddress = "${UUID.randomUUID()}@example.com",
+            state = AccountState.CONFIRMED
+    )
+
     //Mocks
     private val userRegistrationRepository = mock<UserAccountRepository> {
         on {
             create(any())
         } doReturn (generatedUserId)
+
+        on {
+            findByUsername(username = any())
+        } doReturn (Optional.empty())
     }
 
-    private val registrationConfirmationService = mock<RegistrationConfirmationService> {
+    private val registrationConfirmationService = mock<RegistrationConfirmationService> {}
 
-    }
-
-    private val userEventProducer = mock<UserEventProducer> {
-
-    }
+    private val userEventProducer = mock<UserEventProducer> {}
 
     private val userRegistrationService = UserRegistrationService(
             userAccountRepository = userRegistrationRepository,
@@ -42,6 +48,8 @@ class UserRegistrationServiceTest {
             hashPassword = { pwd -> pwd.toUpperCase() },
             userEventProducer = userEventProducer
     )
+
+    //Tests
 
     @Test
     fun userRegistrationHappyPath() {
@@ -78,11 +86,32 @@ class UserRegistrationServiceTest {
         ))
     }
 
-    //TODO: validations
     @Test
-    @Ignore
-    fun userRegistrationFailsForDuplicateEmail() {
+    fun userRegistrationFailsForDuplicateUsername() {
+        val proposedUsername = UUID.randomUUID().toString()
+        whenever(userRegistrationRepository.create(any())).thenThrow(DuplicateKeyException::class.java)
+        whenever(userRegistrationRepository.findByUsername(username = any())).thenReturn(Optional.of(alreadyRegisteredUser))
 
+        val result = userRegistrationService.register(
+                UserRegistrationCommand(username = proposedUsername, password = "pwd", email = "test@example.com")
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        assertThat(result as Result.Failure<UsernameUnavailableError>, `is`(Result.Failure(UsernameUnavailableError(proposedUsername))))
+    }
+
+    @Test
+    fun userRegistrationFailsForDuplicateEmail() {
+        val proposedEmailAddress = alreadyRegisteredUser.emailAddress
+        whenever(userRegistrationRepository.create(any())).thenThrow(DuplicateKeyException::class.java)
+        whenever(userRegistrationRepository.findByEmailAddress(emailAddress = proposedEmailAddress)).thenReturn(Optional.of(alreadyRegisteredUser))
+
+        val result = userRegistrationService.register(
+                UserRegistrationCommand(username = "whatever", password = "pwd", email = proposedEmailAddress)
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        assertThat(result as Result.Failure<EmailAlreadyRegisteredError>, `is`(Result.Failure(EmailAlreadyRegisteredError(proposedEmailAddress))))
     }
 
     @Test

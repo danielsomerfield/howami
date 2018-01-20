@@ -64,7 +64,7 @@ class UserAccountRepositoryIntegrationTest {
                 "state" to "PENDING"
         )))
 
-        assertThat(repository!!.find(username), `is`(Optional.of(UserAccount(
+        assertThat(repository!!.findByUsername(username), `is`(Optional.of(UserAccount(
                 username = username,
                 passwordHash = passwordHash,
                 emailAddress = emailAddress,
@@ -72,5 +72,5 @@ class UserAccountRepositoryIntegrationTest {
         ))))
     }
 
-    //TODO: prevent duplicate usernames
+
 }

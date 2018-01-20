@@ -7,15 +7,25 @@ sealed class Result<out OT, out OU> {
 
 interface ServiceError {
     fun message(): String
-    fun errorCode(): String
+    fun errorCode(): ErrorCode
 }
 
-data class UnknownError(private val errorCode: String, private val message: String) : ServiceError{
+data class BasicError(private val errorCode: ErrorCode, private val message: String) : ServiceError {
     override fun message(): String {
         return message
     }
 
-    override fun errorCode(): String {
+    override fun errorCode(): ErrorCode {
         return errorCode
+    }
+}
+
+object UnknownError : ServiceError{
+    override fun message(): String {
+        return "An unknown error occurred"
+    }
+
+    override fun errorCode(): ErrorCode {
+        return ErrorCode.UNKNOWN
     }
 }

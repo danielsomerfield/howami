@@ -11,7 +11,7 @@ object WireOperations {
         return Response.status(400).entity(
                 ErrorResponseWireType(
                         header = CommandResponseHeaderWireType(requestId),
-                        errorCode = registrationResponse.errorValue.errorCode(),
+                        errorCode = registrationResponse.errorValue.errorCode().name,
                         errorMessage = registrationResponse.errorValue.message()
 
                 )

@@ -26,9 +26,26 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
         return document.getObjectId(idField).toString()
     }
 
-    fun find(username: String): Optional<UserAccount> {
+    fun findByUsername(
+            username: String
+    ): Optional<UserAccount> {
         return Optional.ofNullable(userAccountCollection.find(BasicDBObject()
                 .append(usernameField, username))
+                .first()).map { doc ->
+            UserAccount(
+                    username = doc.getString(usernameField),
+                    passwordHash = doc.getString(passwordHashField),
+                    emailAddress = doc.getString(emailAddressField),
+                    state = AccountState.valueOf(doc.getString(stateField))
+            )
+        }
+    }
+
+    fun findByEmailAddress(
+            emailAddress: String
+    ): Optional<UserAccount> {
+        return Optional.ofNullable(userAccountCollection.find(BasicDBObject()
+                .append(usernameField, emailAddress))
                 .first()).map { doc ->
             UserAccount(
                     username = doc.getString(usernameField),

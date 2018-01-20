@@ -38,7 +38,6 @@ A mobile application for keeping track of how you are doing at regular intervals
 - clean docker images
 
 ## Primary Use Cases
-* Implement hash
 * Account Confirmation
     * Service that sends email and transitions queued -> sent (in process)
     * Disable confirmation after a time period* 
@@ -56,6 +55,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Performance
 * Cached headers on resources
+* Add indexes to all the searchable fields
 
 ## Reliability
 * Retry / back-offs on cross-service operations

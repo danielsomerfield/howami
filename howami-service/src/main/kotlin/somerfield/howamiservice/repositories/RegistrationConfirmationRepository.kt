@@ -6,6 +6,7 @@ import org.bson.Document
 import org.bson.types.ObjectId
 import somerfield.howamiservice.domain.accounts.ConfirmationStatus
 import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
+import somerfield.mongo.appendIfNotNull
 import java.time.Instant
 import java.util.*
 
@@ -58,8 +59,5 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
                 .append("_id", ObjectId(userId))).deletedCount == 1L
     }
 
-    private fun <T, U> BasicDBObject.appendIfNotNull(field: String, value: T?, converter: (T) -> U): BasicDBObject {
-        value?.let { this.append(field, converter(value)) }
-        return this
-    }
+
 }

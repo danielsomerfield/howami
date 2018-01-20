@@ -7,6 +7,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 import somerfield.howamiservice.domain.*
+import somerfield.howamiservice.domain.Result.Failure
 import somerfield.howamiservice.domain.accounts.UserRegistration
 import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
 import somerfield.howamiservice.domain.accounts.UserRegistrationService
@@ -51,14 +52,13 @@ class UserRegistrationResourceTest {
 
     @Test
     fun failedRegistrationReturns400Error() {
-        val errorCode = "ERR_CODE"
         val errorMessage = "error message"
         val requestId = "1234"
 
         val userRegistrationService: UserRegistrationService = mock {
             on {
                 register(any())
-            } doReturn (Result.Failure(UnknownError(errorCode, "error message")))
+            } doReturn (Failure(BasicError(ErrorCode.UNKNOWN, "error message")))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
                 CommandWireType(UserRegistrationWireTypes("username2", "password1", "555-123-1234"))
@@ -67,7 +67,7 @@ class UserRegistrationResourceTest {
         assertThat(registerResponse.status, `is`(400))
         val expectedResponse = ErrorResponseWireType(
                 header = CommandResponseHeaderWireType(requestId = requestId),
-                errorCode = errorCode,
+                errorCode = ErrorCode.UNKNOWN.name,
                 errorMessage = errorMessage
 
         )

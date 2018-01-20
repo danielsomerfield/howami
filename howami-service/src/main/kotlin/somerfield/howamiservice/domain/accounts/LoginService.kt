@@ -8,7 +8,7 @@ class LoginService(
 
 ) {
     fun login(username: String, password: String): LoginResponse {
-        return if (userAccountRepository.find(username)
+        return if (userAccountRepository.findByUsername(username)
                 .filter { it.state == AccountState.CONFIRMED }
                 .filter { passwordMatches(password, it) }.isPresent) LoginResponse.SUCCEEDED else LoginResponse.FAILED
     }
