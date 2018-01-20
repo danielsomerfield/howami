@@ -11,7 +11,6 @@ import java.util.*
 
 class RegistrationConfirmationRepository(private val registrationConfirmationCollection: MongoCollection<Document>) {
 
-    private val emailField = "email"
     private val userIdField = "_id"
     private val createdDateTimeField = "created_datetime"
     private val confirmationStatusField = "confirmation_status"
@@ -56,7 +55,7 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
 
     fun delete(userId: String): Boolean {
         return registrationConfirmationCollection.deleteOne(BasicDBObject()
-                .append("_id", userId)).deletedCount == 1L
+                .append("_id", ObjectId(userId))).deletedCount == 1L
     }
 
     private fun <T, U> BasicDBObject.appendIfNotNull(field: String, value: T?, converter: (T) -> U): BasicDBObject {

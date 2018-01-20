@@ -30,7 +30,7 @@ object Async {
         }
     }
 
-    fun <T> waitForData(fn: () -> CommandResponse<T>, timeoutInSeconds: Long = 10): WaitWithData<T> {
+    fun <T> waitForData(fn: () -> CommandResponse<T>, timeoutInSeconds: Long = 30): WaitWithData<T> {
         val received = waitFor(fn, { response ->
             when (response) {
                 is Async.CommandResponse.DataResponse -> true

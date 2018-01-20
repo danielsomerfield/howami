@@ -71,6 +71,10 @@ class User {
         return UserServicesClient.login(username, password)
     }
 
+    override fun toString(): String {
+        return "User(username='$username', password='$password', email='$email')"
+    }
+
 }
 
 enum class LoginResult {

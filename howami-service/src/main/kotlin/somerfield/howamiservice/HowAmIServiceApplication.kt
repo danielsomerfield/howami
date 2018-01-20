@@ -88,7 +88,7 @@ constructor(
     }
 
     fun getMongoDatabase(): String {
-        return mongoHost ?: "howami"
+        return mongoDatabase ?: "howami"
     }
 
     fun getKafkaBootstrapServers(): String {

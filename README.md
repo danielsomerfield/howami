@@ -35,6 +35,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Cleanup
 - replace links with user defined networks in compose
 - remove dependency ordering so services don't count on it
+- clean docker images
 
 ## Primary Use Cases
 * Implement hash
@@ -55,8 +56,8 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Performance
 * Cached headers on resources
-* Speed up JobSchedulerIntegrationTest
 
 ## Reliability
 * Retry / back-offs on cross-service operations
 * Handle bad messages on the kafka streams
+* Configure mongo replica sets and add a second instance

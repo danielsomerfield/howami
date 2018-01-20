@@ -34,19 +34,17 @@ class HowAmISmokeTest {
         assertThat(Health.check(UserServicesClient), `is`(healthy()))
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 35000)
     fun testUserRegistration() {
+        println("Starting user registration test with user ${user}")
         assertThat(user.login(), `is`(FAILURE))
         user.register()
 
         //TODO: enable this once the confirmation messaging service is implemented
         waitForData(responseOfOptional { user.receiveConfirmationRequest() }).then { it ->
             assertThat(user.login(), `is`(FAILURE))
-            println("*************************")
-            println("********* $it ***********")
-            println("*************************")
-//            user.confirm(it)
-//            assertThat(user.login(), `is`(SUCCESS))
+            user.confirm(it)
+            assertThat(user.login(), `is`(SUCCESS))
         }
     }
 

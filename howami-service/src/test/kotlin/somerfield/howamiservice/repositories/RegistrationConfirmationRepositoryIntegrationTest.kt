@@ -92,7 +92,6 @@ class RegistrationConfirmationRepositoryIntegrationTest {
         val all = repository!!.find()
         assertThat(all.size, `is`(2))
         assertThat(all[0], `is`(expected1))
-
         assertThat(all[1], `is`(expected2))
     }
 
@@ -110,4 +109,14 @@ class RegistrationConfirmationRepositoryIntegrationTest {
         ), `is`(listOf(expected1)))
     }
 
+    @Test
+    fun testDeleteById() {
+        assertThat(repository!!.find(
+                userId = userId1.toString()
+        ), `is`(Optional.of(expected1)))
+        repository!!.delete(userId1.toString())
+        assertThat(repository!!.find(
+                userId = userId1.toString()
+        ), `is`(Optional.empty()))
+    }
 }
