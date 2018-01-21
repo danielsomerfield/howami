@@ -3,11 +3,14 @@ package somerfield.howamiservice.repositories
 import com.github.fakemongo.Fongo
 import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
+import junit.framework.AssertionFailedError
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
+import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import somerfield.howamiservice.domain.accounts.AccountState
@@ -40,7 +43,11 @@ class UserAccountRepositoryIntegrationTest {
         val passwordHash = "password1Hash"
         val emailAddress = "foo@example.com"
         val state = AccountState.PENDING
-        val id = repository?.create(UserAccount(username, passwordHash, emailAddress, state))
+        val createResult = repository?.create(UserAccount(username, passwordHash, emailAddress, state))
+        val id = when (createResult) {
+            is CreateSuccess -> createResult.id
+            else -> throw AssertionError("Create failed.")
+        }
         val userAccounts = userAccountCollection!!.find(BasicDBObject("_id", ObjectId(id)))
         assertThat(userAccounts.first(), `is`(Document(mapOf(
                 "_id" to ObjectId(id),
@@ -72,5 +79,43 @@ class UserAccountRepositoryIntegrationTest {
         ))))
     }
 
+    @Test
+    fun createDuplicateUsernameReturnsFailure() {
+        val username = "username2"
+        val passwordHash = "password2Hash"
+        val emailAddress = "fo2@example.com"
+        val state = AccountState.PENDING
+        userAccountCollection!!.insertOne(Document(mapOf(
+                "username" to username,
+                "password_hash" to passwordHash,
+                "email_address" to emailAddress,
+                "state" to "PENDING"
+        )))
 
+        val result = repository?.create(UserAccount(username, passwordHash, "test@example.com", state))
+        when (result) {
+            is DuplicateKeyError -> assertThat(result, `is`(DuplicateKeyError("username")))
+            else -> throw AssertionFailedError("Should have been duplicate key error but was $result")
+        }
+    }
+
+    @Test
+    fun createDuplicateEmailReturnsFailure() {
+        val username = "username2"
+        val passwordHash = "password2Hash"
+        val emailAddress = "fo2@example.com"
+        val state = AccountState.PENDING
+        userAccountCollection!!.insertOne(Document(mapOf(
+                "username" to username,
+                "password_hash" to passwordHash,
+                "email_address" to emailAddress,
+                "state" to "PENDING"
+        )))
+
+        val result = repository?.create(UserAccount("uname1", passwordHash, emailAddress, state))
+        when (result) {
+            is DuplicateKeyError -> assertThat(result, `is`(DuplicateKeyError("emailAddress")))
+            else -> throw AssertionFailedError("Should have been duplicate key error but was $result")
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package somerfield.howamiservice.domain
 
-import com.mongodb.DuplicateKeyException
 import com.nhaarman.mockito_kotlin.*
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -9,6 +8,8 @@ import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import somerfield.howamiservice.domain.accounts.*
+import somerfield.howamiservice.repositories.CreateSuccess
+import somerfield.howamiservice.repositories.DuplicateKeyError
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant
 import java.util.*
@@ -31,7 +32,7 @@ class UserRegistrationServiceTest {
     private val userRegistrationRepository = mock<UserAccountRepository> {
         on {
             create(any())
-        } doReturn (generatedUserId)
+        } doReturn (CreateSuccess(generatedUserId))
 
         on {
             findByUsername(username = any())
@@ -89,7 +90,7 @@ class UserRegistrationServiceTest {
     @Test
     fun userRegistrationFailsForDuplicateUsername() {
         val proposedUsername = UUID.randomUUID().toString()
-        whenever(userRegistrationRepository.create(any())).thenThrow(DuplicateKeyException::class.java)
+        whenever(userRegistrationRepository.create(any())).thenReturn(DuplicateKeyError(UserAccount::username.name))
         whenever(userRegistrationRepository.findByUsername(username = any())).thenReturn(Optional.of(alreadyRegisteredUser))
 
         val result = userRegistrationService.register(
@@ -103,7 +104,7 @@ class UserRegistrationServiceTest {
     @Test
     fun userRegistrationFailsForDuplicateEmail() {
         val proposedEmailAddress = alreadyRegisteredUser.emailAddress
-        whenever(userRegistrationRepository.create(any())).thenThrow(DuplicateKeyException::class.java)
+        whenever(userRegistrationRepository.create(any())).thenReturn(DuplicateKeyError(UserAccount::emailAddress.name))
         whenever(userRegistrationRepository.findByEmailAddress(emailAddress = proposedEmailAddress)).thenReturn(Optional.of(alreadyRegisteredUser))
 
         val result = userRegistrationService.register(

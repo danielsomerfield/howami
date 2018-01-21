@@ -1,11 +1,10 @@
 package somerfield.howamiservice.domain.accounts
 
-import com.mongodb.DuplicateKeyException
 import somerfield.howamiservice.domain.ErrorCode
 import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.domain.ServiceError
 import somerfield.howamiservice.domain.UnknownError
-import somerfield.howamiservice.repositories.UserAccountRepository
+import somerfield.howamiservice.repositories.*
 
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
@@ -16,36 +15,36 @@ class UserRegistrationService(
 
     fun register(userRegistrationCommand: UserRegistrationCommand): Result<UserRegistration, ServiceError> {
 
-        try {
-            val userId = userAccountRepository.create(UserAccount(
-                    userRegistrationCommand.username,
-                    hashPassword(userRegistrationCommand.password),
-                    userRegistrationCommand.email,
-                    AccountState.PENDING
-            ))
-            val confirmation = registrationConfirmationService.queueConfirmation(userId)
+        val createResult = userAccountRepository.create(UserAccount(
+                userRegistrationCommand.username,
+                hashPassword(userRegistrationCommand.password),
+                userRegistrationCommand.email,
+                AccountState.PENDING
+        ))
 
-            userEventProducer.userRegistered(UserRegistrationEvent(
-                    userId = userId,
-                    emailAddress = userRegistrationCommand.email,
-                    confirmationCode = confirmation.confirmationCode
-            ))
-
-            return Result.Success(UserRegistration(
-                    userId = userId
-            ))
-        } catch (e: DuplicateKeyException) {
-            return mapDBException(userRegistrationCommand)
+        return when (createResult) {
+            is CreateSuccess -> {
+                val userId = createResult.id
+                val confirmation = registrationConfirmationService.queueConfirmation(userId)
+                userEventProducer.userRegistered(UserRegistrationEvent(
+                        userId = userId,
+                        emailAddress = userRegistrationCommand.email,
+                        confirmationCode = confirmation.confirmationCode
+                ))
+                Result.Success(UserRegistration(
+                        userId = userId
+                ))
+            }
+            is UnexpectedError -> Result.Failure(UnknownError)
+            is DuplicateKeyError -> mapDBException(createResult, userRegistrationCommand)
         }
     }
 
-    private fun mapDBException(userRegistrationCommand: UserRegistrationCommand): Result.Failure<ServiceError> {
-        return if (userAccountRepository.findByUsername(username = userRegistrationCommand.username).isPresent) {
-            Result.Failure(UsernameUnavailableError(username = userRegistrationCommand.username))
-        } else if (userAccountRepository.findByEmailAddress(emailAddress = userRegistrationCommand.email).isPresent) {
-            Result.Failure(EmailAlreadyRegisteredError(emailAddress = userRegistrationCommand.email))
-        } else {
-            Result.Failure(UnknownError)
+    private fun mapDBException(e: DuplicateKeyError, userRegistrationCommand: UserRegistrationCommand): Result.Failure<ServiceError> {
+        return when {
+            e.duplicateField == UserAccount::username.name -> Result.Failure(UsernameUnavailableError(username = userRegistrationCommand.username))
+            e.duplicateField == UserAccount::emailAddress.name -> Result.Failure(EmailAlreadyRegisteredError(emailAddress = userRegistrationCommand.email))
+            else -> Result.Failure(UnknownError)
         }
     }
 }
