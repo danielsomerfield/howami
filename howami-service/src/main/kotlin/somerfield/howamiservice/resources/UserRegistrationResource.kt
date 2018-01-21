@@ -28,7 +28,7 @@ class UserRegistrationResource(
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     fun register(
-            @Valid command: CommandWireType<UserRegistrationWireTypes>
+            @Valid command: CommandWireType<UserRegistrationWireType>
     ): Response {
         val registrationResponse = userRegistrationService.register(fromWireType(command.body))
         return when (registrationResponse) {
@@ -39,7 +39,6 @@ class UserRegistrationResource(
         }
     }
 
-
     private fun sendSuccessResponse(requestId: String, registration: Result.Success<UserRegistration>): Response {
         return Response.ok(
                 CommandResponseWireType(
@@ -49,7 +48,7 @@ class UserRegistrationResource(
         ).build()
     }
 
-    private fun fromWireType(orderCommandWireType: UserRegistrationWireTypes): UserRegistrationCommand {
+    private fun fromWireType(orderCommandWireType: UserRegistrationWireType): UserRegistrationCommand {
         return UserRegistrationCommand(
                 orderCommandWireType.username,
                 orderCommandWireType.password,

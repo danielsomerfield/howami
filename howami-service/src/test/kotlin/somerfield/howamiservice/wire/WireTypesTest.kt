@@ -19,7 +19,8 @@ class WireTypesTest {
                         .put("password", "pwd")
                         .put("email", "email@example.com")
                 ).toString()
-        val userRegistrationCommand: CommandWireType<UserRegistrationWireTypes> = objectMapper.readValue(message, object : TypeReference<CommandWireType<UserRegistrationWireTypes>>() {})
+        val userRegistrationCommand: CommandWireType<UserRegistrationWireType> = objectMapper.
+                readValue(message, object : TypeReference<CommandWireType<UserRegistrationWireType>>() {})
         assertThat(userRegistrationCommand.body.username, `is`("uname"))
         assertThat(userRegistrationCommand.body.password, `is`("pwd"))
         assertThat(userRegistrationCommand.body.email, `is`("email@example.com"))

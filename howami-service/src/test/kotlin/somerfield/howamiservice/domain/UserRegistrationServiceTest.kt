@@ -115,15 +115,4 @@ class UserRegistrationServiceTest {
         assertThat(result as Result.Failure<EmailAlreadyRegisteredError>, `is`(Result.Failure(EmailAlreadyRegisteredError(proposedEmailAddress))))
     }
 
-    @Test
-    @Ignore
-    fun userRegistrationFailsForInvalidPhone() {
-
-    }
-
-    @Test
-    @Ignore
-    fun userRegistrationFailsForInvalidEmail() {
-
-    }
 }

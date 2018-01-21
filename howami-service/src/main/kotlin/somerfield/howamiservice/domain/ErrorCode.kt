@@ -7,5 +7,6 @@ enum class ErrorCode {
     EMAIL_ALREADY_REGISTERED,
 
     //Misc
-    UNKNOWN
+    UNKNOWN,
+    MALFORMED_FIELDS
 }

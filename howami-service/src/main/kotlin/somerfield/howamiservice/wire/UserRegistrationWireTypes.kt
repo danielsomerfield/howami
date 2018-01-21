@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UserRegistrationWireTypes
+data class UserRegistrationWireType
 constructor(
         @JsonProperty("username") val username: String,
         @JsonProperty("password") val password: String,

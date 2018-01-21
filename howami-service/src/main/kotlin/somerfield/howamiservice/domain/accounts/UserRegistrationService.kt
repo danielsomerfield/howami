@@ -4,7 +4,10 @@ import somerfield.howamiservice.domain.ErrorCode
 import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.domain.ServiceError
 import somerfield.howamiservice.domain.UnknownError
-import somerfield.howamiservice.repositories.*
+import somerfield.howamiservice.repositories.CreateSuccess
+import somerfield.howamiservice.repositories.DuplicateKeyError
+import somerfield.howamiservice.repositories.UnexpectedError
+import somerfield.howamiservice.repositories.UserAccountRepository
 
 class UserRegistrationService(
         private val userAccountRepository: UserAccountRepository,
@@ -36,11 +39,11 @@ class UserRegistrationService(
                 ))
             }
             is UnexpectedError -> Result.Failure(UnknownError)
-            is DuplicateKeyError -> mapDBException(createResult, userRegistrationCommand)
+            is DuplicateKeyError -> mapRepositoryException(createResult, userRegistrationCommand)
         }
     }
 
-    private fun mapDBException(e: DuplicateKeyError, userRegistrationCommand: UserRegistrationCommand): Result.Failure<ServiceError> {
+    private fun mapRepositoryException(e: DuplicateKeyError, userRegistrationCommand: UserRegistrationCommand): Result.Failure<ServiceError> {
         return when {
             e.duplicateField == UserAccount::username.name -> Result.Failure(UsernameUnavailableError(username = userRegistrationCommand.username))
             e.duplicateField == UserAccount::emailAddress.name -> Result.Failure(EmailAlreadyRegisteredError(emailAddress = userRegistrationCommand.email))
