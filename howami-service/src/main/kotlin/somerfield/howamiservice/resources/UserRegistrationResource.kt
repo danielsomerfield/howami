@@ -3,10 +3,7 @@ package somerfield.howamiservice.resources
 import io.swagger.annotations.Api
 import somerfield.howamiservice.domain.ErrorResult
 import somerfield.howamiservice.domain.Result
-import somerfield.howamiservice.domain.accounts.EmailAddress
-import somerfield.howamiservice.domain.accounts.UserRegistration
-import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
-import somerfield.howamiservice.domain.accounts.UserRegistrationService
+import somerfield.howamiservice.domain.accounts.*
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
 import somerfield.resources.WireOperations.sendFailureResponse
@@ -54,7 +51,7 @@ class UserRegistrationResource(
     }
 
     private fun fromWireType(orderCommandWireType: UserRegistrationWireType): Result<UserRegistrationCommand, ErrorResult> {
-        return EmailAddress.fromString(orderCommandWireType.email)
+        return orderCommandWireType.email.toEmailAddress()
                 .map { emailAddress ->
                     UserRegistrationCommand(
                             orderCommandWireType.username,

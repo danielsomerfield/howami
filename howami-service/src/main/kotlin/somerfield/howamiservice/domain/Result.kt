@@ -37,36 +37,37 @@ sealed class Result<out T, out E : ErrorResult> {
     }
 
     fun getUnsafe() = getOrThrow(RuntimeException("Expected value but got failure"))
+
+    fun <F: ErrorResult> mapFailure(fn: (E)->F): Result<T, F> {
+        return when (this) {
+            is Success -> this
+            is Failure -> Failure(fn(errorValue))
+        }
+    }
 }
 
 data class ExceptionErrorResult(
         private val exception: Exception
-) : ErrorResult {
+) :
+        ErrorResult {
     override val message: String
         get() = exception.message ?: "Unknown error"
 
-    override fun errorCode() = ErrorCode.UNKNOWN
 }
 
-//TODO: remove error code
 interface ErrorResult {
     val message: String
-    fun errorCode(): ErrorCode
 }
 
-data class BasicErrorResult(private val errorCode: ErrorCode, override val message: String) : ErrorResult {
-
-    override fun errorCode(): ErrorCode {
-        return errorCode
-    }
+interface ErrorCodeErrorResult : ErrorResult {
+    val errorCode: ErrorCode
 }
+
+data class BasicErrorResult(private val errorCode: ErrorCode, override val message: String) : ErrorResult
 
 object UnknownErrorResult : ErrorResult {
 
     override val message: String
         get() = "Unknown error"
 
-    override fun errorCode(): ErrorCode {
-        return ErrorCode.UNKNOWN
-    }
 }

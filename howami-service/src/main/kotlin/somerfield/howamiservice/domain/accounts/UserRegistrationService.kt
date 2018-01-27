@@ -1,9 +1,6 @@
 package somerfield.howamiservice.domain.accounts
 
-import somerfield.howamiservice.domain.ErrorCode
-import somerfield.howamiservice.domain.Result
-import somerfield.howamiservice.domain.ErrorResult
-import somerfield.howamiservice.domain.UnknownErrorResult
+import somerfield.howamiservice.domain.*
 import somerfield.howamiservice.repositories.CreateSuccess
 import somerfield.howamiservice.repositories.DuplicateKeyError
 import somerfield.howamiservice.repositories.UnexpectedDBError
@@ -56,18 +53,21 @@ class UserRegistrationService(
 data class UserRegistration(val userId: String)
 data class UserRegistrationCommand(val username: String, val password: String, val email: EmailAddress)
 
-data class UsernameUnavailableErrorResult(val username: String) : ErrorResult {
+data class UsernameUnavailableErrorResult(val username: String) : ErrorCodeErrorResult {
+    override val errorCode: ErrorCode
+        get() = ErrorCode.USERNAME_UNAVAILABLE
 
     override val message: String
         get() = "The username $username is already taken."
 
-    override fun errorCode() = ErrorCode.USERNAME_UNAVAILABLE
 }
 
-data class EmailAlreadyRegisteredErrorResult(val emailAddress: EmailAddress) : ErrorResult {
+data class EmailAlreadyRegisteredErrorResult(val emailAddress: EmailAddress) : ErrorCodeErrorResult {
+
+    override val errorCode: ErrorCode
+        get() = ErrorCode.EMAIL_ALREADY_REGISTERED
 
     override val message: String
         get() = "An account is already registered under email $emailAddress."
 
-    override fun errorCode() = ErrorCode.EMAIL_ALREADY_REGISTERED
 }

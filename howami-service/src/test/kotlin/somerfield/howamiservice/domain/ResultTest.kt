@@ -43,6 +43,27 @@ class ResultTest {
         assertEquals(TestFunctions.fail1().map { "bar" }, Result.Failure(BazErrorResult("baz")))
     }
 
+    @Test
+    fun mapFailureSuccess() {
+        val result = TestFunctions.succeed1()
+                .map { "bar" }
+                .mapFailure { _ -> YAErrorResult() }
+                .map { "boo" }
+
+        assertEquals(Result.Success("boo"), result)
+    }
+
+    @Test
+    fun mapFailureFailure() {
+        val result = TestFunctions.succeed1()
+                .map { "bar" }
+                .flatMap { _ -> TestFunctions.fail1() }
+                .mapFailure { _ -> YAErrorResult() }
+                .map { "boo" }
+
+        assertEquals(Result.Failure(YAErrorResult()), result)
+    }
+
 }
 
 object TestFunctions {
@@ -52,8 +73,5 @@ object TestFunctions {
     fun fail2(): Result<String, BasicErrorResult> = Result.Failure(BasicErrorResult(ErrorCode.MALFORMED_FIELDS, "fail2"))
 }
 
-data class BazErrorResult(override val message: String) : ErrorResult {
-    override fun errorCode(): ErrorCode {
-        return ErrorCode.MALFORMED_FIELDS
-    }
-}
+data class BazErrorResult(override val message: String) : ErrorResult
+data class YAErrorResult(override val message: String = "ya") : ErrorResult
