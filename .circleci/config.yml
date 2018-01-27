@@ -14,5 +14,8 @@ jobs:
       - store_test_results:
           paths:
             - howami-service/build/test-results
-            - e2e-test.log
-            - all.log
+
+      - store_artifacts:
+          - e2e-test.log
+          - all.log
+          - howami-service/build/test-results
