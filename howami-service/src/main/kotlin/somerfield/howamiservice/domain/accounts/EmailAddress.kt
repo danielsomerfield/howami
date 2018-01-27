@@ -12,6 +12,10 @@ data class EmailAddress(val emailText: String) {
             return Result.doTry { EmailAddress(string) }
         }
     }
+
+    override fun toString(): String {
+        return emailText
+    }
 }
 
 fun String.toEmailAddress() = fromString(this)

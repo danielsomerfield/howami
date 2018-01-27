@@ -31,7 +31,7 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
             userAccountCollection.insertOne(document
                     .append(usernameField, userAccount.username)
                     .append(passwordHashField, userAccount.passwordHash)
-                    .append(emailAddressField, userAccount.emailAddress)
+                    .append(emailAddressField, userAccount.emailAddress.toString())
                     .append(stateField, userAccount.state.name)
             )
             CreateSuccess(document.getObjectId(idField).toString())
@@ -74,7 +74,7 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
             emailAddress: EmailAddress
     ): Optional<UserAccount> {
         return Optional.ofNullable(userAccountCollection.find(BasicDBObject()
-                .append(emailAddressField, emailAddress))
+                .append(emailAddressField, emailAddress.toString()))
                 .first()).map { doc ->
             UserAccount(
                     username = doc.getString(usernameField),

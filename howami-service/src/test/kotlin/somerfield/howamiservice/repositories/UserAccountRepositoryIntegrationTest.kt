@@ -42,9 +42,10 @@ class UserAccountRepositoryIntegrationTest {
     fun createRecordInDataStore() {
         val username = "username1"
         val passwordHash = "password1Hash"
-        val emailAddress = "foo@example.com".toEmailAddress().getUnsafe()
+        val emailAddress = "foo@example.com"
         val state = AccountState.PENDING
-        val createResult = repository?.create(UserAccount(username, passwordHash, emailAddress, state))
+        val createResult = repository?.create(UserAccount(username, passwordHash,
+                emailAddress.toEmailAddress().getUnsafe(), state))
         val id = when (createResult) {
             is CreateSuccess -> createResult.id
             else -> throw AssertionError("Create failed.")
@@ -63,7 +64,7 @@ class UserAccountRepositoryIntegrationTest {
     fun findRecordInDataStore() {
         val username = "username2"
         val passwordHash = "password2Hash"
-        val emailAddress = "fo2@example.com".toEmailAddress().getUnsafe()
+        val emailAddress = "fo2@example.com"
         val state = AccountState.PENDING
         userAccountCollection!!.insertOne(Document(mapOf(
                 "username" to username,
@@ -75,7 +76,7 @@ class UserAccountRepositoryIntegrationTest {
         assertThat(repository!!.findByUsername(username), `is`(Optional.of(UserAccount(
                 username = username,
                 passwordHash = passwordHash,
-                emailAddress = emailAddress,
+                emailAddress = emailAddress.toEmailAddress().getUnsafe(),
                 state = state
         ))))
     }
@@ -104,16 +105,16 @@ class UserAccountRepositoryIntegrationTest {
     fun createDuplicateEmailReturnsFailure() {
         val username = "username2"
         val passwordHash = "password2Hash"
-        val emailAddress = "fo2@example.com".toEmailAddress().getUnsafe()
+        val emailAddress = "fo2@example.com"
         val state = AccountState.PENDING
         userAccountCollection!!.insertOne(Document(mapOf(
                 "username" to username,
                 "password_hash" to passwordHash,
-                "email_address" to emailAddress,
+                "email_address" to emailAddress.toString(),
                 "state" to "PENDING"
         )))
 
-        val result = repository?.create(UserAccount("uname1", passwordHash, emailAddress, state))
+        val result = repository?.create(UserAccount("uname1", passwordHash, emailAddress.toEmailAddress().getUnsafe(), state))
         when (result) {
             is DuplicateKeyError -> assertThat(result, `is`(DuplicateKeyError("emailAddress")))
             else -> throw AssertionFailedError("Should have been duplicate key error but was $result")
