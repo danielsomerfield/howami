@@ -1,6 +1,6 @@
 package somerfield.howamiservice.domain.accounts
 
-data class UserAccount(val username: String, val passwordHash: String, val emailAddress: String, val state: AccountState)
+data class UserAccount(val username: String, val passwordHash: String, val emailAddress: EmailAddress, val state: AccountState)
 
 enum class AccountState {
     PENDING,

@@ -21,7 +21,7 @@ class UserEventProducer(
 
     private fun toWireType(event: UserRegistrationEvent) = UserRegistrationEventWireType(
             userId = event.userId,
-            emailAddress = event.emailAddress,
+            emailAddress = event.emailAddress.toString(),
             confirmationCode = event.confirmationCode
     )
 

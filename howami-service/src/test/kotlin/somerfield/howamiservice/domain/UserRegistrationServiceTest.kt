@@ -4,7 +4,6 @@ import com.nhaarman.mockito_kotlin.*
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import somerfield.howamiservice.domain.accounts.*
@@ -24,7 +23,7 @@ class UserRegistrationServiceTest {
     private val alreadyRegisteredUser = UserAccount(
             username = UUID.randomUUID().toString(),
             passwordHash = UUID.randomUUID().toString(),
-            emailAddress = "${UUID.randomUUID()}@example.com",
+            emailAddress = "${UUID.randomUUID()}@example.com".toEmailAddress().getUnsafe(),
             state = AccountState.CONFIRMED
     )
 
@@ -56,7 +55,7 @@ class UserRegistrationServiceTest {
     fun userRegistrationHappyPath() {
 
         val username = "uname"
-        val emailAddress = "foo@example.com"
+        val emailAddress = "foo@example.com".toEmailAddress().getUnsafe()
 
         `when`(registrationConfirmationService.queueConfirmation(
                 userId = generatedUserId
@@ -94,11 +93,15 @@ class UserRegistrationServiceTest {
         whenever(userRegistrationRepository.findByUsername(username = any())).thenReturn(Optional.of(alreadyRegisteredUser))
 
         val result = userRegistrationService.register(
-                UserRegistrationCommand(username = proposedUsername, password = "pwd", email = "test@example.com")
+                UserRegistrationCommand(
+                        username = proposedUsername,
+                        password = "pwd",
+                        email = "test@example.com".toEmailAddress().getUnsafe()
+                )
         )
 
         @Suppress("UNCHECKED_CAST")
-        assertThat(result as Result.Failure<UsernameUnavailableError>, `is`(Result.Failure(UsernameUnavailableError(proposedUsername))))
+        assertThat(result as Result.Failure<UsernameUnavailableErrorResult>, `is`(Result.Failure(UsernameUnavailableErrorResult(proposedUsername))))
     }
 
     @Test
@@ -112,7 +115,7 @@ class UserRegistrationServiceTest {
         )
 
         @Suppress("UNCHECKED_CAST")
-        assertThat(result as Result.Failure<EmailAlreadyRegisteredError>, `is`(Result.Failure(EmailAlreadyRegisteredError(proposedEmailAddress))))
+        assertThat(result as Result.Failure<EmailAlreadyRegisteredErrorResult>, `is`(Result.Failure(EmailAlreadyRegisteredErrorResult(proposedEmailAddress))))
     }
 
 }

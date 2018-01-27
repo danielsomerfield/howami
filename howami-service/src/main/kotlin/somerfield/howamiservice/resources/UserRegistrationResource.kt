@@ -1,7 +1,9 @@
 package somerfield.howamiservice.resources
 
 import io.swagger.annotations.Api
+import somerfield.howamiservice.domain.ErrorResult
 import somerfield.howamiservice.domain.Result
+import somerfield.howamiservice.domain.accounts.EmailAddress
 import somerfield.howamiservice.domain.accounts.UserRegistration
 import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
 import somerfield.howamiservice.domain.accounts.UserRegistrationService
@@ -30,7 +32,10 @@ class UserRegistrationResource(
     fun register(
             @Valid command: CommandWireType<UserRegistrationWireType>
     ): Response {
-        val registrationResponse = userRegistrationService.register(fromWireType(command.body))
+        val registrationResponse =
+                fromWireType(command.body)
+                .flatMap(userRegistrationService::register)
+
         return when (registrationResponse) {
             is Result.Success -> {
                 sendSuccessResponse(requestIdSource.getOrCreate(), registrationResponse)
@@ -48,12 +53,15 @@ class UserRegistrationResource(
         ).build()
     }
 
-    private fun fromWireType(orderCommandWireType: UserRegistrationWireType): UserRegistrationCommand {
-        return UserRegistrationCommand(
-                orderCommandWireType.username,
-                orderCommandWireType.password,
-                orderCommandWireType.email
-        )
+    private fun fromWireType(orderCommandWireType: UserRegistrationWireType): Result<UserRegistrationCommand, ErrorResult> {
+        return EmailAddress.fromString(orderCommandWireType.email)
+                .map { emailAddress ->
+                    UserRegistrationCommand(
+                            orderCommandWireType.username,
+                            orderCommandWireType.password,
+                            emailAddress
+                    )
+                }
     }
 
     private fun toWireType(userRegistration: UserRegistration): UserRegistrationResponseWireType {

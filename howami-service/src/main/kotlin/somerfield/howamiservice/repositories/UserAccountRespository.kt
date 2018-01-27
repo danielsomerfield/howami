@@ -1,7 +1,6 @@
 package somerfield.howamiservice.repositories
 
 import com.mongodb.BasicDBObject
-import com.mongodb.DuplicateKeyException
 import com.mongodb.MongoWriteException
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.IndexOptions
@@ -9,7 +8,9 @@ import com.mongodb.client.model.Indexes
 import org.bson.Document
 import org.bson.types.ObjectId
 import somerfield.howamiservice.domain.accounts.AccountState
+import somerfield.howamiservice.domain.accounts.EmailAddress
 import somerfield.howamiservice.domain.accounts.UserAccount
+import somerfield.howamiservice.domain.admin.NeedInterventionException
 import java.util.*
 
 class UserAccountRepository(private val userAccountCollection: MongoCollection<Document>) {
@@ -38,8 +39,8 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
             when (e.code) {
                 11000 -> getDuplicateField(userAccount)
                         .map<CreateResult> { field -> DuplicateKeyError(field) }
-                        .orElseGet { UnexpectedError(e.code, e.message ?: "An unexpected error has occurred") }
-                else -> UnexpectedError(e.code, e.message ?: "An unexpected error has occurred")
+                        .orElseGet { UnexpectedDBError(e.code, e.message ?: "An unexpected error has occurred") }
+                else -> UnexpectedDBError(e.code, e.message ?: "An unexpected error has occurred")
             }
         }
     }
@@ -58,17 +59,19 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
         return Optional.ofNullable(userAccountCollection.find(BasicDBObject()
                 .append(usernameField, username))
                 .first()).map { doc ->
+            val emailAddress = EmailAddress.fromString(doc.getString(emailAddressField))
+
             UserAccount(
                     username = doc.getString(usernameField),
                     passwordHash = doc.getString(passwordHashField),
-                    emailAddress = doc.getString(emailAddressField),
+                    emailAddress = emailAddress.getOrThrow(NeedInterventionException("Invalid email address in the database. Fix now!")),
                     state = AccountState.valueOf(doc.getString(stateField))
             )
         }
     }
 
     fun findByEmailAddress(
-            emailAddress: String
+            emailAddress: EmailAddress
     ): Optional<UserAccount> {
         return Optional.ofNullable(userAccountCollection.find(BasicDBObject()
                 .append(emailAddressField, emailAddress))
@@ -76,7 +79,7 @@ class UserAccountRepository(private val userAccountCollection: MongoCollection<D
             UserAccount(
                     username = doc.getString(usernameField),
                     passwordHash = doc.getString(passwordHashField),
-                    emailAddress = doc.getString(emailAddressField),
+                    emailAddress = emailAddress,
                     state = AccountState.valueOf(doc.getString(stateField))
             )
         }
@@ -93,8 +96,8 @@ sealed class CreateResult {
 
 }
 
-interface CreateError
-
 data class CreateSuccess(val id: String) : CreateResult()
 data class DuplicateKeyError(val duplicateField: String) : CreateResult()
-data class UnexpectedError(val code: Int, val message: String) : CreateResult()
+
+//TODO: This should be replaced with retry
+data class UnexpectedDBError(val code: Int, val message: String) : CreateResult()

@@ -2,11 +2,11 @@ package somerfield.howamiservice.domain.accounts
 
 import somerfield.howamiservice.domain.ErrorCode
 import somerfield.howamiservice.domain.Result
-import somerfield.howamiservice.domain.ServiceError
-import somerfield.howamiservice.domain.UnknownError
+import somerfield.howamiservice.domain.ErrorResult
+import somerfield.howamiservice.domain.UnknownErrorResult
 import somerfield.howamiservice.repositories.CreateSuccess
 import somerfield.howamiservice.repositories.DuplicateKeyError
-import somerfield.howamiservice.repositories.UnexpectedError
+import somerfield.howamiservice.repositories.UnexpectedDBError
 import somerfield.howamiservice.repositories.UserAccountRepository
 
 class UserRegistrationService(
@@ -16,7 +16,7 @@ class UserRegistrationService(
         private val userEventProducer: UserEventProducer
 ) {
 
-    fun register(userRegistrationCommand: UserRegistrationCommand): Result<UserRegistration, ServiceError> {
+    fun register(userRegistrationCommand: UserRegistrationCommand): Result<UserRegistration, ErrorResult> {
 
         val createResult = userAccountRepository.create(UserAccount(
                 userRegistrationCommand.username,
@@ -38,29 +38,30 @@ class UserRegistrationService(
                         userId = userId
                 ))
             }
-            is UnexpectedError -> Result.Failure(UnknownError)
+            is UnexpectedDBError -> Result.Failure(UnknownErrorResult)
             is DuplicateKeyError -> mapRepositoryException(createResult, userRegistrationCommand)
         }
     }
 
-    private fun mapRepositoryException(e: DuplicateKeyError, userRegistrationCommand: UserRegistrationCommand): Result.Failure<ServiceError> {
+    private fun mapRepositoryException(e: DuplicateKeyError, userRegistrationCommand: UserRegistrationCommand): Result.Failure<ErrorResult> {
         return when {
-            e.duplicateField == UserAccount::username.name -> Result.Failure(UsernameUnavailableError(username = userRegistrationCommand.username))
-            e.duplicateField == UserAccount::emailAddress.name -> Result.Failure(EmailAlreadyRegisteredError(emailAddress = userRegistrationCommand.email))
-            else -> Result.Failure(UnknownError)
+            e.duplicateField == UserAccount::username.name -> Result.Failure(UsernameUnavailableErrorResult(username = userRegistrationCommand.username))
+            e.duplicateField == UserAccount::emailAddress.name ->
+                Result.Failure(EmailAlreadyRegisteredErrorResult(emailAddress = userRegistrationCommand.email))
+            else -> Result.Failure(UnknownErrorResult)
         }
     }
 }
 
 data class UserRegistration(val userId: String)
-data class UserRegistrationCommand(val username: String, val password: String, val email: String)
+data class UserRegistrationCommand(val username: String, val password: String, val email: EmailAddress)
 
-data class UsernameUnavailableError(val username: String) : ServiceError {
+data class UsernameUnavailableErrorResult(val username: String) : ErrorResult {
     override fun message() = "The username $username is already taken."
     override fun errorCode() = ErrorCode.USERNAME_UNAVAILABLE
 }
 
-data class EmailAlreadyRegisteredError(val emailAddress: String) : ServiceError {
+data class EmailAlreadyRegisteredErrorResult(val emailAddress: EmailAddress) : ErrorResult {
     override fun message() = "An account is already registered under email $emailAddress."
     override fun errorCode() = ErrorCode.EMAIL_ALREADY_REGISTERED
 }

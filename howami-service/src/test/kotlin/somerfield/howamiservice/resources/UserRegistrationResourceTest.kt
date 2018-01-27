@@ -11,6 +11,7 @@ import somerfield.howamiservice.domain.Result.Failure
 import somerfield.howamiservice.domain.accounts.UserRegistration
 import somerfield.howamiservice.domain.accounts.UserRegistrationCommand
 import somerfield.howamiservice.domain.accounts.UserRegistrationService
+import somerfield.howamiservice.domain.accounts.toEmailAddress
 import somerfield.howamiservice.wire.*
 import somerfield.resources.RequestIdSource
 
@@ -33,7 +34,7 @@ class UserRegistrationResourceTest {
 
         val userRegistrationService: UserRegistrationService = mock {
             on {
-                register(UserRegistrationCommand(username, password, emailAddress))
+                register(UserRegistrationCommand(username, password, emailAddress.toEmailAddress().getUnsafe()))
             } doReturn (Result.Success(UserRegistration(generatedUserId)))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
@@ -58,7 +59,7 @@ class UserRegistrationResourceTest {
         val userRegistrationService: UserRegistrationService = mock {
             on {
                 register(any())
-            } doReturn (Failure(BasicError(ErrorCode.UNKNOWN, "error message")))
+            } doReturn (Failure(BasicErrorResult(ErrorCode.UNKNOWN, "error message")))
         }
         val registerResponse = UserRegistrationResource(userRegistrationService, requestIdSource).register(
                 CommandWireType(UserRegistrationWireType("username2", "password1", "555-123-1234"))

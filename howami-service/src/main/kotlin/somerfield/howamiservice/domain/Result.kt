@@ -1,16 +1,56 @@
 package somerfield.howamiservice.domain
 
-sealed class Result<out OT, out OU> {
+@Suppress("UNUSED")
+sealed class Result<out T, out E : ErrorResult> {
+
     data class Success<out T>(val response: T) : Result<T, Nothing>()
-    data class Failure<out U : ServiceError>(val errorValue: U) : Result<Nothing, U>()
+
+    data class Failure<out E : ErrorResult>(val errorValue: E) : Result<Nothing, E>()
+
+    companion object {
+        fun <T> doTry(fn: () -> T): Result<T, ExceptionErrorResult> {
+            return try {
+                Success(fn())
+            } catch (e: Exception) {
+                Failure(ExceptionErrorResult(e))
+            }
+        }
+    }
+
+    fun <U> map(fn: (T) -> U): Result<U, E> {
+        return flatMap { value -> Success(fn(value)) }
+    }
+
+    fun <U, E: ErrorResult> flatMap(fn: (T) -> Result<U, E>): Result<U, E> {
+        @Suppress("UNCHECKED_CAST")
+        return when (this) {
+            is Success -> fn(this.response)
+            is Failure -> Failure(this.errorValue) as Failure<E>
+        }
+    }
+
+    fun getOrThrow(exception: Exception): T {
+        return when (this) {
+            is Success -> this.response
+            is Failure -> throw exception
+        }
+    }
+
+    fun getUnsafe() = getOrThrow(RuntimeException("Expected value but got failure"))
 }
 
-interface ServiceError {
+data class ExceptionErrorResult(private val exception: Exception) : ErrorResult {
+    override fun message() = exception.message ?: "Unknown error"
+
+    override fun errorCode() = ErrorCode.UNKNOWN
+}
+
+interface ErrorResult {
     fun message(): String
     fun errorCode(): ErrorCode
 }
 
-data class BasicError(private val errorCode: ErrorCode, private val message: String) : ServiceError {
+data class BasicErrorResult(private val errorCode: ErrorCode, private val message: String) : ErrorResult {
     override fun message(): String {
         return message
     }
@@ -20,7 +60,7 @@ data class BasicError(private val errorCode: ErrorCode, private val message: Str
     }
 }
 
-object UnknownError : ServiceError{
+object UnknownErrorResult : ErrorResult {
     override fun message(): String {
         return "An unknown error occurred"
     }

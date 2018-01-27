@@ -29,7 +29,7 @@ class LoginServiceTest {
             findByUsername(validUsername)
         } doReturn (Optional.of(UserAccount(
                 username = validUsername,
-                emailAddress = "valid@example.com",
+                emailAddress = "valid@example.com".toEmailAddress().getUnsafe(),
                 state = AccountState.CONFIRMED,
                 passwordHash = validPasswordHash
         )))
@@ -38,7 +38,7 @@ class LoginServiceTest {
             findByUsername(pendingUsername)
         } doReturn (Optional.of(UserAccount(
                 username = pendingUsername,
-                emailAddress = "pending@example.com",
+                emailAddress = "pending@example.com".toEmailAddress().getUnsafe(),
                 state = AccountState.PENDING,
                 passwordHash = pendingPasswordHash
         )))

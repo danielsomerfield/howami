@@ -9,6 +9,7 @@ import org.json.JSONObject
 import org.junit.Test
 import somerfield.howamiservice.domain.accounts.UserEventProducer
 import somerfield.howamiservice.domain.accounts.UserRegistrationEvent
+import somerfield.howamiservice.domain.accounts.toEmailAddress
 import java.util.*
 
 class UserEventProducerTest {
@@ -21,7 +22,7 @@ class UserEventProducerTest {
     @Test
     fun userRegisteredEvent() {
         val userId = UUID.randomUUID().toString()
-        val emailAddress = "$userId@example.com"
+        val emailAddress = "$userId@example.com".toEmailAddress().getUnsafe()
         val confirmationCode = UUID.randomUUID().toString()
 
         val expectedMessage = """
