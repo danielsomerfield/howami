@@ -22,7 +22,6 @@ import somerfield.howamiservice.domain.accounts.UserEventProducer
 import somerfield.howamiservice.domain.accounts.UserRegistrationService
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
-import somerfield.howamiservice.resources.ConfirmationNotificationsResource
 import somerfield.howamiservice.resources.LoginResource
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
@@ -45,7 +44,6 @@ class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
         environment.jersey().register(binding.userRegistrationResource())
         environment.jersey().register(binding.registrationConfirmationResource())
         environment.jersey().register(binding.loginResource())
-        environment.jersey().register(binding.confirmationNotificationResource())
         JSON.configureObjectMapper(environment.objectMapper)
 
     }
@@ -167,5 +165,4 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
         fun new(howamiServiceConfiguration: HowamiServiceConfiguration) = HowamiServiceBinding(howamiServiceConfiguration)
     }
 
-    fun confirmationNotificationResource() = ConfirmationNotificationsResource(requestIdSource, registrationConfirmationService())
 }
