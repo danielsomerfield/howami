@@ -8,7 +8,6 @@ import somerfield.howamiservice.domain.accounts.EmailAddress.Companion.fromStrin
 data class EmailAddress(private val emailText: String) {
 
     companion object {
-//        private val emailRegex = Regex.fromLiteral("^[a-zA-Z0-9!#\$%&'*+-\\/=?^_`{|}~.]+@[a-zA-Z0-9-.]+\\.[a-zA-Z0-9-.]+\$")
         private val emailRegex = Regex("^[a-zA-Z0-9!#\$%&'*+-/=?^_`{|}~.]+@[a-zA-Z0-9-.]+\\.[a-zA-Z0-9-.]+\$", RegexOption.MULTILINE)
 
         fun fromString(string: String): Result<EmailAddress, ErrorResult> {
@@ -28,8 +27,6 @@ data class EmailAddress(private val emailText: String) {
 
 fun String.toEmailAddress() = fromString(this)
 
-data class ParseFailure(private val message: String) : ErrorResult {
-    override fun message() = message
-
+data class ParseFailure(override val message: String) : ErrorResult {
     override fun errorCode() = ErrorCode.MALFORMED_FIELDS
 }

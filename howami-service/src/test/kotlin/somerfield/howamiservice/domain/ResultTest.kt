@@ -52,11 +52,7 @@ object TestFunctions {
     fun fail2(): Result<String, BasicErrorResult> = Result.Failure(BasicErrorResult(ErrorCode.MALFORMED_FIELDS, "fail2"))
 }
 
-data class BazErrorResult(private val message: String) : ErrorResult {
-    override fun message(): String {
-        return message
-    }
-
+data class BazErrorResult(override val message: String) : ErrorResult {
     override fun errorCode(): ErrorCode {
         return ErrorCode.MALFORMED_FIELDS
     }

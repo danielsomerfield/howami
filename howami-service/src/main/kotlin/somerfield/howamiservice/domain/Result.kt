@@ -21,7 +21,7 @@ sealed class Result<out T, out E : ErrorResult> {
         return flatMap { value -> Success(fn(value)) }
     }
 
-    fun <U, E: ErrorResult> flatMap(fn: (T) -> Result<U, E>): Result<U, E> {
+    fun <U, E : ErrorResult> flatMap(fn: (T) -> Result<U, E>): Result<U, E> {
         @Suppress("UNCHECKED_CAST")
         return when (this) {
             is Success -> fn(this.response)
@@ -39,23 +39,22 @@ sealed class Result<out T, out E : ErrorResult> {
     fun getUnsafe() = getOrThrow(RuntimeException("Expected value but got failure"))
 }
 
-data class ExceptionErrorResult(private val exception: Exception) : ErrorResult {
-    override fun message() = exception.message ?: "Unknown error"
+data class ExceptionErrorResult(
+        private val exception: Exception
+) : ErrorResult {
+    override val message: String
+        get() = exception.message ?: "Unknown error"
 
     override fun errorCode() = ErrorCode.UNKNOWN
 }
 
-//TODO: replace the functions with properties
 //TODO: remove error code
 interface ErrorResult {
-    fun message(): String
+    val message: String
     fun errorCode(): ErrorCode
 }
 
-data class BasicErrorResult(private val errorCode: ErrorCode, private val message: String) : ErrorResult {
-    override fun message(): String {
-        return message
-    }
+data class BasicErrorResult(private val errorCode: ErrorCode, override val message: String) : ErrorResult {
 
     override fun errorCode(): ErrorCode {
         return errorCode
@@ -63,9 +62,9 @@ data class BasicErrorResult(private val errorCode: ErrorCode, private val messag
 }
 
 object UnknownErrorResult : ErrorResult {
-    override fun message(): String {
-        return "An unknown error occurred"
-    }
+
+    override val message: String
+        get() = "Unknown error"
 
     override fun errorCode(): ErrorCode {
         return ErrorCode.UNKNOWN

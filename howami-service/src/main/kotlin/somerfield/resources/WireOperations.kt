@@ -12,7 +12,7 @@ object WireOperations {
                 ErrorResponseWireType(
                         header = CommandResponseHeaderWireType(requestId),
                         errorCode = registrationResponse.errorValue.errorCode().name,
-                        errorMessage = registrationResponse.errorValue.message()
+                        errorMessage = registrationResponse.errorValue.message
 
                 )
         ).build()

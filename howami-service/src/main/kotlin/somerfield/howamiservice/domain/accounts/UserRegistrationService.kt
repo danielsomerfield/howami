@@ -57,11 +57,17 @@ data class UserRegistration(val userId: String)
 data class UserRegistrationCommand(val username: String, val password: String, val email: EmailAddress)
 
 data class UsernameUnavailableErrorResult(val username: String) : ErrorResult {
-    override fun message() = "The username $username is already taken."
+
+    override val message: String
+        get() = "The username $username is already taken."
+
     override fun errorCode() = ErrorCode.USERNAME_UNAVAILABLE
 }
 
 data class EmailAlreadyRegisteredErrorResult(val emailAddress: EmailAddress) : ErrorResult {
-    override fun message() = "An account is already registered under email $emailAddress."
+
+    override val message: String
+        get() = "An account is already registered under email $emailAddress."
+
     override fun errorCode() = ErrorCode.EMAIL_ALREADY_REGISTERED
 }
