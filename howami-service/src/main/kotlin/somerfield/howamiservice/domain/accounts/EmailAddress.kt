@@ -1,15 +1,23 @@
 package somerfield.howamiservice.domain.accounts
 
+import somerfield.howamiservice.domain.ErrorCode
 import somerfield.howamiservice.domain.ErrorResult
 import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.domain.accounts.EmailAddress.Companion.fromString
 
-data class EmailAddress(val emailText: String) {
+data class EmailAddress(private val emailText: String) {
 
     companion object {
+//        private val emailRegex = Regex.fromLiteral("^[a-zA-Z0-9!#\$%&'*+-\\/=?^_`{|}~.]+@[a-zA-Z0-9-.]+\\.[a-zA-Z0-9-.]+\$")
+        private val emailRegex = Regex("^[a-zA-Z0-9!#\$%&'*+-/=?^_`{|}~.]+@[a-zA-Z0-9-.]+\\.[a-zA-Z0-9-.]+\$", RegexOption.MULTILINE)
+
         fun fromString(string: String): Result<EmailAddress, ErrorResult> {
-            //TODO: validation
-            return Result.doTry { EmailAddress(string) }
+            return if (emailRegex.containsMatchIn(string)) {
+                Result.Success(EmailAddress(string))
+            }
+            else {
+                Result.Failure(ParseFailure("Couldn't parse $string"))
+            }
         }
     }
 
@@ -19,3 +27,9 @@ data class EmailAddress(val emailText: String) {
 }
 
 fun String.toEmailAddress() = fromString(this)
+
+data class ParseFailure(private val message: String) : ErrorResult {
+    override fun message() = message
+
+    override fun errorCode() = ErrorCode.MALFORMED_FIELDS
+}

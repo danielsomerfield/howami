@@ -45,6 +45,8 @@ data class ExceptionErrorResult(private val exception: Exception) : ErrorResult 
     override fun errorCode() = ErrorCode.UNKNOWN
 }
 
+//TODO: replace the functions with properties
+//TODO: remove error code
 interface ErrorResult {
     fun message(): String
     fun errorCode(): ErrorCode
