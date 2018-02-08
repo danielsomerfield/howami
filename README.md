@@ -32,6 +32,17 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Offline sync
 
 # TODO
+
+## IAC
+* Create VPN
+* Create task
+* Create a service for the task
+
+
+## Path to production
+* After smoke test in circle ci, push the container to dockerhub
+* Call into AWS to trigger fargate to pull down the container
+
 ## Cleanup
 - replace links with user defined networks in compose
 - remove dependency ordering so services don't count on it
@@ -40,7 +51,9 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Primary Use Cases
 * Account Confirmation
     * Service that sends email and transitions queued -> sent (in process)
-    * Disable confirmation after a time period* 
+    * "Send a new confirmation code"
+        * Old code is invalidated, expiration is refreshed
+        * Confirmation sent again
 
 ## Operational
 * Enable caching in circle CI
@@ -54,10 +67,10 @@ A mobile application for keeping track of how you are doing at regular intervals
  per-message
 
 ## Performance
-* Cached headers on resources
+* Cache headers on resources
 * Add indexes to all the searchable fields
 
 ## Reliability
 * Retry / back-offs on cross-service operations
-* Handle bad messages on the kafka streams
+* Handle bad messages on the kafka streams (done?)
 * Configure mongo replica sets and add a second instance

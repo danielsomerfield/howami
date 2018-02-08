@@ -6,9 +6,12 @@ import org.junit.Assert.assertThat
 import org.junit.Ignore
 import org.junit.Test
 import somerfield.howamiservice.domain.accounts.*
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus.CONFIRMED
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus.UNCONFIRMED
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class RegistrationConfirmationServiceTest {
@@ -29,7 +32,7 @@ class RegistrationConfirmationServiceTest {
                 userId = userId,
                 confirmationCode = confirmationCode,
                 createdDateTime = now,
-                confirmationStatus = ConfirmationStatus.UNCONFIRMED
+                confirmationStatus = UNCONFIRMED
         )
         verify(registrationConfirmationRepository).create(expectedConfirmation)
 
@@ -60,32 +63,41 @@ class RegistrationConfirmationServiceTest {
         verify(registrationConfirmationRepository, never()).delete(any())
     }
 
-    private fun service(confirmationCode: String, now: Instant): RegistrationConfirmationService {
+    @Test
+    fun approvalFailsWithExpiredCode() {
+        val confirmationCode = UUID.randomUUID().toString()
+        val initialRegistrationTime = Instant.now().minus(1, ChronoUnit.DAYS)
+        val result = service(confirmationCode, initialRegistrationTime).confirm(userId, confirmationCode)
+        assertThat(result, `is`(ConfirmationResult.EXPIRED))
+    }
+
+    @Test
+    fun approvalFailsWithNonExistentConfirmation() {
+        val confirmationCode = UUID.randomUUID().toString()
+        val initialRegistrationTime = Instant.now()
+        val result = service(confirmationCode, initialRegistrationTime).confirm("other", confirmationCode)
+        assertThat(result, `is`(ConfirmationResult.INVALID))
+    }
+
+    private fun service(confirmationCode: String, timeCreated: Instant, confirmationStatus: ConfirmationStatus = UNCONFIRMED): RegistrationConfirmationService {
+
+        whenever(registrationConfirmationRepository.find(any())).thenReturn(Optional.empty())
+
         whenever(registrationConfirmationRepository.find(userId)).thenReturn(
                 Optional.of(RegistrationConfirmation(
                         userId = userId,
                         confirmationCode = confirmationCode,
-                        createdDateTime = now,
-                        confirmationStatus = ConfirmationStatus.UNCONFIRMED
+                        createdDateTime = timeCreated,
+                        confirmationStatus = confirmationStatus
                 ))
         )
+
         return RegistrationConfirmationService(
                 registrationConfirmationRepository = registrationConfirmationRepository,
                 userAccountRepository = userAccountRepository,
                 confirmationCodeGenerator = { confirmationCode },
-                dateTimeSource = { now }
+                dateTimeSource = { timeCreated }
         )
     }
 
-    @Test
-    @Ignore
-    fun approvalFailsWithExpiredCode() {
-
-    }
-
-    @Test
-    @Ignore
-    fun approvalFailsIfAlreadyConfirmed() {
-
-    }
 }

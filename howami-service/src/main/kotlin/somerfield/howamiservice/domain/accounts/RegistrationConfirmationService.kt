@@ -1,10 +1,11 @@
 package somerfield.howamiservice.domain.accounts
 
-import somerfield.howamiservice.domain.accounts.ConfirmationResult.CONFIRMED
-import somerfield.howamiservice.domain.accounts.ConfirmationResult.INVALID
+import somerfield.howamiservice.domain.accounts.ConfirmationResult.*
 import somerfield.howamiservice.repositories.RegistrationConfirmationRepository
 import somerfield.howamiservice.repositories.UserAccountRepository
 import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 class RegistrationConfirmationService(
         private val registrationConfirmationRepository: RegistrationConfirmationRepository,
@@ -30,14 +31,25 @@ class RegistrationConfirmationService(
 
     fun confirm(userId: String, confirmationCode: String): ConfirmationResult {
         val confirmation = registrationConfirmationRepository.find(userId)
-        return if (confirmation.isPresent && confirmation.get().confirmationCode == confirmationCode) {
-            userAccountRepository.update(userId, AccountState.CONFIRMED)
-            registrationConfirmationRepository.delete(userId)
-            CONFIRMED
-        } else {
-            INVALID
+        if (confirmation.isPresent) {
+            if (confirmationMatches(confirmation, confirmationCode)) {
+                userAccountRepository.update(userId, AccountState.CONFIRMED)
+                return if (isExpired(confirmation.get())) {
+                    EXPIRED
+                } else {
+                    registrationConfirmationRepository.delete(userId)
+                    CONFIRMED
+                }
+            }
         }
+        return INVALID
     }
+
+    private fun isExpired(confirmation: RegistrationConfirmation) = confirmation.createdDateTime
+            .isBefore(Instant.now().minus(2, ChronoUnit.HOURS))
+
+    private fun confirmationMatches(confirmation: Optional<RegistrationConfirmation>, confirmationCode: String) =
+            confirmation.get().confirmationCode == confirmationCode
 
     fun getUnsentConfirmations(): List<RegistrationConfirmation> {
         return registrationConfirmationRepository.find(
