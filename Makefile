@@ -1,8 +1,10 @@
 .PHONY: integration build stop dependencies ps logs logsf
 
 STAMP=`date +'%Y-%m-%d_%H%M%S'`
-VERSION := 1.0-SNAPSHOT
+CIRCLE_BUILD_NUM ?= 1.0-dev
+VERSION=$(CIRCLE_BUILD_NUM)
 COMPOSE := docker-compose -f docker-compose.yml
+REGISTRY_NAME=danielsomerfield
 
 export VERSION
 
@@ -35,3 +37,9 @@ logs:
 
 logsf:
 	$(COMPOSE) -f docker-compose-e2e.yml logs -f
+
+push:
+	docker login -u $DOCKER_USER -p $DOCKER_PASS
+	docker push $(REGISTRY_NAME)/howami-comms-service:$(VERSION)
+	docker push $(REGISTRY_NAME)/howami-service:$(VERSION)
+	docker push $(REGISTRY_NAME)/e2e-tests:$(VERSION)

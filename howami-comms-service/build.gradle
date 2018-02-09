@@ -22,13 +22,6 @@ dependencies {
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:$mockitoKtVersion"
 }
 
-task dockerBuild(type: Exec) {
-    commandLine('docker', 'build',
-            '--tag', "danielsomerfield/howami-comms:${project.version}",
-            "--tag", "danielsomerfield/howami-comms:latest",
-	        "--build-arg", "GO_PIPELINE_LABEL=${project.version}", ".")
-}
-
 test {
     useJUnit {
         excludeCategories("somerfield.testing.IntegrationTests")

@@ -1,6 +1,7 @@
 version: '2'
 services:
   howami-service:
+    image: danielsomerfield/howami-service:${VERSION}
     build:
       context: ./howami-service
       args:
@@ -18,6 +19,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   comms-service:
+    image: danielsomerfield/howami-comms-service:${VERSION}
     build:
       context: ./howami-comms-service
       args:
@@ -34,6 +36,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 
   e2e-tests:
+    image: danielsomerfield/e2e-tests:${VERSION}
     build:
       context: ./howami-e2e
       args:
