@@ -65,6 +65,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 ## Testing
 * Add "test" header to message format so that destructive external operations can be disabled
  per-message
+ * Clean up data after smoke test
 
 ## Performance
 * Cache headers on resources

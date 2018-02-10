@@ -1,0 +1,36 @@
+version: '2'
+services:
+  howami-service:
+    image: danielsomerfield/howami-service:${VERSION}
+    build:
+      context: ./howami-service
+      args:
+        version: ${VERSION}
+    ports:
+      - 8080:8080
+      - 8081:8081
+    links:
+      - mongo
+    depends_on:
+      - mongo
+      - kafka
+    environment:
+      - MONGO_HOST=mongo
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  comms-service:
+    image: danielsomerfield/howami-comms-service:${VERSION}
+    build:
+      context: ./howami-comms-service
+      args:
+        version: ${VERSION}
+    ports:
+      - 8090:8090
+      - 8091:8091
+    links:
+      - howami-service
+    depends_on:
+      - howami-service
+    environment:
+      - TEST_MODE=true
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
