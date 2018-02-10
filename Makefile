@@ -1,13 +1,18 @@
-.PHONY: integration build stop dependencies ps logs logsf
+#TODO: fix these
+.PHONY: integration build stop dependencies ps logs logsf run-local
 
-STAMP=`date +'%Y-%m-%d_%H%M%S'`
-CIRCLE_BUILD_NUM ?= dev
-VERSION=1.0-$(CIRCLE_BUILD_NUM)
-COMPOSE_DEPENDENCIES := docker-compose -f docker-compose-dependencies.yml
-COMPOSE_SERVICES := $(COMPOSE_DEPENDENCIES) -f docker-compose-services.yml
-COMPOSE_E2E := $(COMPOSE_SERVICES) -f docker-compose-e2e.yml
+ifdef $CIRCLE_BUILD_NUM
+    VERSION=$CIRCLE_BUILD_NUM
+    CONTAINER_VERSION=$CIRCLE_BUILD_NUM
+else
+    STAMP=$(shell date +'%s')
+    VERSION=dev
+    CONTAINER_VERSION=dev-$(STAMP)
+endif
 
 REGISTRY_NAME=danielsomerfield
+HOWAMI_SERVICE_NAME=howami-service
+HOWAMI_COMMS_SERVICE_NAME=howami-comms-service
 
 export VERSION
 
@@ -17,33 +22,40 @@ build:
 integration: build
 	./gradlew integration
 
-e2e: stop
-	$(COMPOSE_E2E) up --force-recreate --build -d
-	$(COMPOSE_E2E) logs -f > all.log &
-	$(COMPOSE_E2E) logs -f e2e-tests > e2e-test.log
+e2e: run
+    #TODO: run the e2e job
 	bin/wait_for_tests.py
 
 dependencies: stop
-	$(COMPOSE_E2E) up --force-recreate --build -d
+    #TODO: run just the dependencies
+	echo NYI
+
+run: stop build-images
+	kubectl create -f kubernetes/howami.yml
+
+run-local: run
+	kubectl set image deployment/$(HOWAMI_SERVICE_NAME) $(HOWAMI_SERVICE_NAME)=$(HOWAMI_SERVICE_NAME):$(CONTAINER_VERSION)
+	kubectl set image deployment/$(HOWAMI_COMMS_SERVICE_NAME) $(HOWAMI_COMMS_SERVICE_NAME)=$(HOWAMI_COMMS_SERVICE_NAME):$(CONTAINER_VERSION)
 
 stop:
-	$(COMPOSE_E2E) -f docker-compose-e2e.yml down
+	kubectl delete deployments -l group=howami-all
+	kubectl delete services -l group=howami-all
 
 clean:
 	./gradlew clean
 
-ps:
-	$(COMPOSE_E2E) ps
+build-images: build
+	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(HOWAMI_SERVICE_NAME):$(CONTAINER_VERSION) $(HOWAMI_SERVICE_NAME)
+	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(HOWAMI_COMMS_SERVICE_NAME):$(CONTAINER_VERSION) $(HOWAMI_COMMS_SERVICE_NAME)
 
-logs:
-	$(COMPOSE_E2E) logs
-
-logsf:
-	$(COMPOSE_E2E) logs -f
+clean-images:
+	docker images -f dangling=true -q | xargs docker rmi
+	#docker images -q $(REGISTRY_NAME)/$(HOWAMI_SERVICE_NAME) | xargs docker rmi
+	#docker images -q $(REGISTRY_NAME)/$(HOWAMI_COMMS_SERVICE_NAME) | xargs docker rmi
 
 push:
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	docker push $(REGISTRY_NAME)/howami-comms-service:$(VERSION)
-	docker push $(REGISTRY_NAME)/howami-service:$(VERSION)
-	docker push $(REGISTRY_NAME)/e2e-tests:$(VERSION)
+	docker push $(REGISTRY_NAME)/howami-comms-service:$(CONTAINER_VERSION)
+	docker push $(REGISTRY_NAME)/howami-service:$(CONTAINER_VERSION)
+	docker push $(REGISTRY_NAME)/e2e-tests:$(CONTAINER_VERSION)
 

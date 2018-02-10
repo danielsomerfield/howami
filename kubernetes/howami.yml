@@ -1,0 +1,99 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: howami-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: howami-service
+        group: howami-all
+    spec:
+      containers:
+      - name: howami-service
+        image: danielsomerfield/howami-service:1.0-54
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+          - containerPort: 8081
+        env:
+          - name: MONGO_HOST
+            value: localhost
+          - name: KAFKA_BOOTSTRAP_SERVERS
+            value: kafka:9092
+      - name: mongo
+        image: mongo:3.4
+        ports:
+          - containerPort: 27017
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kafka
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka
+        group: howami-all
+    spec:
+      containers:
+      - name: zookeeper
+        image: zookeeper:3.4.10
+        ports:
+          - containerPort: 2181
+      - name: kafka
+        image: wurstmeister/kafka:1.0.0
+        ports:
+            - containerPort: 9092
+        env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: localhost:2181
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: kafka
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: howami-comms-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: howami-comms-service
+        group: howami-all
+    spec:
+      containers:
+      - name: howami-comms-service
+        image: danielsomerfield/howami-comms-service:1.0-54
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+          - containerPort: 8081
+        env:
+          - name: KAFKA_BOOTSTRAP_SERVERS
+            value: kafka:9092
+          - name: TEST_MODE
+            value: "true"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: howami-service
+  labels:
+    name: howami-service
+    group: howami-all
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app-type: howami-service
