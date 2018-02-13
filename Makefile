@@ -13,6 +13,7 @@ endif
 REGISTRY_NAME=danielsomerfield
 HOWAMI_SERVICE_NAME=howami-service
 HOWAMI_COMMS_SERVICE_NAME=howami-comms-service
+E2E_TESTS_NAME=howami-e2e
 
 export VERSION
 
@@ -23,7 +24,8 @@ integration: build
 	./gradlew integration
 
 e2e: run
-    #TODO: run the e2e job
+	kubectl run e2e-tests --image $(REGISTRY_NAME)/$(E2E_TESTS_NAME):$(CONTAINER_VERSION)  --env "HOWAMI_SERVICE_BASE_URL=http://howami-service" --env "COMMS_SERVICE_BASE_URL=http://comms-service"
+	kubectl logs -f > all.log &
 	bin/wait_for_tests.py
 
 dependencies: stop
@@ -47,6 +49,7 @@ clean:
 build-images: build
 	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(HOWAMI_SERVICE_NAME):$(CONTAINER_VERSION) $(HOWAMI_SERVICE_NAME)
 	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(HOWAMI_COMMS_SERVICE_NAME):$(CONTAINER_VERSION) $(HOWAMI_COMMS_SERVICE_NAME)
+	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(E2E_TESTS_NAME):$(CONTAINER_VERSION) $(E2E_TESTS_NAME)
 
 clean-images:
 	docker images -f dangling=true -q | xargs docker rmi
@@ -58,4 +61,3 @@ push:
 	docker push $(REGISTRY_NAME)/howami-comms-service:$(CONTAINER_VERSION)
 	docker push $(REGISTRY_NAME)/howami-service:$(CONTAINER_VERSION)
 	docker push $(REGISTRY_NAME)/e2e-tests:$(CONTAINER_VERSION)
-
