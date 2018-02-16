@@ -47,7 +47,7 @@ sealed class Result<out T, out E : ErrorResult> {
 }
 
 data class ExceptionErrorResult(
-        private val exception: Exception
+        val exception: Exception
 ) :
         ErrorResult {
     override val message: String

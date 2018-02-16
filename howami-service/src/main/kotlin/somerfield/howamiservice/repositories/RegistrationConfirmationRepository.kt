@@ -1,14 +1,21 @@
 package somerfield.howamiservice.repositories
 
 import com.mongodb.BasicDBObject
+import com.mongodb.MongoSocketException
+import com.mongodb.MongoWriteException
 import com.mongodb.client.MongoCollection
+import net.jodah.failsafe.Failsafe
+import net.jodah.failsafe.RetryPolicy
 import org.bson.Document
 import org.bson.types.ObjectId
+import somerfield.howamiservice.domain.ErrorResult
+import somerfield.howamiservice.domain.Result
 import somerfield.howamiservice.domain.accounts.ConfirmationStatus
 import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
 import somerfield.mongo.appendIfNotNull
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class RegistrationConfirmationRepository(private val registrationConfirmationCollection: MongoCollection<Document>) {
 
@@ -44,14 +51,46 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
         }
     }
 
-    fun create(registrationConfirmation: RegistrationConfirmation) {
-        registrationConfirmationCollection.insertOne(
-                Document()
-                        .append(userIdField, ObjectId(registrationConfirmation.userId))
-                        .append(confirmationCodeField, registrationConfirmation.confirmationCode)
-                        .append(confirmationStatusField, registrationConfirmation.confirmationStatus.name)
-                        .append(createdDateTimeField, registrationConfirmation.createdDateTime.toEpochMilli())
-        )
+    fun create(registrationConfirmation: RegistrationConfirmation): Result<RegistrationConfirmation, RepositoryError> {
+        val dbResult = Result.doTry {
+            Failsafe.with<Unit>(RetryPolicy()
+                    .retryOn(MongoSocketException::class.java)
+                    .withBackoff(100, 2000, TimeUnit.MILLISECONDS)
+                    .withMaxRetries(5)
+            ).run({ctx ->
+                try {
+                    registrationConfirmationCollection.insertOne(
+                            Document()
+                                    .append(userIdField, ObjectId(registrationConfirmation.userId))
+                                    .append(confirmationCodeField, registrationConfirmation.confirmationCode)
+                                    .append(confirmationStatusField, registrationConfirmation.confirmationStatus.name)
+                                    .append(createdDateTimeField, registrationConfirmation.createdDateTime.toEpochMilli())
+                    )
+                } catch (e: MongoWriteException) {
+                    if (recordDoesNotMatch(registrationConfirmation)) {
+                        throw e
+                    }
+                }
+            })
+        }
+        return dbResult
+                .map { registrationConfirmation }
+                .mapFailure { error ->
+                    when (error.exception) {
+                        is MongoWriteException -> {
+                            if (error.exception.code == 11000) {
+                                RepositoryError("Duplicate key", Reason.DUPLICATE_ID)
+                            } else {
+                                throw RepositoryRuntimeException(error.exception.message ?: "No message provided", error.exception.code)
+                            }
+                        }
+                        else -> throw RepositoryRuntimeException(error.exception.message ?: "No message provided")
+                    }
+                }
+    }
+
+    private fun recordDoesNotMatch(registrationConfirmation: RegistrationConfirmation): Boolean {
+        return find(registrationConfirmation.userId) != Optional.of(registrationConfirmation)
     }
 
     fun delete(userId: String): Boolean {
@@ -59,5 +98,16 @@ class RegistrationConfirmationRepository(private val registrationConfirmationCol
                 .append("_id", ObjectId(userId))).deletedCount == 1L
     }
 
+}
 
+data class RepositoryError(override val message: String, val reason: Reason) : ErrorResult
+
+enum class Reason {
+    DUPLICATE_ID
+}
+
+class RepositoryRuntimeException(message: String, code: Int = RepositoryRuntimeException.UNKNOWN_ERROR) : RuntimeException(message) {
+    companion object {
+        val UNKNOWN_ERROR = -1
+    }
 }

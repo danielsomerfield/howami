@@ -1,16 +1,21 @@
 package somerfield.howamiservice.repositories
 
 import com.github.fakemongo.Fongo
+import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.experimental.categories.Category
-import somerfield.howamiservice.domain.accounts.ConfirmationStatus
+import somerfield.howamiservice.domain.Result
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus.CONFIRMED
+import somerfield.howamiservice.domain.accounts.ConfirmationStatus.UNCONFIRMED
 import somerfield.howamiservice.domain.accounts.RegistrationConfirmation
+import somerfield.howamiservice.repositories.Reason.DUPLICATE_ID
 import somerfield.testing.IntegrationTests
 import java.time.Instant.now
 import java.util.*
@@ -18,8 +23,6 @@ import java.util.*
 @Category(IntegrationTests::class)
 class RegistrationConfirmationRepositoryIntegrationTest {
 
-
-    private val emailField = "email"
     private val userIdField = "_id"
     private val createdDateTimeField = "created_datetime"
     private val confirmationStatusField = "confirmation_status"
@@ -34,15 +37,13 @@ class RegistrationConfirmationRepositoryIntegrationTest {
     private var registrationConfirmationCollection: MongoCollection<Document>? = null
 
     private val userId1 = ObjectId.get()
-    private val email1 = "test@example.com"
     private val createdDateTime1 = now()
-    private val confirmationStatus1 = ConfirmationStatus.UNCONFIRMED
+    private val confirmationStatus1 = UNCONFIRMED
     private val confirmationCode1 = UUID.randomUUID().toString()
 
     private val userId2 = ObjectId.get()
-    private val email2 = "test@example.com"
     private val createdDateTime2 = now()
-    private val confirmationStatus2 = ConfirmationStatus.CONFIRMED
+    private val confirmationStatus2 = CONFIRMED
     private val confirmationCode2 = UUID.randomUUID().toString()
 
     private val expected1 = RegistrationConfirmation(
@@ -68,14 +69,12 @@ class RegistrationConfirmationRepositoryIntegrationTest {
 
         val user1Doc = Document(mapOf(
                 userIdField to userId1,
-                emailField to email1,
                 createdDateTimeField to createdDateTime1.toEpochMilli(),
                 confirmationStatusField to confirmationStatus1.toString(),
                 confirmationCodeField to confirmationCode1
         ))
         val user2Doc = Document(mapOf(
                 userIdField to userId2,
-                emailField to email2,
                 createdDateTimeField to createdDateTime2.toEpochMilli(),
                 confirmationStatusField to confirmationStatus2.toString(),
                 confirmationCodeField to confirmationCode2
@@ -105,7 +104,7 @@ class RegistrationConfirmationRepositoryIntegrationTest {
     @Test
     fun testFindByConfirmationStatus() {
         assertThat(repository!!.find(
-                status = ConfirmationStatus.UNCONFIRMED
+                status = UNCONFIRMED
         ), `is`(listOf(expected1)))
     }
 
@@ -118,5 +117,44 @@ class RegistrationConfirmationRepositoryIntegrationTest {
         assertThat(repository!!.find(
                 userId = userId1.toString()
         ), `is`(Optional.empty()))
+    }
+
+    @Test
+    fun testBasicCreate() {
+        val userId3 = ObjectId.get().toString()
+        val confirmationStatus3 = CONFIRMED
+        val createdDateTime3 = now()
+        val confirmationCode3 = UUID.randomUUID().toString()
+        val toCreate = RegistrationConfirmation(
+                userId = userId3,
+                confirmationCode = confirmationCode3,
+                createdDateTime = createdDateTime3,
+                confirmationStatus = confirmationStatus3
+        )
+        val created = repository!!.create(toCreate)
+
+        assertEquals(Result.Success(toCreate), created)
+
+        val document = registrationConfirmationCollection!!.find(BasicDBObject().append(userIdField, ObjectId(userId3))).first()
+        assertThat(document.getObjectId(userIdField), `is`(ObjectId(userId3)))
+        assertThat(document.getString(confirmationCodeField), `is`(confirmationCode3))
+        assertThat(document.getLong(createdDateTimeField), `is`(createdDateTime3.toEpochMilli()))
+        assertThat(document.getString(confirmationStatusField), `is`(CONFIRMED.name))
+
+    }
+
+    @Test
+    fun testDuplicateWriteIsNotAllowed() {
+        val result = repository!!.create(RegistrationConfirmation(
+                userId = userId1.toString(),
+                confirmationCode = confirmationCode2,
+                createdDateTime = createdDateTime2,
+                confirmationStatus = confirmationStatus2
+        ))
+
+        when (result) {
+            is Result.Failure -> assertEquals(DUPLICATE_ID, result.errorValue.reason)
+            else -> fail()
+        }
     }
 }
