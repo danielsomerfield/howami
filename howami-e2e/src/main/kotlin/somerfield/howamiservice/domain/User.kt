@@ -87,18 +87,24 @@ data class UserRegistration(val userId: String)
 
 object UserServicesClient : HealthCheckService {
 
-    private fun getServiceHost() = System.getenv().getOrDefault("HOWAMI_SERVICE_BASE_URL", "http://localhost")
-
     override fun healthEndpoint(): URI {
-        return URI.create("${getServiceHost()}:${getHealthPort()}/healthcheck")
+        return URI.create("${getServiceProto()}://${getServiceHost()}:${getHealthPort()}/healthcheck")
+    }
+
+    private fun getServiceHost(): String {
+        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_HOST", "http://localhost")
+    }
+
+    private fun getServiceProto(): String {
+        return "http"
     }
 
     private fun getHealthPort(): Int {
-        return 8081
+        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_PORT_HEALTH", "8081").toInt()
     }
 
     private fun getServicePort(): Int {
-        return 8080
+        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_PORT_APP", "8080").toInt()
     }
 
     fun registerUser(username: String, password: String, email: String): UserRegistration {

@@ -7,4 +7,4 @@ logging:
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
 
 testMode: ${TEST_MODE}
-kafkaBootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS}
+kafkaBootstrapServers: ${KAFKA_SERVICE_SERVICE_HOST:KAFKA_SERVICE_SERVICE_PORT}

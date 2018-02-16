@@ -5,14 +5,20 @@ import java.net.URI
 
 object CommsServiceClient : HealthCheckService {
 
-    private val serviceHost = System.getenv().getOrDefault("COMMS_SERVICE_BASE_URL", "http://localhost")
-
     override fun healthEndpoint(): URI {
-        return URI.create("$serviceHost:${CommsServiceClient.getHealthPort()}/healthcheck")
+        return URI.create("${getServiceProto()}://${getServiceHost()}:${getHealthPort()}/healthcheck")
+    }
+
+    private fun getServiceHost(): String {
+        return System.getenv().getOrDefault("COMMS_SERVICE_SERVICE_HOST", "http://localhost")
+    }
+
+    private fun getServiceProto(): String {
+        return "http"
     }
 
     private fun getHealthPort(): Int {
-        return 8081
+        return System.getenv().getOrDefault("COMMS_SERVICE_SERVICE_PORT_HEALTH", "8081").toInt()
     }
 
 }
