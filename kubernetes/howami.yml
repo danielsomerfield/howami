@@ -13,15 +13,12 @@ spec:
       containers:
       - name: howami-service
         image: danielsomerfield/howami-service:1.0-54
-        imagePullPolicy: Always
         ports:
           - containerPort: 8080
           - containerPort: 8081
         env:
           - name: MONGO_HOST
             value: localhost
-          - name: KAFKA_BOOTSTRAP_SERVERS
-            value: kafka:9092
       - name: mongo
         image: mongo:3.4
         ports:
@@ -79,13 +76,10 @@ spec:
       containers:
       - name: howami-comms-service
         image: danielsomerfield/howami-comms-service:1.0-54
-        imagePullPolicy: Always
         ports:
           - containerPort: 8080
           - containerPort: 8081
         env:
-          - name: KAFKA_BOOTSTRAP_SERVERS
-            value: kafka:9092
           - name: TEST_MODE
             value: "true"
 

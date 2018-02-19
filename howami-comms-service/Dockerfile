@@ -7,8 +7,11 @@ ARG version
 
 ARG APP_NAME="howami-comms-service-${version}"
 
+ADD docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+
 ADD build/distributions/${APP_NAME}.tar /
 RUN ln -s $APP_NAME /howami-comms-service
 ADD howami-comms-service.yml /howami-comms-service/howami-comms-service.yml
 
-ENTRYPOINT ["/howami-comms-service/bin/howami-comms-service", "server", "/howami-comms-service/howami-comms-service.yml"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

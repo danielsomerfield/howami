@@ -9,6 +9,10 @@ import org.joda.time.format.ISODateTimeFormat
 import org.json.JSONObject
 import org.junit.Assert
 import org.junit.Assert.assertThat
+import somerfield.howamiservice.Env.howamiServiceAppPort
+import somerfield.howamiservice.Env.howamiServiceHealthPort
+import somerfield.howamiservice.Env.howamiServiceHost
+import somerfield.howamiservice.Env.kafkaBootstrapServers
 import somerfield.howamiservice.domain.LoginResult.*
 import somerfield.testing.HTTP
 import somerfield.testing.HealthCheckService
@@ -22,7 +26,6 @@ class User {
     private val username = "user-$randomNumeric"
     private val password = "password-$randomNumeric"
     private val email = "email-$randomNumeric@example.com"
-    private val kafkaBootstrapServers = System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 
     private val consumer = KafkaConsumer<Unit, ByteArray>(mapOf(
             "bootstrap.servers" to kafkaBootstrapServers,
@@ -92,7 +95,7 @@ object UserServicesClient : HealthCheckService {
     }
 
     private fun getServiceHost(): String {
-        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_HOST", "http://localhost")
+        return howamiServiceHost
     }
 
     private fun getServiceProto(): String {
@@ -100,11 +103,11 @@ object UserServicesClient : HealthCheckService {
     }
 
     private fun getHealthPort(): Int {
-        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_PORT_HEALTH", "8081").toInt()
+        return howamiServiceHealthPort
     }
 
     private fun getServicePort(): Int {
-        return System.getenv().getOrDefault("HOWAMI_SERVICE_SERVICE_PORT_APP", "8080").toInt()
+        return howamiServiceAppPort
     }
 
     fun registerUser(username: String, password: String, email: String): UserRegistration {
@@ -117,7 +120,7 @@ object UserServicesClient : HealthCheckService {
                 )
 
         val response = HTTP.post(
-                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/user-registrations"),
+                to = URI.create("${getServiceProto()}://${getServiceHost()}:${getServicePort()}/api/v1/user-registrations"),
                 contentType = "application/json",
                 content = message.toString(),
                 headers = mapOf("request-id" to requestId)
@@ -151,7 +154,7 @@ object UserServicesClient : HealthCheckService {
 
     fun login(username: String, password: String): LoginResult {
         val response = HTTP.post(
-                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/login"),
+                to = URI.create("${getServiceProto()}://${getServiceHost()}:${getServicePort()}/api/v1/login"),
                 content = "username=${encode(username)}&password=${encode(password)}",
                 contentType = "application/x-www-form-urlencoded"
         )

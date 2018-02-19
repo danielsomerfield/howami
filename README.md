@@ -1,3 +1,4 @@
+
 # How am I
 
 A mobile application for keeping track of how you are doing at regular intervals throughout the day.
@@ -41,12 +42,9 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Path to production
 * After smoke test in circle ci, push the container to dockerhub
-* Call into AWS to trigger fargate to pull down the container
 
 ## Cleanup
-- replace links with user defined networks in compose
 - remove dependency ordering so services don't count on it
-- clean docker images
 
 ## Primary Use Cases
 * Account Confirmation

@@ -16,7 +16,17 @@ class UserEventProducer(
 
     fun userRegistered(userRegistrationEvent: UserRegistrationEvent) {
         val messageBytes = objectMapper.writeValueAsBytes(EventWireType(toWireType(userRegistrationEvent)))
-        kafkaProducer.send(ProducerRecord(topicName, messageBytes))
+
+        //TODO: refactor
+        println("userRegistered")
+        Thread({
+            try {
+                val metadata = kafkaProducer.send(ProducerRecord(topicName, messageBytes)).get()
+                println("kafka metadata ${metadata.topic()} ${metadata.topic()}")
+            } catch (e: Exception) {
+                println("Failed to send")
+            }
+        }).start()
     }
 
     private fun toWireType(event: UserRegistrationEvent) = UserRegistrationEventWireType(

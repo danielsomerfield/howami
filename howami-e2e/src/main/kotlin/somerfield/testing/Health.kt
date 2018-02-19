@@ -6,6 +6,7 @@ import java.net.URI
 
 object Health {
     fun check(service: HealthCheckService): HealthResponse {
+        println("Checking health at ${service.healthEndpoint()}")
         val response = HTTP.get(to = service.healthEndpoint())
         return if (response.status == 200 && response.json.getJSONObject("basic")?.getBoolean("healthy") == true) {
             Healthy

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+env
+
 TEST_RESULTS=$(/howami-e2e/bin/howami-e2e)
 TEST_RUN_RESULT=$?
 

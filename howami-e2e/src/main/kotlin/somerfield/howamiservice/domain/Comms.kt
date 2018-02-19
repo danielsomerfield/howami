@@ -1,5 +1,7 @@
 package somerfield.howamiservice.domain
 
+import somerfield.howamiservice.Env.commsServiceHost
+import somerfield.howamiservice.Env.commsServiceHealthPort
 import somerfield.testing.HealthCheckService
 import java.net.URI
 
@@ -10,7 +12,7 @@ object CommsServiceClient : HealthCheckService {
     }
 
     private fun getServiceHost(): String {
-        return System.getenv().getOrDefault("COMMS_SERVICE_SERVICE_HOST", "http://localhost")
+        return commsServiceHost
     }
 
     private fun getServiceProto(): String {
@@ -18,7 +20,7 @@ object CommsServiceClient : HealthCheckService {
     }
 
     private fun getHealthPort(): Int {
-        return System.getenv().getOrDefault("COMMS_SERVICE_SERVICE_PORT_HEALTH", "8081").toInt()
+        return commsServiceHealthPort
     }
 
 }
