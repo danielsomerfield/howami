@@ -108,10 +108,15 @@ class CommsServiceBinding(
         return KafkaProducer<Unit, ByteArray>(kafkaProducerProperties())
     }
 
-    private fun kafkaProducerProperties() = mapOf(
-            "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
-            "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
-            "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer")
+    private fun kafkaProducerProperties(): Map<String, String> {
+        val config = mapOf(
+                "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
+                "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
+                "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer"
+        )
+        print("Starting with kafka configuration $config")
+        return config
+    }
 
     private fun kafkaConsumerProperties() = mapOf(
             "bootstrap.servers" to configuration.getKafkaBootstrapServers(),

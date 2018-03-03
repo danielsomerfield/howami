@@ -7,7 +7,7 @@ ifdef CIRCLE_BUILD_NUM
     CONTAINER_VERSION := $(CIRCLE_BUILD_NUM)
 else
     STAMP := $(shell date +'%s')
-    VERSION := dev
+    VERSION := dev-$(STAMP)
     CONTAINER_VERSION := dev-$(STAMP)
 endif
 endif
@@ -25,10 +25,14 @@ build:
 integration: build
 	./gradlew integration
 
-build-e2e-image:
+build-smoke:
+	./gradlew howami-e2e:build
+
+build-smoke-image: build-smoke
 	docker build --build-arg version=$(VERSION) --tag $(REGISTRY_NAME)/$(E2E_TESTS_NAME):$(CONTAINER_VERSION) $(E2E_TESTS_NAME)
 
-e2e: build-e2e-image
+smoke: build-smoke-image
+	rm -f smoke-test.log
 	kubernetes/bin/run-smoke.py --version $(CONTAINER_VERSION)
 	kubectl logs `kubectl get pods -l "app=smoke" --output=jsonpath={.items..metadata.name}` -f > smoke-test.log &
 	bin/wait_for_tests.py

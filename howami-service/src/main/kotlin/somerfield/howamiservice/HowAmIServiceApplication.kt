@@ -25,6 +25,7 @@ import somerfield.howamiservice.repositories.UserAccountRepository
 import somerfield.howamiservice.resources.LoginResource
 import somerfield.howamiservice.resources.RegistrationConfirmationResource
 import somerfield.howamiservice.resources.UserRegistrationResource
+import somerfield.howamiservice.resources.VersionResource
 import somerfield.howamiservice.wire.JSON
 import somerfield.resources.RequestIdSource
 
@@ -32,20 +33,18 @@ import somerfield.resources.RequestIdSource
 class HowAmIServiceApplication : Application<HowamiServiceConfiguration>() {
 
     override fun run(configuration: HowamiServiceConfiguration, environment: Environment) {
-
-
+        JSON.configureObjectMapper(environment.objectMapper)
         environment.healthChecks().register("basic", object : HealthCheck() {
             override fun check(): Result {
                 return Result.healthy()
             }
         })
 
-        val binding = HowamiServiceBinding.new(configuration)
+        val binding = HowamiServiceBinding.new(configuration, environment)
         environment.jersey().register(binding.userRegistrationResource())
         environment.jersey().register(binding.registrationConfirmationResource())
         environment.jersey().register(binding.loginResource())
-        JSON.configureObjectMapper(environment.objectMapper)
-
+        environment.jersey().register(binding.versionResource())
     }
 
     override fun initialize(bootstrap: Bootstrap<HowamiServiceConfiguration>) {
@@ -98,7 +97,11 @@ constructor(
 /**
  * Low tech injection
  */
-class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration) {
+class HowamiServiceBinding(
+        private val configuration: HowamiServiceConfiguration,
+        private val environment: Environment
+
+) {
 
     private val requestIdSource = RequestIdSource()
 
@@ -147,11 +150,15 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
 
     private fun kafkaProducer() = KafkaProducer<Unit, ByteArray>(kafkaProperties())
 
-    private fun kafkaProperties() = mapOf(
-            "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
-            "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
-            "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer"
-    )
+    private fun kafkaProperties(): Map<String, String> {
+        val config = mapOf(
+                "bootstrap.servers" to configuration.getKafkaBootstrapServers(),
+                "key.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer",
+                "value.serializer" to "org.apache.kafka.common.serialization.ByteArraySerializer"
+        )
+        print("Starting with kafka configuration $config")
+        return config
+    }
 
     private fun hashPasswordFn() = Hashing::buildHash
 
@@ -162,7 +169,10 @@ class HowamiServiceBinding(private val configuration: HowamiServiceConfiguration
     private fun userAccountRepository() = UserAccountRepository(mongoDatabase().getCollection("user_account"))
 
     companion object {
-        fun new(howamiServiceConfiguration: HowamiServiceConfiguration) = HowamiServiceBinding(howamiServiceConfiguration)
+        fun new(howamiServiceConfiguration: HowamiServiceConfiguration, environment: Environment) =
+                HowamiServiceBinding(howamiServiceConfiguration, environment)
     }
+
+    fun versionResource() = VersionResource(environment.objectMapper)
 
 }

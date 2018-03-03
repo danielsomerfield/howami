@@ -42,6 +42,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Path to production
 * After smoke test in circle ci, push the container to dockerhub
+* Push the version file separately from the main tar so it doesn't have to completely rebuild all docker layers
 
 ## Cleanup
 - remove dependency ordering so services don't count on it
@@ -73,3 +74,12 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Retry / back-offs on cross-service operations
 * Handle bad messages on the kafka streams (done?)
 * Configure mongo replica sets and add a second instance
+* Failure to connect to mongo should not kill service, it should continue to retry
+
+## Kubernetes runtime
+- Change local deployment to dynamically build descriptor with python
+- AWS build
+- Print version on startup
+
+## Known Issues
+- For some reason, within kube, producers don't seem to be connecting with kafka

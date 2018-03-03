@@ -25,7 +25,8 @@ JOB_MANIFEST = {
             },
             'spec': {
                 'containers': [
-                    {'name': 'e2e',
+                    {
+                        'name': 'e2e',
                      # 'image': 'danielsomerfield/howami-e2e:dev-1519001136'
                      }
                 ],
@@ -56,9 +57,6 @@ def delete_pod_retry(core_api):
 
 def get_pods(core_api):
     items = core_api.list_namespaced_pod(namespace='default', label_selector='job-name=smoke').items
-    print("############## pods start")
-    print(items)
-    print("############## pods end")
     return items
 
 
@@ -73,9 +71,6 @@ def delete_job_retry(batch_api):
 
 def get_jobs(batch_api):
     items = batch_api.list_namespaced_job(namespace='default', label_selector='job-name=smoke').items
-    print("############## jobs start")
-    print(items)
-    print("############## jobs end")
     return items
 
 

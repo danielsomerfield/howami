@@ -13,13 +13,13 @@ dependencies {
     compile "io.dropwizard:dropwizard-core:$dropwizardVersion"
     compile "com.github.fakemongo:fongo:2.1.+"
     compile "org.mongodb:mongo-java-driver:3.5.+"
-    compile ("com.smoketurner:dropwizard-swagger:$dropwizardVersion")
+    compile("com.smoketurner:dropwizard-swagger:$dropwizardVersion")
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.2'
     compile group: 'org.apache.kafka', name: 'kafka-streams', version: '1.0.0'
     compile "com.lambdaworks:scrypt:1.4.0"
     compile "net.jodah:failsafe:1.0.5"
 
-    compile project (':howami-common')
+    compile project(':howami-common')
 
     testCompile "org.skyscreamer:jsonassert:$jsonAssertVersion"
     testCompile "org.json:json:$jsonVersion"
@@ -36,5 +36,19 @@ test {
 task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
     useJUnit {
         includeCategories("somerfield.testing.IntegrationTests")
+    }
+}
+
+build.dependsOn("writeVersion")
+
+task writeVersion() {
+    doLast {
+        def versionFile = new File("howami-service/build/resources/main/version.json")
+        versionFile.createNewFile()
+        versionFile.text = """{
+    "build-version": "${version}",
+    "build-time": "${new Date()}"
+}
+        """
     }
 }

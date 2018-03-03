@@ -17,7 +17,7 @@ class UserEventProducer(
     fun userRegistered(userRegistrationEvent: UserRegistrationEvent) {
         val messageBytes = objectMapper.writeValueAsBytes(EventWireType(toWireType(userRegistrationEvent)))
 
-        //TODO: refactor
+        //TODO: refactor and remove the junk
         println("userRegistered")
         Thread({
             try {

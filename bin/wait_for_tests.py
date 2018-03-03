@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import re
 import datetime
-import time
+import re
 import sys
+import time
+from builtins import FileNotFoundError
+from time import sleep
 
 TIMEOUT_SECONDS = 30
 
@@ -17,7 +19,7 @@ def get_test_results(line):
 
 def run():
     start_time = datetime.datetime.now()
-    log_file = open("./smoke-test.log", "r")
+    log_file = get_log_file()
 
     while (datetime.datetime.now() - start_time).seconds < TIMEOUT_SECONDS:
         file_location = log_file.tell()
@@ -34,6 +36,17 @@ def run():
 
     print("Timed out")
     sys.exit(1)
+
+
+def get_log_file():
+    start_time = datetime.datetime.now()
+    while (datetime.datetime.now() - start_time).seconds < TIMEOUT_SECONDS:
+        try:
+            return open("./smoke-test.log", "r")
+        except FileNotFoundError:
+            pass
+        sleep(1)
+    raise FileNotFoundError("smoke test log was not found")
 
 
 run()
