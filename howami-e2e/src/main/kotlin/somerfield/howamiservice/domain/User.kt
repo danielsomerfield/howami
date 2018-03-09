@@ -144,7 +144,7 @@ object UserServicesClient : HealthCheckService {
 
     fun confirmRegistration(userId: String, confirmationCode: String) {
         val response = HTTP.post(
-                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
+                to = URI.create("${getServiceProto()}://${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
                 contentType = "application/x-www-form-urlencoded",
                 content = "userId=${encode(userId)}&confirmationCode=${encode(confirmationCode)}"
         )
@@ -169,7 +169,7 @@ object UserServicesClient : HealthCheckService {
 
     fun getConfirmations(userId: String): Optional<RegistrationConfirmation> {
         val response = HTTP.get(
-                to = URI.create("${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
+                to = URI.create("${getServiceProto()}://${getServiceHost()}:${getServicePort()}/api/v1/registration-confirmations"),
                 headers = mapOf("Authorization" to "changeme")
         )
         return when (response.status) {

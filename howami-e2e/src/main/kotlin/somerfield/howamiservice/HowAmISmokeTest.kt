@@ -18,6 +18,7 @@ import somerfield.testing.Health
 import somerfield.testing.Healthy
 import somerfield.testing.Matchers.healthy
 import somerfield.testing.toBe
+import java.time.Instant
 
 class HowAmISmokeTest {
 
@@ -36,7 +37,7 @@ class HowAmISmokeTest {
 
     @Test(timeout = 35000)
     fun testUserRegistration() {
-        println("Starting user registration test with user ${user}")
+        println("Starting user registration test with user ${user} at ${Instant.now()}")
         assertThat(user.login(), `is`(FAILURE))
         user.register()
 

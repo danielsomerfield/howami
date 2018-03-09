@@ -19,13 +19,16 @@ E2E_TESTS_NAME := howami-e2e
 
 export VERSION
 
-build:
+build: clean
 	./gradlew buildAll
 
 integration: build
 	./gradlew integration
 
-build-smoke:
+clean-smoke:
+	./gradlew howami-e2e:clean
+
+build-smoke: clean-smoke
 	./gradlew howami-e2e:build
 
 build-smoke-image: build-smoke

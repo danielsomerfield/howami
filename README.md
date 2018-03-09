@@ -75,6 +75,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 * Handle bad messages on the kafka streams (done?)
 * Configure mongo replica sets and add a second instance
 * Failure to connect to mongo should not kill service, it should continue to retry
+* Kafka heartbeat: write and read heartbeats to make sure messages are getting to kafka
 
 ## Kubernetes runtime
 - Change local deployment to dynamically build descriptor with python
@@ -83,3 +84,4 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Known Issues
 - For some reason, within kube, producers don't seem to be connecting with kafka
+- If you don't clean before building, the generated startup script points to the wrong version

@@ -27,8 +27,14 @@ JOB_MANIFEST = {
                 'containers': [
                     {
                         'name': 'e2e',
-                     # 'image': 'danielsomerfield/howami-e2e:dev-1519001136'
-                     }
+                        # 'image': 'danielsomerfield/howami-e2e:dev-1519001136'
+                        'env': [
+                            {
+                                "name": "KAFKA_BOOTSTRAP_SERVERS",
+                                "value": "kafka-service:9094"
+                            }
+                        ],
+                    }
                 ],
 
                 'restartPolicy': 'Never'
