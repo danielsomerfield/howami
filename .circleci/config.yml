@@ -5,11 +5,13 @@ jobs:
       - image: danielsomerfield/howami-docker-primary:latest
 
     steps:
+      - run: minikube start
       - checkout
       - setup_remote_docker
       - run: make build
       - run: make integration
-      - run: make e2e
+      - run: make run-local
+      - run: make smoke
       - run: make push
 
       - store_test_results:
@@ -17,7 +19,7 @@ jobs:
             - howami-service/build/test-results
 
       - store_artifacts:
-          path: e2e-test.log
+          path: smoke-test.log
 
       - store_artifacts:
           path: all.log
