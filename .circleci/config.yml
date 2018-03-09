@@ -5,11 +5,11 @@ jobs:
       - image: danielsomerfield/howami-docker-primary:latest
 
     steps:
-      - run: minikube start
       - checkout
       - setup_remote_docker
       - run: make build
       - run: make integration
+      - run: minikube start
       - run: make run-local
       - run: make smoke
       - run: make push
