@@ -5,11 +5,10 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import somerfield.howamiservice.domain.CommsServiceClient
-import somerfield.howamiservice.domain.LoginResult
-import somerfield.howamiservice.domain.LoginResult.*
+import somerfield.howamiservice.domain.LoginResult.FAILURE
+import somerfield.howamiservice.domain.LoginResult.SUCCESS
 import somerfield.howamiservice.domain.User
 import somerfield.howamiservice.domain.UserServicesClient
-import somerfield.testing.Async
 import somerfield.testing.Async.responseOf
 import somerfield.testing.Async.responseOfOptional
 import somerfield.testing.Async.waitFor

@@ -7,6 +7,11 @@ from kubernetes.client.apis import batch_v1_api, core_v1_api
 from time import sleep
 
 IMAGE_NAME = 'danielsomerfield/howami-e2e:'
+
+# TODO: figure these out from environment
+
+kafkaBootstrapServers = "kafka-service:9094"
+
 JOB_MANIFEST = {
     'apiVersion': 'batch/v1',
     'kind': 'Job',
@@ -29,9 +34,10 @@ JOB_MANIFEST = {
                         'name': 'e2e',
                         # 'image': 'danielsomerfield/howami-e2e:dev-1519001136'
                         'env': [
+                            # Kafka env config
                             {
                                 "name": "KAFKA_BOOTSTRAP_SERVERS",
-                                "value": "kafka-service:9094"
+                                "value": kafkaBootstrapServers
                             }
                         ],
                     }
@@ -53,7 +59,7 @@ def delete_job(client):
 
 
 def delete_pod_retry(core_api):
-    while (len(get_pods(core_api)) > 0):
+    while len(get_pods(core_api)) > 0:
         sleep(2)
         core_api.delete_collection_namespaced_pod(
             namespace='default',

@@ -47,6 +47,10 @@ dependencies: stop
 run: stop build-images
 	kubectl create -f kubernetes/howami.yml
 
+run-aws:
+	kubectl --kubeconfig kubernetes/aws-cluster/kubeconfig create -f kubernetes/howami.yml
+
+
 run-local: run
 	kubectl set image deployment/$(HOWAMI_SERVICE_NAME) $(HOWAMI_SERVICE_NAME)=$(REGISTRY_NAME)/$(HOWAMI_SERVICE_NAME):$(CONTAINER_VERSION)
 	kubectl set image deployment/$(HOWAMI_COMMS_SERVICE_NAME) $(HOWAMI_COMMS_SERVICE_NAME)=$(REGISTRY_NAME)/$(HOWAMI_COMMS_SERVICE_NAME):$(CONTAINER_VERSION)

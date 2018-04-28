@@ -41,11 +41,22 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 
 ## Path to production
-* After smoke test in circle ci, push the container to dockerhub
+
+### Main Workflow
+* After unit / integration tests run, build containers and push tests and smoke tests to dockerhub
+* Run expected version of service in kube on aws
+* Run smoke test against it
+    * Find public host of load balancer
+
+### Issues
+* Kafka consumers failing to reach 
 * Push the version file separately from the main tar so it doesn't have to completely rebuild all docker layers
 
+
 ## Cleanup
+- remove old images from dockerhub
 - remove dependency ordering so services don't count on it
+
 
 ## Primary Use Cases
 * Account Confirmation
@@ -79,9 +90,7 @@ A mobile application for keeping track of how you are doing at regular intervals
 
 ## Kubernetes runtime
 - Change local deployment to dynamically build descriptor with python
-- AWS build
 - Print version on startup
 
 ## Known Issues
-- For some reason, within kube, producers don't seem to be connecting with kafka
 - If you don't clean before building, the generated startup script points to the wrong version
