@@ -3,6 +3,8 @@
 # name must not conflict with an existing cluster.
 clusterName: howami
 
+s3URI: s3://dsomerfield-kube-aws/install
+
 # CoreOS release channel to use. Currently supported options: alpha, beta, stable
 # See coreos.com/releases for more information
 #releaseChannel: stable
